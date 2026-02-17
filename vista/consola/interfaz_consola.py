@@ -5,9 +5,6 @@ from utils.excepciones import VolverAlMenu
 import os
 
 class InterfazConsola:
-    """
-    Gestiona la interacción con el usuario por consola.
-    """
 
     def __init__(self, textos, validador):
         """
@@ -16,8 +13,8 @@ class InterfazConsola:
         :param validador: Objeto validador.
         :type validador: Util
         """
-        self.textos = textos
-        self.validador = validador
+        self._textos = textos
+        self._validador = validador
     
 
     def pedir_disparo(self, ancho, alto):
@@ -30,7 +27,7 @@ class InterfazConsola:
         :param alto: Alto del tablero.
         :type alto: int
         :return: El valor para X e Y introducido por el usuario
-        :rtype: str
+        :rtype: tuple[int, int]
         """
         x = self._pedir_coordenada("x", ancho - 1)
         y = self._pedir_coordenada("y", alto - 1)
@@ -40,7 +37,7 @@ class InterfazConsola:
     def _pedir_coordenada(self, eje, limite):
         """
         Solicita una coordenada válida al usuario.
-        99 es el valor establecido para terminar el programa.
+        'Salir' es el valor establecido para terminar el programa.
 
         :param eje: Eje ('x' o 'y').
         :type eje: str
@@ -52,19 +49,19 @@ class InterfazConsola:
         """
         valido = False
         while not valido:
-            valor = input(self.textos[f"TEXTO_POSICION_{eje.upper()}"])
+            valor = input(self._textos[f"TEXTO_POSICION_{eje.upper()}"])
             print("")
 
             if valor.lower() == "salir":
                 raise VolverAlMenu()
 
-            if not self.validador.es_numero_entero(valor):
-                print(self.textos["ERROR_NUMERO_ENTERO"])
+            if not self._validador.es_numero_entero(valor):
+                print(self._textos["ERROR_NUMERO_ENTERO"])
                 print("")
                 continue
 
-            if not self.validador.opcion_valida(valor, limite):
-                print(self.textos["ERROR_LIMITE_TABLERO"])
+            if not self._validador.opcion_valida(valor, limite):
+                print(self._textos["ERROR_LIMITE_TABLERO"])
                 print("")
                 continue
             
@@ -77,7 +74,7 @@ class InterfazConsola:
         Muestra el texto con la opción para volver al menú.
         """
         print("")
-        print(self.textos["TEXTO_FIN_JUEGO"])
+        print(self._textos["TEXTO_FIN_JUEGO"])
         print("")
 
 
@@ -86,7 +83,7 @@ class InterfazConsola:
         Muestra el texto de fin de programa.
         """
         print("")
-        print(self.textos["FIN_DE_PROGRAMA"])
+        print(self._textos["FIN_DE_PROGRAMA"])
         print("")
 
 
@@ -98,7 +95,7 @@ class InterfazConsola:
         :type resultado: str
         """
         print("")
-        print(self.textos[f"TEXTO_{resultado}"])
+        print(self._textos[f"TEXTO_{resultado}"])
         print("")
 
 
@@ -114,11 +111,12 @@ class InterfazConsola:
         :type tablero: Tablero
         """
 
-        encabezado = "   " + " ".join(str(i) for i in range(len(tablero._casillas[0])))
+        encabezado = "   " + " ".join(str(i) for i in range(tablero.ancho))
         print(encabezado)
 
         for i in range(tablero.alto):
-            fila_str = f"{i:<2} " + " ".join(tablero._casillas[i])
+            fila = tablero.obtener_fila(i)
+            fila_str = f"{i:<2} " + " ".join(fila)
             print(fila_str)
 
 
@@ -129,7 +127,7 @@ class InterfazConsola:
         :param restantes: Número de disparos restantes.
         :type restantes: int
         """
-        print(self.textos["TEXTO_BALAS_RESTANTES"], restantes)
+        print(self._textos["TEXTO_BALAS_RESTANTES"], restantes)
 
 
     def mostrar_mensaje_final(self, victoria):
@@ -141,10 +139,12 @@ class InterfazConsola:
         """
         if victoria:
             print("")
-            print(self.textos["TEXTO_VICTORIA"])
+            print(self._textos["TEXTO_VICTORIA"])
         else:
             print("")
-            print(self.textos["TEXTO_DERROTA"])
+            print(self._textos["TEXTO_DERROTA"])
+
+        input(self._textos["PULSAR_ENTER"])
 
 
     def borrar_consola(self):
@@ -157,7 +157,6 @@ class InterfazConsola:
         os.system('cls' if os.name == 'nt' else 'clear')
 
 
-    
     def mostrar_instrucciones(self, instrucciones):
         """
         Muestra las instrucciones del juego.
@@ -169,3 +168,15 @@ class InterfazConsola:
         print(instrucciones)
         input()
         self.borrar_consola()
+
+
+    def obtener_texto(self, clave):
+        """
+        Devuelve el texto correspondiente a la clave.
+
+        :param clave: Clave del texto.
+        :type clave: str
+        :return: Texto asociado.
+        :rtype: str
+        """
+        return self._textos.get(clave, f"[Texto no encontrado: {clave}]")

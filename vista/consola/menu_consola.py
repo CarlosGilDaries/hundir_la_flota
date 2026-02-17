@@ -12,15 +12,13 @@ class Menu:
         :type instrucciones: str
         """
         self._interfaz = interfaz
-        self.instrucciones = instrucciones
+        self._instrucciones = instrucciones
 
 
     def ejecutar_menu_principal(self):
         """
         Ejecuta el menú principal mostrando las opciones hasta que el usuario inicie el juego o decida salir.
         
-        :param instrucciones: Instrucciones del juego.
-        :type instrucciones: str
         :return: El valor devuelto por el menú de dificultad cuando el usuario selecciona jugar.
         :rtype: str
         :raises SalirDelPrograma: Si el usuario selecciona la opción de salir.
@@ -33,12 +31,12 @@ class Menu:
                 case "1":
                     return self.ejecutar_menu_dificultad()
                 case "2":
-                    self._interfaz.mostrar_instrucciones(self.instrucciones)
+                    self._interfaz.mostrar_instrucciones(self._instrucciones)
                 case "3":
                     raise SalirDelPrograma()
                 case _:
                     self._interfaz.borrar_consola()
-                    print(self._interfaz.textos["ERROR_MENU"])
+                    print(self._interfaz.obtener_texto["ERROR_MENU"])
 
     
     def ejecutar_menu_dificultad(self):
@@ -63,7 +61,7 @@ class Menu:
                     raise VolverAlMenu()
                 case _:
                     self._interfaz.borrar_consola()
-                    print(self._interfaz.textos["ERROR_MENU"])
+                    print(self._interfaz.obtener_texto["ERROR_MENU"])
 
 
     def _menu_principal(self):

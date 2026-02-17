@@ -7,8 +7,10 @@ TEXTOS = {
     # Inputs
     "TEXTO_POSICION_X": "Introduzca la coordenada x: ",
     "TEXTO_POSICION_Y": "Introduzca la coordenada y: ",
+    "PULSAR_ENTER" : "\nPulsa Enter para continuar...",
 
     # Disparos
+    "TEXTO_TOCADO_Y_HUNDIDO": "TOCADO Y HUNDIDO",
     "TEXTO_TOCADO": "TOCADO",
     "TEXTO_AGUA": "AGUA",
     "TEXTO_REPETIDO": "YA HABÍAS DISPARADO EN ESTE HUECO. NO PIERDES LA BALA.",
@@ -45,7 +47,8 @@ MEDIA
 - 50 disparos.
 - 1 portaaviones de tamaño 5.
 - 1 acorazado de tamaño 4
-- 2 destructores de tamaño 3
+- 1 destructor de tamaño 3
+- 1 submarino de tamaño 3
 - 1 lancha de tamaño 2
 
 DIFÍCIL
@@ -54,7 +57,8 @@ DIFÍCIL
 - 40 disparos.
 - 1 portaaviones de tamaño 5.
 - 1 acorazado de tamaño 4
-- 2 destructores de tamaño 3
+- 1 destructor de tamaño 3
+- 1 submarino de tamaño 3
 - 1 lancha de tamaño 2
 
 ------------------------------------------------------------

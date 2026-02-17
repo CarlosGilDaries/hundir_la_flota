@@ -1,7 +1,4 @@
 class Util:
-    """
-    Clase de utilidades con métodos auxiliares de validación y generación de valores.
-    """
 
     @staticmethod
     def opcion_valida(valor, opcion_maxima):

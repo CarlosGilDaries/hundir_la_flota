@@ -1,13 +1,12 @@
 import random
 
 class Barco:
-    """
-    Representa un barco dentro del juego.
-    """
 
     def __init__(self, tamanyo, cantidad, caracter):
         """
         Inicializa un barco con un tamaño y una orientación aleatoria.
+        La vida restante es igual al tamaño y se va reduciendo en 1
+        con cada disparo recibido (método recibir_impacto).
 
         :param tamanyo: Tamaño del barco.
         :type tamanyo: int
@@ -19,6 +18,7 @@ class Barco:
         self.tamanyo = tamanyo
         self.cantidad = cantidad
         self.caracter = caracter
+        self._vida_restante = tamanyo
         self.horizontal = self.es_horizontal()
 
 
@@ -42,3 +42,20 @@ class Barco:
         :rtype: int
         """
         return alto_o_ancho - self.tamanyo
+    
+
+    def recibir_impacto(self):
+        """
+        Resta un punto de vida al barco.
+        """
+        self._vida_restante -= 1
+
+
+    def hundido(self):
+        """
+        Comprueba si el barco ha sido hundido (vida restante es igual a 0).
+        
+        :return: True si ha sido hundido, False si no.
+        :rtype: bool
+        """
+        return self._vida_restante == 0
