@@ -1,23 +1,24 @@
 from partida import Partida
+from globales import jugador_partida, enviar
 import asyncio
 import json
 
-cola_espera = []
-partidas_activas = []
+# cola_espera = []
+# partidas_activas = []
+# jugador_partida = {}
 
-async def enviar(writer, data):
-    writer.write((json.dumps(data) + "\n").encode())
-    await writer.drain()
+# async def enviar(writer, data):
+#     writer.write((json.dumps(data) + "\n").encode())
+#     await writer.drain()
 
 class Servidor:
 
     def __init__(self, host="127.0.0.1", port=8888):
         self.host = host
         self.port = port
-
-        # Más adelante añadir:
-        # self.cola_espera = []
-        # self.partidas = {}
+        self.cola_espera = []
+        self.partidas_activas = {}
+        
 
     async def iniciar(self):
         server = await asyncio.start_server(
@@ -35,45 +36,34 @@ class Servidor:
         addr = writer.get_extra_info("peername")
         print(f"Cliente conectado desde {addr}")
         
-        cola_espera.append(writer)
+        self.cola_espera.append(writer)
         
         await enviar(writer, {
             "tipo": "espera",
             "mensaje": "Esperando rival..."
         })
         
-        if len(cola_espera) >= 2:
-            j1 = cola_espera.pop(0)
-            j2 = cola_espera.pop(0)
+        if len(self.cola_espera) >= 2:
+            j1 = self.cola_espera.pop(0)
+            j2 = self.cola_espera.pop(0)
 
             partida = Partida(j1, j2)
-            partidas_activas.append(partida)
+            self.partidas_activas.append(partida)
 
 
         try:
             while True:
                 data = await reader.readline()
-
                 if not data:
-                    # Cliente cerró conexión
                     break
 
-                mensaje = data.decode().strip()
+                mensaje = json.loads(data.decode().strip())
 
-                try:
-                    mensaje_json = json.loads(mensaje)
-                    print(f"Mensaje recibido de {addr}: {mensaje_json}")
-
-                    # Respuesta simple de prueba
-                    respuesta = {
-                        "type": "ACK",
-                        "message": "Mensaje recibido correctamente"
-                    }
-
-                    await self._enviar(writer, respuesta)
-
-                except json.JSONDecodeError:
-                    print("Mensaje no es JSON válido")
+                if writer in jugador_partida:
+                    partida = jugador_partida[writer]
+                    await partida.recibir_mensaje(writer, mensaje)
+                else:
+                    print("Mensaje recibido sin partida asociada")
 
         except ConnectionResetError:
             print(f"Conexión perdida con {addr}")
@@ -82,11 +72,6 @@ class Servidor:
             print(f"Cliente desconectado: {addr}")
             writer.close()
             await writer.wait_closed()
-
-    async def _enviar(self, writer, mensaje):
-        data = json.dumps(mensaje) + "\n"
-        writer.write(data.encode())
-        await writer.drain()
 
 
 if __name__ == "__main__":
