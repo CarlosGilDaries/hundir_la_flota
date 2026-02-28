@@ -4,7 +4,7 @@ class Juego(ABC):
 
     def __init__(self, caracter_vacio, caracter_tocado, caracter_agua):
         """
-        Interfaz Juego de la que heredan JuegoPVE y JuegoPVP.
+        Clase abstracta Juego de la que heredan JuegoPVE y JuegoPVP.
 
         Args:
             caracter_vacio (str): Carácter para casillas vacías.
@@ -17,14 +17,13 @@ class Juego(ABC):
 
 
     @abstractmethod
-    def disparar(self, x, y, jugador = None):
+    def disparar(self, x, y):
         """
         Realiza un disparo sobre el tablero.
 
         Args:
             x (int): Coordenada X.
             y (int): Coordenada Y.
-            jugador (str): Identificador del atacante (opcional, solo para PVP).
         """
         pass
 
