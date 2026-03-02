@@ -6,10 +6,10 @@ DIFICULTAD = {
         "alto": 8,
         "disparos": 60,
         "barcos": [
-            (5, 1, "P"),
-            (4, 1, "A"),
-            (3, 1, "D"),
-            (2, 1, "L"),
+            ("Portaaviones", 5, 1, "P"),
+            ("Acorazado", 4, 1, "A"),
+            ("Submarino", 3, 1, "S"),
+            ("Lancha", 2, 1, "L"),
         ]
     },
 
@@ -19,11 +19,11 @@ DIFICULTAD = {
         "alto": 10,
         "disparos": 50,
         "barcos": [
-            (5, 1, "P"),
-            (4, 1, "A"),
-            (3, 1, "D"),
-            (3, 1, "S"),
-            (2, 1, "L"),
+            ("Portaaviones", 5, 1, "P"),
+            ("Acorazado", 4, 1, "A"),
+            ("Destructor", 3, 1, "D"),
+            ("Submarino", 3, 1, "S"),
+            ("Lancha", 2, 1, "L"),
         ]
     },
 
@@ -33,11 +33,11 @@ DIFICULTAD = {
         "alto": 10,
         "disparos": 40,
         "barcos": [
-            (5, 1, "P"),
-            (4, 1, "A"),
-            (3, 1, "D"),
-            (3, 1, "S"),
-            (2, 1, "L"),
+            ("Portaaviones", 5, 1, "P"),
+            ("Acorazado", 4, 1, "A"),
+            ("Destructor", 3, 1, "D"),
+            ("Submarino", 3, 1, "S"),
+            ("Lancha", 2, 1, "L"),
         ]
     },
     
@@ -46,11 +46,11 @@ DIFICULTAD = {
         "ancho": 10,
         "alto": 10,
         "barcos": [
-            (5, 1, "P"),
-            (4, 1, "A"),
-            (3, 1, "D"),
-            (3, 1, "S"),
-            (2, 1, "L"),
+            ("Portaaviones", 5, 1, "P"),
+            ("Acorazado", 4, 1, "A"),
+            ("Destructor", 3, 1, "D"),
+            ("Submarino", 3, 1, "S"),
+            ("Lancha", 2, 1, "L"),
         ]
     }
 }

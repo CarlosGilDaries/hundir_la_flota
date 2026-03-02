@@ -42,8 +42,8 @@ class Partida:
     
     def crear_barcos(self):
         return [
-            Barco(longitud, cantidad, identificador)
-            for longitud, cantidad, identificador in DIFICULTAD["PVP"]["barcos"]
+            Barco(nombre, longitud, cantidad, identificador)
+            for nombre, longitud, cantidad, identificador in DIFICULTAD["PVP"]["barcos"]
         ]
     
         
