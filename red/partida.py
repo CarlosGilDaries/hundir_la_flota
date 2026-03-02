@@ -75,14 +75,16 @@ class Partida:
         if mensaje.get("tipo") != "colocar":
             return
 
-        barco_caracter = mensaje.get("barco")
+        caracter = mensaje.get("caracter")
         x = mensaje.get("x")
         y = mensaje.get("y")
         horizontal = mensaje.get("horizontal")
+        tamanyo = mensaje.get("tamanyo")
+        barco_nombre = mensaje.get("barco_nombre")
 
         pendientes = self.barcos_pendientes[writer]
 
-        barco_info = next((b for b in pendientes if b.caracter == barco_caracter), None)
+        barco_info = next((b for b in pendientes if b.caracter == caracter), None)
 
         if not barco_info:
             await self.enviar(writer, {
@@ -91,17 +93,13 @@ class Partida:
             })
             return
 
-        tamaño = barco_info.tamanyo
-        cantidad = barco_info.cantidad
-        horizontal = barco_info._horizontal
-
         tablero = self.tableros[writer]
 
         try:
-            barco = Barco(barco_nombre, tamaño)
-            hay_barco_en_posicion = tablero.colocar_barco(barco, x, y, horizontal)
-            if hay_barco_en_posicion:
-                await self.enviar(writer, {
+            barco = Barco(tamanyo, 1, caracter, horizontal)
+            barco_colocado = tablero.colocar_barco_manual(barco, x, y)
+            if barco_colocado:
+                await enviar(writer, {
                 "tipo": "error",
                 "mensaje": "Ya hay un barco en esa posición"
             })

@@ -81,7 +81,7 @@ class Tablero:
 
         while contador < barco.cantidad and intentos < intentos_maximos:
             intentos += 1
-            barco.horizontal = barco.es_horizontal()
+            barco.horizontal = barco.set_horizontal()
 
             max_x = barco.calcular_maximo(self.ancho)
             max_y = barco.calcular_maximo(self.alto)
@@ -97,7 +97,7 @@ class Tablero:
             raise RuntimeError("No se pudieron colocar todos los barcos")
         
         
-    def colocar_barco_manual(self, barco, x, y, horizontal):
+    def colocar_barco_manual(self, barco, x, y):
         """
         Coloca un barco en el tablero según la posición y orientación indicadas por el usuario.
 
@@ -107,13 +107,9 @@ class Tablero:
         :type x: int
         :param y: Coordenada inicial en el eje Y.
         :type y: int
-        :param horizontal: Orientación del barco (True para horizontal, False para vertical).
-        :type horizontal: bool
         :return: True si se coloca el barco y False si había barco en posición.
         :rtype: bool
         """
-        barco.horizontal = horizontal
-
         if self._ya_hay_barco_en_posicion(barco, x, y):
             return False
 
@@ -178,7 +174,7 @@ class Tablero:
                 y = y + 1
 
 
-    def _ya_hay_barco_en_posicion(self, barco, x, y):
+    def _ya_hay_barco_en_posicion(self, barco, x, y, horizontal = None):
         """
         Comprueba si ya existe un barco en las posiciones donde se pretende colocar otro.
 
@@ -188,10 +184,12 @@ class Tablero:
         :type x: int
         :param y: Coordenada inicial en el eje Y.
         :type y: int
+        :param horizontal: Se introduce en pvp, no en pve (en pve la orientación es random).
+        :type horizontal: bool
         :return: True si hay un barco en alguna posición, False en caso contrario.
         :rtype: bool
         """
-        if barco.horizontal:
+        if barco.get_horizontal:
             for i in range(barco.tamanyo):
                 if self.__casillas[y][x] in self._caracteres_barcos:
                     return True

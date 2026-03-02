@@ -24,17 +24,33 @@ class Barco:
         if horizontal is not None: 
             self._horizontal = horizontal
         else: 
-            self._horizontal = self.es_horizontal()
+            self._horizontal = self.set_horizontal()
 
 
-    def es_horizontal(self):
+    def set_horizontal(self, horizontal = None):
         """
-        Determina aleatoriamente si la orientación del barco es horizontal o vertical.
+        Determina si la orientación del barco es horizontal o vertical.
+        Para el pve lo determina aleatoriamente y para pvp el jugador lo elige introduciendo parámetro.
 
+        :param horizontal: Si el usuario lo introduce, elige orientación del barco.
+        :type horizontal: bool
         :return: True si es horizontal, False si es vertical.
         :rtype: bool
         """
-        return random.choice([True, False])
+        if horizontal is not None:
+            return self._horizontal
+        else:
+            return random.choice([True, False])
+        
+    
+    def get_horizontal(self):
+        """
+        Getter del atributo _horizontal
+
+        Returns:
+            bool: Atributo horizontal del barco
+        """
+        return self._horizontal
     
 
     def calcular_maximo(self, alto_o_ancho):
