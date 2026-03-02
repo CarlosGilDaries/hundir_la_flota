@@ -11,6 +11,7 @@ class Partida:
     FINALIZADA = "finalizada"
     ANCHO_TABLEROS = DIFICULTAD["PVP"]["ancho"]
     ALTO_TABLEROS = DIFICULTAD["PVP"]["alto"]
+    DICT_DE_BARCOS = DIFICULTAD["PVP"]["barcos"]
 
     def __init__(self, jugador1, jugador2):
         self.jugador1 = jugador1
@@ -43,7 +44,7 @@ class Partida:
     def crear_barcos(self):
         return [
             Barco(nombre, tamanyo, caracter)
-            for nombre, tamanyo, caracter in DIFICULTAD["PVP"]["barcos"]
+            for nombre, tamanyo, caracter in self.DICT_DE_BARCOS
         ]
     
         
@@ -74,7 +75,6 @@ class Partida:
 
 
     async def procesar_colocacion(self, writer, mensaje):
-
         if mensaje.get("tipo") != "seleccionar_barco":
             return
 
