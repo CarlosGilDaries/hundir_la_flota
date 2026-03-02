@@ -87,7 +87,7 @@ class Partida:
         barco_info = next((b for b in pendientes if b.caracter == caracter), None)
 
         if not barco_info:
-            await self.enviar(writer, {
+            await enviar(writer, {
                 "tipo": "error",
                 "mensaje": "Barco no disponible"
             })
@@ -98,7 +98,7 @@ class Partida:
         try:
             barco = Barco(tamanyo, 1, caracter, horizontal)
             barco_colocado = tablero.colocar_barco_manual(barco, x, y)
-            if barco_colocado:
+            if not barco_colocado:
                 await enviar(writer, {
                 "tipo": "error",
                 "mensaje": "Ya hay un barco en esa posición"
@@ -114,7 +114,7 @@ class Partida:
 
         pendientes.remove(barco_info)
 
-        await self.enviar(writer, {
+        await enviar(writer, {
             "tipo": "confirmacion",
             "mensaje": f"{barco_nombre} colocado correctamente"
         })
@@ -122,7 +122,7 @@ class Partida:
         if not pendientes:
             self.jugadores_listos.add(writer)
 
-            await self.enviar(writer, {
+            await enviar(writer, {
                 "tipo": "espera",
                 "mensaje": "Esperando al otro jugador..."
             })

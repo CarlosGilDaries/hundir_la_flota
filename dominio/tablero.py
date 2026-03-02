@@ -81,7 +81,7 @@ class Tablero:
 
         while contador < barco.cantidad and intentos < intentos_maximos:
             intentos += 1
-            barco.horizontal = barco.set_horizontal()
+            barco.set_horizontal()
 
             max_x = barco.calcular_maximo(self.ancho)
             max_y = barco.calcular_maximo(self.alto)
@@ -164,7 +164,7 @@ class Tablero:
         :param y: Coordenada inicial en el eje Y.
         :type y: int
         """
-        if barco.horizontal:
+        if barco.get_horizontal():
             for i in range(barco.tamanyo):
                 self.__casillas[y][x] = barco.caracter
                 x = x + 1
@@ -174,7 +174,7 @@ class Tablero:
                 y = y + 1
 
 
-    def _ya_hay_barco_en_posicion(self, barco, x, y, horizontal = None):
+    def _ya_hay_barco_en_posicion(self, barco, x, y):
         """
         Comprueba si ya existe un barco en las posiciones donde se pretende colocar otro.
 
@@ -184,12 +184,10 @@ class Tablero:
         :type x: int
         :param y: Coordenada inicial en el eje Y.
         :type y: int
-        :param horizontal: Se introduce en pvp, no en pve (en pve la orientación es random).
-        :type horizontal: bool
         :return: True si hay un barco en alguna posición, False en caso contrario.
         :rtype: bool
         """
-        if barco.get_horizontal:
+        if barco.get_horizontal():
             for i in range(barco.tamanyo):
                 if self.__casillas[y][x] in self._caracteres_barcos:
                     return True
