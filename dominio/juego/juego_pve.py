@@ -42,7 +42,7 @@ class JuegoPVE(Juego):
         :rtype: str
         """
         if self.tablero_usuario.disparo_repetido(
-            x, y, self._caracter_tocado, self._caracter_agua
+            x, y
         ):
             return "REPETIDO"
 
