@@ -82,7 +82,6 @@ class Servidor:
             await writer.wait_closed()
 
 
-
 if __name__ == "__main__":
     servidor = Servidor()
     asyncio.run(servidor.iniciar())

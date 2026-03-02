@@ -101,8 +101,7 @@ class Tablero:
         """
         Genera y coloca barcos aleatoriamente en el tablero.
 
-        El proceso se repite hasta introducir el número de barcos 
-        indicado en el atributo cantidad del objeto barco,
+        El proceso se repite hasta introducir el barco,
         comprobando que no se solapen entre sí.
 
         :param barco: Barco que se va a colocar en el tablero.
@@ -112,7 +111,7 @@ class Tablero:
         intentos_maximos = 1000
         intentos = 0
 
-        while contador < barco.cantidad and intentos < intentos_maximos:
+        while intentos < intentos_maximos:
             intentos += 1
             barco.set_horizontal()
 

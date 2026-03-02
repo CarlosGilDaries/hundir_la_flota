@@ -50,8 +50,8 @@ class App:
         config = constante.DIFICULTAD[dificultad]
 
         barcos = [
-            Barco(nombre, longitud, cantidad, identificador)
-            for nombre, longitud, cantidad, identificador in config["barcos"]
+            Barco(nombre, longitud, identificador)
+            for nombre, longitud, identificador in config["barcos"]
         ]
 
         tablero_usuario = Tablero(

@@ -42,8 +42,8 @@ class Partida:
     
     def crear_barcos(self):
         return [
-            Barco(nombre, tamanyo, cantidad, caracter)
-            for nombre, tamanyo, cantidad, caracter in DIFICULTAD["PVP"]["barcos"]
+            Barco(nombre, tamanyo, caracter)
+            for nombre, tamanyo, caracter in DIFICULTAD["PVP"]["barcos"]
         ]
     
         
@@ -100,7 +100,6 @@ class Partida:
             barco = Barco(
                 barco_info.nombre,
                 barco_info.tamanyo,
-                barco_info.cantidad,
                 barco_info.caracter
             )
             barco.set_horizontal(horizontal) 
