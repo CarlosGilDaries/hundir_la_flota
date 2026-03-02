@@ -7,7 +7,8 @@ from utils.utils import Util
 from utils.excepciones import SalirDelPrograma, VolverAlMenu
 from config.mensajes import TEXTOS, INSTRUCCIONES
 import config.constantes as constante
-
+import asyncio
+from red.cliente import ClientePVP
 
 class App:
 
@@ -32,8 +33,7 @@ class App:
                     juego_pve = self._crear_juego_pve(dificultad)
                     self._ejecutar_partida_pve(juego_pve)
                 elif opcion == 4:
-                    continue
-                    # lógica de conexión de cliente a la partida gestionada por servidor
+                    self._iniciar_cliente_pvp()
         except SalirDelPrograma:
             self._interfaz.fin_programa()
 
@@ -110,4 +110,22 @@ class App:
             self._interfaz.mostrar_mensaje_final(juego.hay_victoria())
 
         except VolverAlMenu:
+            self._interfaz.borrar_consola()
+            
+            
+    def _iniciar_cliente_pvp(self):
+        """
+        Inicia el cliente para partida PvP.
+        """
+        try:          
+            cliente = ClientePVP()           
+            # Ejecutar el cliente de forma asíncrona
+            asyncio.run(cliente.ejecutar())
+            
+        except KeyboardInterrupt:
+            self._interfaz.mostrar_mensaje("\nConexión cancelada por el usuario")
+        except Exception as e:
+            self._interfaz.mostrar_mensaje(f"Error en la conexión: {e}")
+        finally:
+            input("\nPresiona Enter para volver al menú principal...")
             self._interfaz.borrar_consola()
