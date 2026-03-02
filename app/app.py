@@ -31,8 +31,9 @@ class App:
                     dificultad = opcion
                     juego_pve = self._crear_juego_pve(dificultad)
                     self._ejecutar_partida_pve(juego_pve)
-                else:
+                elif opcion == 4:
                     continue
+                    # lógica de conexión de cliente a la partida gestionada por servidor
         except SalirDelPrograma:
             self._interfaz.fin_programa()
 
@@ -57,14 +58,18 @@ class App:
             config["ancho"],
             config["alto"],
             barcos,
-            constante.CARACTER_VACIO
+            constante.CARACTER_VACIO,
+            constante.CARACTER_TOCADO,
+            constante.CARACTER_AGUA
         )
 
         tablero_interno = Tablero(
             config["ancho"],
             config["alto"],
             barcos,
-            constante.CARACTER_VACIO
+            constante.CARACTER_VACIO,
+            constante.CARACTER_TOCADO,
+            constante.CARACTER_AGUA
         )
 
         return JuegoPVE(

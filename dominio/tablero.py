@@ -2,7 +2,7 @@ import random
 
 class Tablero:
 
-    def __init__(self, ancho, alto, barcos, caracter_vacio):
+    def __init__(self, ancho, alto, barcos, caracter_vacio, caracter_tocado, caracter_agua):
         """
         Inicializa un tablero bidimensional.
         
@@ -14,14 +14,21 @@ class Tablero:
         :type barcos: list
         :param caracter_vacio: Carácter que representa un espacio vacío.
         :type caracter_vacio: str
+        :param caracter_tocado: Carácter que representa un disparo acertado.
+        :type caracter_tocado: str
+        :param caracter_agua: Carácter que representa un disparo fallado.
+        :type caracter_agua: str
         """
         self.ancho = ancho
         self.alto = alto
         self.barcos = barcos
+        self._caracter_vacio = caracter_vacio
+        self._caracter_tocado = caracter_tocado
+        self._caracter_agua = caracter_agua
 
         self._caracteres_barcos = [barco.caracter for barco in barcos]
         self.__casillas = [
-            [caracter_vacio for _ in range(ancho)]
+            [self._caracter_vacio for _ in range(ancho)]
             for _ in range(alto)
         ]
 
@@ -117,7 +124,7 @@ class Tablero:
         return True
 
 
-    def disparo_repetido(self, x, y, caracter_tocado, caracter_agua):
+    def disparo_repetido(self, x, y):
         """
         Comprueba si el disparo se ha realizado sobre una casilla ya descubierta.
 
@@ -132,7 +139,7 @@ class Tablero:
         :return: True si el disparo es repetido, False en caso contrario.
         :rtype: bool
         """
-        return self.__casillas[y][x] == caracter_tocado or self.__casillas[y][x] == caracter_agua
+        return self.__casillas[y][x] == self._caracter_tocado or self.__casillas[y][x] == self._caracter_agua
     
 
     def comprobar_acierto(self, x, y):
@@ -243,3 +250,48 @@ class Tablero:
         """
         return list(self.__casillas[y])
 
+
+    def recibir_disparo(self, x, y):
+        """
+        Realiza un disparo sobre el tablero.
+
+        :param x: Coordenada X.
+        :type x: int
+        :param y: Coordenada Y.
+        :type y: int
+        :return: Resultado del disparo.
+        :rtype: str
+        """
+        if self.disparo_repetido(
+            x, y
+        ):
+            return "REPETIDO"
+
+        if self.comprobar_acierto(x, y):
+            barco = self.obtener_barco_en_posicion(x, y)
+            barco.recibir_impacto()
+
+            self.marcar_disparo(x, y, self._caracter_tocado)
+
+            if barco.hundido():
+                return "TOCADO_Y_HUNDIDO"
+            else:
+                return "TOCADO"
+
+        else:
+            self.marcar_disparo(
+                x,
+                y,
+                self._caracter_agua
+            )
+            return "AGUA"
+        
+        
+    def todos_hundidos(self):
+        """
+        Comprueba si quedan barcos en el tablero.
+
+        :return: True si no quedan barcos, False si quedan.
+        :rtype: bool
+        """
+        return not self.quedan_barcos()

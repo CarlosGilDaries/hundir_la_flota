@@ -9,17 +9,13 @@ class Partida:
     ESPERANDO_COLOCACION = "esperando_colocacion"
     JUGANDO = "jugando"
     FINALIZADA = "finalizada"
+    ANCHO_TABLEROS = DIFICULTAD["PVP"]["ancho"]
+    ALTO_TABLEROS = DIFICULTAD["PVP"]["alto"]
 
     def __init__(self, jugador1, jugador2):
         self.jugador1 = jugador1
         self.jugador2 = jugador2
-        # self.barcos_config = [
-        #     ("PORTAAVIONES", 5),
-        #     ("ACORAZADO", 4),
-        #     ("DESTRUCTOR", 3),
-        #     ("SUBMARINO", 3),
-        #     ("LANCHA", 2),
-        # ]
+        self.turno = self.jugador1
         
         barcos = [
             Barco(longitud, cantidad, identificador)
@@ -27,8 +23,8 @@ class Partida:
         ]
         
         self.tableros = {
-            self.jugador1: Tablero(DIFICULTAD["PVP"]["ancho"], DIFICULTAD["PVP"]["alto"], barcos, CARACTER_VACIO),
-            self.jugador2: Tablero(DIFICULTAD["PVP"]["ancho"], DIFICULTAD["PVP"]["alto"], barcos, CARACTER_VACIO)
+            self.jugador1: Tablero(self.ANCHO_TABLEROS, self.ALTO_TABLEROS, barcos, CARACTER_VACIO, CARACTER_TOCADO, CARACTER_AGUA),
+            self.jugador2: Tablero(self.ANCHO_TABLEROS, self.ALTO_TABLEROS, barcos, CARACTER_VACIO, CARACTER_TOCADO, CARACTER_AGUA)
         }
 
         self.barcos_pendientes = {
@@ -134,21 +130,96 @@ class Partida:
                 
 
     async def procesar_juego(self, writer, mensaje):
-        await enviar(writer, {
-            "tipo": "info",
-            "mensaje": "Fase de juego aún no implementada"
-        })
+        if mensaje.get("tipo") != "disparo":
+            return
+
+        if writer != self.turno:
+            await enviar(writer, {
+                "tipo": "error",
+                "mensaje": "No es tu turno"
+            })
+            return
+
+        x = mensaje.get("x")
+        y = mensaje.get("y")
+
+        defensor = self.oponente(writer)
+        tablero_defensor = self.tableros[defensor]
+
+        try:
+            resultado = tablero_defensor.recibir_disparo(x, y)
+
+            await enviar(writer, {
+                "tipo": "resultado",
+                "resultado": resultado,
+                "x": x,
+                "y": y
+            })
+
+            await enviar(defensor, {
+                "tipo": "recibido",
+                "resultado": resultado,
+                "x": x,
+                "y": y
+            })
+
+            if tablero_defensor.todos_hundidos():
+                self.estado = self.FINALIZADA
+
+                await enviar(writer, {
+                    "tipo": "fin",
+                    "victoria": True
+                })
+
+                await enviar(defensor, {
+                    "tipo": "fin",
+                    "victoria": False
+                })
+
+                print("Partida finalizada")
+                return
+
+            else:
+                self.turno = defensor
+                await enviar(self.turno, {
+                    "tipo": "turno",
+                    "tu_turno": True
+                })
+
+                await enviar(self.oponente(self.turno), {
+                    "tipo": "turno",
+                    "tu_turno": False
+                })
+
+        except Exception as e:
+            await enviar(writer, {
+                "tipo": "error",
+                "mensaje": str(e)
+            })
+            return
 
 
     async def comenzar_juego(self):
-        await self.enviar_a_ambos({
-            "tipo": "comenzar",
-            "estado": self.estado
+        self.turno = self.jugador1
+
+        await enviar(self.jugador1, {
+            "tipo": "turno",
+            "tu_turno": True
         })
 
-        print("La partida ahora está en estado JUGANDO")
+        await enviar(self.jugador2, {
+            "tipo": "turno",
+            "tu_turno": False
+        })
+
+        print("Turno inicial asignado")
 
 
     async def enviar_a_ambos(self, data):
         await enviar(self.jugador1, data)
         await enviar(self.jugador2, data)
+        
+        
+    def oponente(self, writer):
+        return self.jugador2 if writer == self.jugador1 else self.jugador1
+
