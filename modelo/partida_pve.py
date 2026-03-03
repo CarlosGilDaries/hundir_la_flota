@@ -4,7 +4,7 @@ from modelo.tablero import Tablero
 
 class PartidaPVE(PartidaBase):
 
-    def __init__(self, tablero_usuario: Tablero, tablero_maquina: Tablero, disparos_maximos: int):
+    def __init__(self, tablero_usuario: Tablero, tablero_maquina: Tablero, disparos_maximos: int) -> None:
         """
         Inicializa una nueva partida PVE.
 
