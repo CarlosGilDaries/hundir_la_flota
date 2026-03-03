@@ -1,5 +1,6 @@
 from utils.excepciones import SalirDelPrograma
 from vista.consola.vista_pve import InterfazConsola
+from config.constantes import DIFICULTAD
 
 class Menu:
 
@@ -93,8 +94,9 @@ class Menu:
         print("")
         print("Dificultad")
         print("")
-        print("1. Fácil")
-        print("2. Media")
-        print("3. Difícil")
+        
+        for num, dificultad in DIFICULTAD["PVE"].items():
+            print(f"{num}. {dificultad['nombre']}")
+        
         print("")
         return input("Introduzca el número correspondiente a la opción deseada: ")

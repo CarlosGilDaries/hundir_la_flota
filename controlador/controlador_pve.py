@@ -25,7 +25,7 @@ class ControladorPVE(Controlador):
         :return: Objeto PartidaPVE inicializado.
         :rtype: PartidaPVE
         """
-        config = constante.DIFICULTAD[dificultad]
+        config = constante.DIFICULTAD["PVE"][dificultad]
 
         barcos = [
             Barco(nombre, longitud, identificador)
