@@ -2,13 +2,13 @@ DIFICULTAD = {
     
     # Fácil
     1: {
-        "ancho": 8,
-        "alto": 8,
+        "ancho": 4,
+        "alto": 4,
         "disparos": 60,
         "barcos": [
-            ("Portaaviones", 5, "P"),
-            ("Acorazado", 4, "A"),
-            ("Submarino", 3, "S"),
+            # ("Portaaviones", 5, "P"),
+            # ("Acorazado", 4, "A"),
+            # ("Submarino", 3, "S"),
             ("Lancha", 2, "L"),
         ]
     },

@@ -1,7 +1,12 @@
-"""
-Textos del juego Hundir la Flota.
-Centraliza todos los mensajes mostrados al usuario.
-"""
+from dominio.resultado import ResultadoDisparo
+
+TRADUCCION = {
+    ResultadoDisparo.AGUA: "AGUA",
+    ResultadoDisparo.TOCADO: "TOCADO",
+    ResultadoDisparo.HUNDIDO: "TOCADO_Y_HUNDIDO",
+    ResultadoDisparo.REPETIDO: "REPETIDO",
+    ResultadoDisparo.INVALIDO: "INVALIDO",
+}
 
 TEXTOS = {
     "TEXTO_TURNO": "TURNO DEL JUGADOR {}",

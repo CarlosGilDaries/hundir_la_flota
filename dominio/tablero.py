@@ -1,5 +1,6 @@
 import random
 from dominio.barco import Barco
+from dominio.resultado import ResultadoDisparo
 
 class Tablero:
 
@@ -268,29 +269,31 @@ class Tablero:
         :param y: Coordenada Y.
         :type y: int
         :return: Resultado del disparo.
-        :rtype: str
+        :rtype: ResultadoDisparo
         """
-        # Validación centralizada aquí
         if not self._coordenadas_validas(x, y):
-            raise ValueError("Coordenadas fuera del tablero")
-        
-        celda = self.__casillas[y][x]
-        if celda == self._caracter_tocado or celda == self._caracter_agua:
-            return "REPETIDO"
+            return [ResultadoDisparo.INVALIDO, celda]
 
+        celda = self.__casillas[y][x]
+
+        # Ya disparado
+        if celda == self._caracter_tocado or celda == self._caracter_agua:
+            return [ResultadoDisparo.REPETIDO, celda]
+
+        # Impacto en barco
         if isinstance(celda, Barco):
             barco = celda
             barco.recibir_impacto()
             self.__casillas[y][x] = self._caracter_tocado
 
             if barco.hundido():
-                return "TOCADO_Y_HUNDIDO"
+                return [ResultadoDisparo.HUNDIDO, self._caracter_tocado]
             else:
-                return "TOCADO"
+                return [ResultadoDisparo.TOCADO, self._caracter_tocado]
 
-        else:
-            self.__casillas[y][x] = self._caracter_agua
-            return "AGUA"
+        # Agua
+        self.__casillas[y][x] = self._caracter_agua
+        return [ResultadoDisparo.AGUA, self._caracter_agua]
         
         
     def todos_hundidos(self):
