@@ -1,5 +1,5 @@
-from dominio.partida_base import PartidaBase
-from dominio.resultado import ResultadoDisparo
+from modelo.partida_base import PartidaBase
+from modelo.resultado import ResultadoDisparo
 
 class PartidaPVP(PartidaBase):
 

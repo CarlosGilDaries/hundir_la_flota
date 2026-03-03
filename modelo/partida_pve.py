@@ -1,10 +1,10 @@
-from dominio.partida_base import PartidaBase
-from dominio.resultado import ResultadoDisparo
-from dominio.tablero import Tablero
+from modelo.partida_base import PartidaBase
+from modelo.resultado import ResultadoDisparo
+from modelo.tablero import Tablero
 
 class PartidaPVE(PartidaBase):
 
-    def __init__(self, tablero_usuario: Tablero, tablero_maquina: Tablero, disparos_maximos: int, caracter_vacio: str, caracter_tocado: str, caracter_agua: str):
+    def __init__(self, tablero_usuario: Tablero, tablero_maquina: Tablero, disparos_maximos: int):
         """
         Inicializa una nueva partida PVE.
 
@@ -14,16 +14,7 @@ class PartidaPVE(PartidaBase):
         :type tablero_maquina: Tablero
         :param disparos_maximos: Número máximo de disparos permitidos.
         :type disparos_maximos: int
-        :param caracter_vacio: Carácter para casillas vacías.
-        :type caracter_vacio: str
-        :param caracter_tocado: Carácter para disparos acertados.
-        :type caracter_tocado: str
-        :param caracter_agua: Carácter para disparos fallidos.
-        :type caracter_agua: str
         """
-        self._caracter_vacio = caracter_vacio
-        self._caracter_tocado = caracter_tocado
-        self._caracter_agua = caracter_agua
         self.tablero_usuario = tablero_usuario
         self.tablero_maquina = tablero_maquina
         self._disparos_maximos = disparos_maximos
@@ -91,3 +82,13 @@ class PartidaPVE(PartidaBase):
             tuple[int, int]: Ancho y alto del tablero.
         """
         return self.tablero_maquina.ancho, self.tablero_maquina.alto
+    
+    
+    def obtener_tablero_rival(self) -> list:
+        """
+        Devuelve el tablero que debe ver el jugador.
+        
+        Retunrns:
+            list: Array que representa el tablero.
+        """
+        return self.tablero_usuario.ver_tablero_rival()

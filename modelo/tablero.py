@@ -1,6 +1,6 @@
 import random
-from dominio.barco import Barco
-from dominio.resultado import ResultadoDisparo
+from modelo.barco import Barco
+from modelo.resultado import ResultadoDisparo
 from typing import Optional
 
 class Tablero:

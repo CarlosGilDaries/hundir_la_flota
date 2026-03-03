@@ -1,7 +1,7 @@
 import asyncio
 from red.globales import enviar, jugador_partida
-from dominio.tablero import Tablero
-from dominio.barco import Barco
+from modelo.tablero import Tablero
+from modelo.barco import Barco
 from config.constantes import CARACTER_AGUA, CARACTER_VACIO, CARACTER_TOCADO, DIFICULTAD
 
 class Partida:

@@ -1,7 +1,7 @@
 from utils.utils import Util
 from utils.excepciones import VolverAlMenu
 import os
-from dominio.resultado import ResultadoDisparo
+from modelo.resultado import ResultadoDisparo
 from config.mensajes import TRADUCCION
 
 class InterfazConsola:
@@ -100,15 +100,15 @@ class InterfazConsola:
         print("")
 
 
-    def mostrar_resultado(self, ResultadoDisparo: ResultadoDisparo) -> None:
+    def mostrar_resultado(self, resultado_enum: ResultadoDisparo) -> None:
         """
         Muestra el resultado del disparo.
 
-        :param ResultadoDisparo: Resultado del disparo.
-        :type ResultadoDisparo: ResultadoDisparo
+        :param resultado_enum: Resultado del disparo.
+        :type resultado_enum: ResultadoDisparo
         """
         print("")
-        resultado = self.adaptar_resultado_a_string(ResultadoDisparo)
+        resultado = self.adaptar_resultado_a_string(resultado_enum)
         print(self._textos[f"TEXTO_{resultado}"])
         print("")
 

@@ -5,7 +5,7 @@ from utils.excepciones import SalirDelPrograma
 from config.mensajes import TEXTOS, INSTRUCCIONES
 import asyncio
 from red.cliente import ClientePVP
-from controladores.controlador_pve import ControladorPVE
+from controlador.controlador_pve import ControladorPVE
 
 
 class App:
@@ -33,6 +33,8 @@ class App:
                     self.controlador_pve.ejecutar_partida(partida_pve)
                 elif opcion == 4:
                     self._iniciar_cliente_pvp()
+                    # próximamente partida_pvp = self.controlador_pvp.crear_partida()
+                    # próximamente self.controlador_pvp(ejecutar_partida(partida_pvp))
         except SalirDelPrograma:
             self._interfaz.fin_programa()
             

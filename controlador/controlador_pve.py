@@ -1,11 +1,11 @@
-from dominio.tablero import Tablero
-from dominio.partida_pve import PartidaPVE
-from dominio.barco import Barco
+from modelo.tablero import Tablero
+from modelo.partida_pve import PartidaPVE
+from modelo.barco import Barco
 from vista.consola.interfaz_consola import InterfazConsola
 from vista.consola.menu_consola import Menu
 from utils.excepciones import VolverAlMenu
 import config.constantes as constante
-from controladores.controlador import Controlador
+from controlador.controlador import Controlador
 
 class ControladorPVE(Controlador):
     def __init__(self, interfaz: InterfazConsola, menu: Menu) -> None:
@@ -53,40 +53,37 @@ class ControladorPVE(Controlador):
         return PartidaPVE(
             tablero_usuario,
             tablero_maquina,
-            config["disparos"],
-            constante.CARACTER_VACIO,
-            constante.CARACTER_TOCADO,
-            constante.CARACTER_AGUA
+            config["disparos"]
         )
 
 
-    def ejecutar_partida(self, PartidaPVE: PartidaPVE) -> None:
+    def ejecutar_partida(self, partida_pve: PartidaPVE) -> None:
         """
         Ejecuta el bucle principal de una partida pve.
 
-        :param PartidaPVE: Instancia de la partida pve en curso.
-        :type PartidaPVE: PartidaPVE
+        :param partida_pve: Instancia de la partida pve en curso.
+        :type partida_pve: PartidaPVE
         """
         try:
-            ancho, alto = PartidaPVE.obtener_dimensiones_tablero()
+            ancho, alto = partida_pve.obtener_dimensiones_tablero()
             self._interfaz.borrar_consola()
-            self._interfaz.mostrar_tablero(PartidaPVE.tablero_usuario.ver_tablero_rival())
+            self._interfaz.mostrar_tablero(partida_pve.obtener_tablero_rival())
             
-            while PartidaPVE.quedan_disparos() and not PartidaPVE.hay_victoria():
+            while partida_pve.quedan_disparos() and not partida_pve.hay_victoria():
                 self._interfaz.opcion_volver_menu()
                 x, y = self._interfaz.pedir_disparo(
                     ancho,
                     alto
                 )
 
-                resultado_enum = PartidaPVE.disparar(x, y)
+                resultado_enum = partida_pve.disparar(x, y)
 
                 self._interfaz.borrar_consola()
-                self._interfaz.mostrar_tablero(PartidaPVE.tablero_usuario.ver_tablero_rival())
+                self._interfaz.mostrar_tablero(partida_pve.obtener_tablero_rival())
                 self._interfaz.mostrar_resultado(resultado_enum)
-                self._interfaz.mostrar_balas(PartidaPVE.disparos_restantes())
+                self._interfaz.mostrar_balas(partida_pve.disparos_restantes())
 
-            self._interfaz.mostrar_mensaje_final(PartidaPVE.hay_victoria())
+            self._interfaz.mostrar_mensaje_final(partida_pve.hay_victoria())
 
         except VolverAlMenu:
             self._interfaz.borrar_consola()
