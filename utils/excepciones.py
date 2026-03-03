@@ -5,3 +5,7 @@ class VolverAlMenu(Exception):
 class SalirDelPrograma(Exception):
     """Se lanza cuando el usuario decide terminar el programa."""
     pass
+
+class YaHayBarcoEnPosicion(Exception):
+    """Se lanza cuando el usuario intenta colocar un barco en una posición ya ocupada."""
+    pass

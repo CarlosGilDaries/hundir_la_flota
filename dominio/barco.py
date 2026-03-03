@@ -2,34 +2,53 @@ import random
 
 class Barco:
 
-    def __init__(self, tamanyo, cantidad, caracter):
+    def __init__(self, nombre,  tamanyo, caracter, horizontal = None):
         """
         Inicializa un barco con un tamaño y una orientación aleatoria.
         La vida restante es igual al tamaño y se va reduciendo en 1
         con cada disparo recibido (método recibir_impacto).
 
+        :param nombre: Nombre del barco.
+        :type nombre: str
         :param tamanyo: Tamaño del barco.
         :type tamanyo: int
-        :param cantidad: Cantidad de barcos que se crearán.
-        :type cantidad: int
         :param caracter: Carácter que representa al barco.
         :type caracter: str
+        :param horizontal: Booleano que indica si es horizontal (True) o vertical (False). Si no se introduce, se genera aleatorio.
+        :type caracter: bool
         """
+        self.nombre = nombre
         self.tamanyo = tamanyo
-        self.cantidad = cantidad
         self.caracter = caracter
         self._vida_restante = tamanyo
-        self.horizontal = self.es_horizontal()
+        if horizontal is not None: 
+            self._horizontal = horizontal
+        else: 
+            self._horizontal = self.set_horizontal()
 
 
-    def es_horizontal(self):
+    def set_horizontal(self, horizontal = None):
         """
-        Determina aleatoriamente si la orientación del barco es horizontal o vertical.
+        Determina si la orientación del barco es horizontal o vertical.
+        Para el pve lo determina aleatoriamente y para pvp el jugador lo elige introduciendo parámetro.
 
-        :return: True si es horizontal, False si es vertical.
-        :rtype: bool
+        :param horizontal: Si el usuario lo introduce, elige orientación del barco.
+        :type horizontal: bool
         """
-        return random.choice([True, False])
+        if horizontal is not None:
+            self._horizontal = horizontal
+        else:
+            self._horizontal = random.choice([True, False])
+        
+    
+    def get_horizontal(self):
+        """
+        Getter del atributo _horizontal
+
+        Returns:
+            bool: Atributo horizontal del barco
+        """
+        return self._horizontal
     
 
     def calcular_maximo(self, alto_o_ancho):
