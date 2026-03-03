@@ -91,7 +91,7 @@ class App:
         """
         try:
             self._interfaz.borrar_consola()
-            self._interfaz.mostrar_tablero(juego.tablero_usuario)
+            self._interfaz.mostrar_tablero(juego.tablero_usuario.ver_tablero_rival())
             while juego.quedan_disparos() and not juego.hay_victoria():
 
                 self._interfaz.opcion_volver_menu()
@@ -103,7 +103,7 @@ class App:
                 resultado = juego.disparar(x, y)
 
                 self._interfaz.borrar_consola()
-                self._interfaz.mostrar_tablero(juego.tablero_usuario)
+                self._interfaz.mostrar_tablero(juego.tablero_usuario.ver_tablero_rival())
                 self._interfaz.mostrar_resultado(resultado)
                 self._interfaz.mostrar_balas(juego.disparos_restantes())
 

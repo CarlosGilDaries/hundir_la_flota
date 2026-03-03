@@ -40,7 +40,7 @@ class JuegoPVE():
         :return: Resultado del disparo.
         :rtype: str
         """
-        if self.tablero_usuario.disparo_repetido(
+        if self.tablero_barco.disparo_repetido(
             x, y
         ):
             return "REPETIDO"
@@ -86,7 +86,7 @@ class JuegoPVE():
         :return: True si no quedan barcos.
         :rtype: bool
         """
-        return not self.tablero_barco.quedan_barcos()
+        return self.tablero_barco.todos_hundidos()
 
 
     def disparos_restantes(self):

@@ -18,15 +18,18 @@ class Partida:
         self.jugador2 = jugador2
         self.turno = self.jugador1
         
+        barcos_j1 = self.crear_barcos()
+        barcos_j2 = self.crear_barcos()
         
         self.tableros = {
-            self.jugador1: Tablero(self.ANCHO_TABLEROS, self.ALTO_TABLEROS, self.crear_barcos(), CARACTER_VACIO, CARACTER_TOCADO, CARACTER_AGUA),
-            self.jugador2: Tablero(self.ANCHO_TABLEROS, self.ALTO_TABLEROS, self.crear_barcos(), CARACTER_VACIO, CARACTER_TOCADO, CARACTER_AGUA)
+            self.jugador1: Tablero(self.ANCHO_TABLEROS, self.ALTO_TABLEROS, barcos_j1, CARACTER_VACIO, CARACTER_TOCADO, CARACTER_AGUA),
+            self.jugador2: Tablero(self.ANCHO_TABLEROS, self.ALTO_TABLEROS, barcos_j2, CARACTER_VACIO, CARACTER_TOCADO, CARACTER_AGUA)
         }
 
+        # Copia superficial de la lista, NO los objetos
         self.barcos_pendientes = {
-            self.jugador1: self.crear_barcos(),
-            self.jugador2: self.crear_barcos()
+            self.jugador1: barcos_j1.copy(),
+            self.jugador2: barcos_j2.copy()
         }
 
         self.estado = self.ESPERANDO_COLOCACION
@@ -93,19 +96,11 @@ class Partida:
             return
 
         barco_info = pendientes[indice - 1]
-
         tablero = self.tableros[writer]
 
         try:
-            barco = Barco(
-                barco_info.nombre,
-                barco_info.tamanyo,
-                barco_info.caracter
-            )
-            barco.set_horizontal(horizontal) 
-
-            print("DEBUG horizontal:", horizontal)
-            print("DEBUG x,y:", x, y)
+            barco = pendientes[indice - 1]
+            barco.set_horizontal(horizontal)
             
             colocado = tablero.colocar_barco_manual(barco, x, y)
 
@@ -146,8 +141,6 @@ class Partida:
                 self.estado = self.JUGANDO
                 await self.comenzar_juego()
 
-
-                
 
     async def procesar_juego(self, writer, mensaje):
         if mensaje.get("tipo") != "disparo":
