@@ -1,5 +1,5 @@
-from vista.consola.interfaz_consola import InterfazConsola
-from vista.consola.menu_consola import Menu
+from vista.consola.vista_pve import InterfazConsola
+from vista.consola.menu_pve import Menu
 from utils.utils import Util
 from utils.excepciones import SalirDelPrograma
 from config.mensajes import TEXTOS, INSTRUCCIONES

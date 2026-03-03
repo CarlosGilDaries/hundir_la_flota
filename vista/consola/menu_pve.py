@@ -1,5 +1,5 @@
 from utils.excepciones import SalirDelPrograma
-from vista.consola.interfaz_consola import InterfazConsola
+from vista.consola.vista_pve import InterfazConsola
 
 class Menu:
 
