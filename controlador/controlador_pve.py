@@ -5,35 +5,34 @@ from vista.consola.vista_consola_pve import VistaConsolaPVE
 from vista.consola.menu_consola_pve import Menu
 from utils.excepciones import VolverAlMenu
 from controlador.controlador import Controlador
-from config.constantes import CONSTANTES
+from modelo.resultado import ResultadoDisparo
 
 class ControladorPVE(Controlador):
-    def __init__(self, interfaz: VistaConsolaPVE, menu: Menu) -> None:
-        """
-        Inicializa el controlador PVE.
-        """
-        self._interfaz = interfaz
-        self._menu = menu
+    def __init__(self, vista: VistaConsolaPVE, config: dict) -> None:
+        self._vista = vista
+        self._config = config
+        self._partida: PartidaPVE | None = None
         
-        
-    def crear_partida(self, dificultad: int) -> PartidaPVE:
+    
+    def iniciar_partida(self, dificultad: int) -> None:
         """
-        Crea e inicializa una nueva partida pve.
+        Crea una nueva partida pve.
 
         :param dificultad: Índice para la dificultad.
         :type dificultad: int
         :return: Objeto PartidaPVE inicializado.
         :rtype: PartidaPVE
         """
-        config_dificultad = CONSTANTES["DIFICULTAD"]["PVE"][dificultad]
-        caracteres = CONSTANTES["CARACTERES"]
+        self._partida = self._crear_partida(dificultad)
+        self._ejecutar_bucle_principal()
 
-        barcos = [
-            Barco(nombre, longitud, identificador)
-            for nombre, longitud, identificador in config_dificultad["barcos"]
-        ]
+    def _crear_partida(self, dificultad: int) -> PartidaPVE:
+        config_dificultad = self._config["DIFICULTAD"]["PVE"][dificultad]
+        caracteres = self._config["CARACTERES"]
 
-        tablero_maquina = Tablero(
+        barcos = self._crear_barcos(config_dificultad["barcos"])
+
+        tablero = Tablero(
             config_dificultad["ancho"],
             config_dificultad["alto"],
             barcos,
@@ -43,38 +42,51 @@ class ControladorPVE(Controlador):
         )
 
         return PartidaPVE(
-            tablero_maquina,
+            tablero,
             config_dificultad["disparos"]
         )
 
 
-    def ejecutar_partida(self, partida_pve: PartidaPVE) -> None:
-        """
-        Ejecuta el bucle principal de una partida pve.
+    def _ejecutar_bucle_principal(self) -> None:
+        if self._partida is None:
+            raise RuntimeError("No hay partida iniciada")
 
-        :param partida_pve: Instancia de la partida pve en curso.
-        :type partida_pve: PartidaPVE
-        """
         try:
-            ancho, alto = partida_pve.obtener_dimensiones_tablero()
-            self._interfaz.borrar_consola()
-            self._interfaz.mostrar_tablero(partida_pve.obtener_tablero_rival())
-            
-            while partida_pve.quedan_disparos() and not partida_pve.hay_victoria():
-                self._interfaz.opcion_volver_menu()
-                x, y = self._interfaz.pedir_disparo(
-                    ancho,
-                    alto
-                )
+            self._vista.borrar_consola()
 
-                resultado_enum = partida_pve.disparar(x, y)
+            while self._partida.quedan_disparos() and not self._partida.hay_victoria():
+                self._mostrar_estado()
+                self._fase_turno()
 
-                self._interfaz.borrar_consola()
-                self._interfaz.mostrar_tablero(partida_pve.obtener_tablero_rival())
-                self._interfaz.mostrar_resultado(resultado_enum)
-                self._interfaz.mostrar_balas(partida_pve.disparos_restantes())
-
-            self._interfaz.mostrar_mensaje_final(partida_pve.hay_victoria())
+            self._mostrar_estado()
+            self._vista.mostrar_mensaje_final(
+                self._partida.hay_victoria()
+            )
 
         except VolverAlMenu:
-            self._interfaz.borrar_consola()
+            self._vista.borrar_consola()
+            
+            
+    def _crear_barcos(self, config_barcos: list) -> list:
+        return [
+            Barco(nombre, tamanyo, caracter)
+            for nombre, tamanyo, caracter in config_barcos
+        ]
+        
+    
+    def _mostrar_estado(self) -> None:
+        self._vista.mostrar_tablero(
+            self._partida.obtener_tablero_rival()
+        )
+        self._vista.mostrar_balas(
+            self._partida.disparos_restantes()
+        )
+        
+    
+    def _fase_turno(self) -> None:
+        ancho, alto = self._partida.obtener_dimensiones_tablero()
+        self._vista.opcion_volver_menu()
+        x, y = self._vista.pedir_disparo(ancho, alto)
+        resultado = self._partida.disparar(x, y)
+        self._vista.borrar_consola()
+        self._vista.mostrar_resultado(resultado)

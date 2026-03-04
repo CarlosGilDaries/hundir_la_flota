@@ -3,10 +3,10 @@ from abc import ABC, abstractmethod
 class Controlador(ABC):
 
     @abstractmethod
-    def crear_partida(self):
+    def iniciar_partida(self):
         pass
 
 
     @abstractmethod
-    def ejecutar_partida(self):
+    def crear_barcos(self):
         pass

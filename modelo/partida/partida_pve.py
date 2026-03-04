@@ -18,11 +18,7 @@ class PartidaPVE(Partida):
         self._disparos_maximos = disparos_maximos
         self._disparos_realizados = 0  
         
-        for barco in self.tablero_maquina.barcos:
-            colocado = self.colocar_barco(barco)
-            
-            if not colocado:
-                raise RuntimeError(f"No se pudo colocar el barco {barco.nombre}.")
+        self._colocar_barcos_automaticamente()
 
     
     def disparar(self, x: int, y: int) -> ResultadoDisparo:
@@ -114,6 +110,9 @@ class PartidaPVE(Partida):
         """
         return self.tablero_maquina.ancho, self.tablero_maquina.alto
     
-# Falta método obtener_tablero_propio
-# Falta método obtener_tablero_rival
-# Falta método colocar_barco?
+    
+    def _colocar_barcos_automaticamente(self):
+        for barco in self.tablero_maquina.barcos:
+            colocado = self.colocar_barco(barco)            
+            if not colocado:
+                raise RuntimeError(f"No se pudo colocar el barco {barco.nombre}.")

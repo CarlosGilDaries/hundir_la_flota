@@ -3,8 +3,9 @@ from vista.consola.menu_consola_pve import Menu
 from utils.utils import Util
 from utils.excepciones import SalirDelPrograma
 from config.mensajes import TEXTOS, INSTRUCCIONES
+from config.constantes import CONSTANTES
 import asyncio
-from red.cliente import ClientePVP
+from red.cliente1 import ClientePVP
 from controlador.controlador_pve import ControladorPVE
 
 
@@ -17,7 +18,7 @@ class App:
         validador = Util()
         self._interfaz = VistaConsolaPVE(TEXTOS, validador)
         self._menu = Menu(self._interfaz, INSTRUCCIONES)
-        self.controlador_pve = ControladorPVE(self._interfaz, self._menu)
+        self.controlador_pve = ControladorPVE(self._interfaz, CONSTANTES)
 
 
     def ejecutar(self) -> None:
@@ -29,8 +30,7 @@ class App:
                 opcion = self._menu.ejecutar_menu_principal()
                 if opcion in [1, 2, 3]:
                     dificultad = opcion
-                    partida_pve = self.controlador_pve.crear_partida(dificultad)
-                    self.controlador_pve.ejecutar_partida(partida_pve)
+                    self.controlador_pve.iniciar_partida(dificultad)
                 elif opcion == 4:
                     self._iniciar_cliente_pvp()
                     # próximamente partida_pvp = self.controlador_pvp.crear_partida()

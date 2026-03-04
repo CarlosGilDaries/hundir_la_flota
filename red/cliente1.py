@@ -32,7 +32,7 @@ class ClientePVP:
             while self.activo:
                 data = await self.reader.readline()
                 if not data:
-                    print("Servidor cerró la conexión.")g
+                    print("Servidor cerró la conexión.")
                     break
 
                 mensaje = json.loads(data.decode().strip())
