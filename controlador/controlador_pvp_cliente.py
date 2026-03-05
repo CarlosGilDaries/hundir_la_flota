@@ -1,10 +1,9 @@
 import asyncio
-import json
+from controlador.controlador import Controlador
 from config.protocolo import TipoMensaje, obtener_tipo
-from utils.excepciones import VolverAlMenu
 
 
-class ControladorPVPCliente:
+class ControladorPVPCliente(Controlador):
 
     def __init__(self, cliente_socket, vista):
         self._cliente = cliente_socket

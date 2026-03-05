@@ -1,0 +1,8 @@
+2026-03-05 20:38:25 | INFO | 
+Servidor escuchando en 127.0.0.1:8888
+2026-03-05 20:38:39 | INFO | 
+Servidor escuchando en 127.0.0.1:8888
+2026-03-05 20:39:11 | INFO | 
+Servidor escuchando en 127.0.0.1:8888
+2026-03-05 20:40:14 | INFO | 
+Servidor escuchando en 127.0.0.1:8888

@@ -4,39 +4,44 @@ from modelo.partida.partida_pvp import PartidaPVP
 from modelo.partida.partida_pvp import EstadoPartida
 from modelo.resultado import ResultadoDisparo
 from config.constantes import CONSTANTES
+from controlador.controlador import Controlador
 
 
-class ControladorPVP():
+class ControladorPVP(Controlador):
 
-    def __init__(self, constantes: dict, dificultad: str = "PVP") -> None:
-        config = constantes["DIFICULTAD"][dificultad]
-        caracteres = constantes["CARACTERES"]
+    def __init__(self, constantes: dict) -> None:
+        self.config = constantes["DIFICULTAD"]["PVP"]
+        self.caracteres = constantes["CARACTERES"]
 
-        barcos_j1 = self.crear_barcos(config["barcos"])
-        barcos_j2 = self.crear_barcos(config["barcos"])
-
+        self.barcos_j1 = self.crear_barcos(self.config["barcos"])
+        self.barcos_j2 = self.crear_barcos(self.config["barcos"])
+        
+        self._barcos_pendientes = {
+            1: self.barcos_j1.copy(),
+            2: self.barcos_j2.copy()
+        }
+        
+        self.iniciar()
+        
+    
+    def iniciar(self) -> None:
         tablero_j1 = Tablero(
-            config["ancho"],
-            config["alto"],
-            barcos_j1,
-            caracteres["CARACTER_VACIO"],
-            caracteres["CARACTER_TOCADO"],
-            caracteres["CARACTER_AGUA"]
-        )
+        self.config["ancho"],
+        self.config["alto"],
+        self.barcos_j1,
+        self.caracteres["CARACTER_VACIO"],
+        self.caracteres["CARACTER_TOCADO"],
+        self.caracteres["CARACTER_AGUA"]
+    )
 
         tablero_j2 = Tablero(
-            config["ancho"],
-            config["alto"],
-            barcos_j2,
-            caracteres["CARACTER_VACIO"],
-            caracteres["CARACTER_TOCADO"],
-            caracteres["CARACTER_AGUA"]
+            self.config["ancho"],
+            self.config["alto"],
+            self.barcos_j2,
+            self.caracteres["CARACTER_VACIO"],
+            self.caracteres["CARACTER_TOCADO"],
+            self.caracteres["CARACTER_AGUA"]
         )
-
-        self._barcos_pendientes = {
-            1: barcos_j1.copy(),
-            2: barcos_j2.copy()
-        }
 
         self._partida = PartidaPVP(tablero_j1, tablero_j2)
         
