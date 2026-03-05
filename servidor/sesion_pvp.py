@@ -5,12 +5,13 @@ from modelo.resultado import ResultadoDisparo
 from config.mensajes import TRADUCCION
 from config.protocolo import TipoMensaje, crear_mensaje, obtener_tipo
 from config.constantes import CONSTANTES
+from servidor.log import logger
 import asyncio
 
 
 class SesionPVP:
 
-    def __init__(self, writer1: asyncio.StreamWriter, writer2: asyncio.StreamWriter):
+    def __init__(self, writer1: asyncio.StreamWriter, writer2: asyncio.StreamWriter, partida_id: int):
         """
         Inicializa una sesión de juego PVP entre dos clientes conectados.
         
@@ -24,11 +25,14 @@ class SesionPVP:
         """
         self._writers = {1: writer1, 2: writer2}
         self._jugadores = {writer1: 1, writer2: 2}
+        self.partida_id = partida_id
 
         self._controlador = ControladorPVP(CONSTANTES)
 
         jugador_partida[writer1] = self
         jugador_partida[writer2] = self
+        
+        logger.info(f"[PARTIDA {self.partida_id}] Sesión creada entre J1 y J2")
 
 
     async def iniciar(self) -> None:
@@ -45,6 +49,7 @@ class SesionPVP:
                 estado=self._controlador.estado().value
             ))
             await self._enviar_barcos(jugador)
+        logger.info(f"[PARTIDA {self.partida_id}] Mensajes de inicio enviados a ambos jugadores")
 
 
     async def recibir_mensaje(self, writer: asyncio.StreamWriter, mensaje: dict) -> None:
@@ -94,48 +99,29 @@ class SesionPVP:
                 mensaje["horizontal"]
             )
 
-            if not colocado:
-                await enviar(writer, 
-                    crear_mensaje(
-                        TipoMensaje.ERROR,
-                        mensaje = "Posición inválida"
-                    )
-                )
+            if colocado:
+                logger.info(f"[PARTIDA {self.partida_id}] J{jugador} colocó barco índice {mensaje['indice']} en ({mensaje['x']},{mensaje['y']}) {'H' if mensaje['horizontal'] else 'V'}")
+                await enviar(writer, crear_mensaje(TipoMensaje.CONFIRMACION, mensaje="Barco colocado correctamente"))
+            else:
+                logger.warning(f"[PARTIDA {self.partida_id}] J{jugador} intento colocar barco inválido en ({mensaje['x']},{mensaje['y']})")
+                await enviar(writer, crear_mensaje(TipoMensaje.ERROR, mensaje="Posición inválida"))
                 return
-
-            await enviar(writer, 
-                crear_mensaje(
-                    TipoMensaje.CONFIRMACION,
-                    mensaje = "Barco colocado correctamente"
-                )
-            )
 
             await self._enviar_estado(jugador)
 
             pendientes = self._controlador.obtener_barcos_pendientes(jugador)
-
             if pendientes:
                 await self._enviar_barcos(jugador)
             else:
-                await enviar(writer, 
-                    crear_mensaje(
-                        TipoMensaje.ESPERA,
-                        mensaje = "Esperando al otro jugador..."
-                    )
-                )
+                await enviar(writer, crear_mensaje(TipoMensaje.ESPERA, mensaje="Esperando al otro jugador..."))
 
             if self._controlador.estado() == EstadoPartida.JUGANDO:
                 await self._iniciar_turnos()
 
         except Exception as e:
-            await enviar(
-                writer, 
-                crear_mensaje(
-                    TipoMensaje.ERROR,
-                    mensaje = str(e)
-                )
-            )
-
+            logger.error(f"[PARTIDA {self.partida_id}] Error en colocación de J{jugador}: {e}")
+            await enviar(writer, crear_mensaje(TipoMensaje.ERROR, mensaje=str(e)))
+            
 
     async def _procesar_juego(self, jugador: int, mensaje: dict) -> None:
         """
@@ -182,6 +168,8 @@ class SesionPVP:
                     x=mensaje["x"],
                     y=mensaje["y"]
             ))
+            
+            logger.info(f"[PARTIDA {self.partida_id}] J{jugador} dispara a ({mensaje['x']},{mensaje['y']}) → {resultado_str}")
 
             await self._enviar_estado(jugador)
             await self._enviar_estado(rival)
@@ -195,6 +183,7 @@ class SesionPVP:
                 await self._actualizar_turnos()
 
         except Exception as e:
+            logger.error(f"[PARTIDA {self.partida_id}] Error en disparo de J{jugador}: {e}")
             await enviar(
                 writer, 
                 crear_mensaje(
@@ -209,6 +198,7 @@ class SesionPVP:
         Inicia la gestión de turnos al comenzar la fase de juego.
         """
         turno = self._controlador.turno_actual()
+        logger.info(f"[PARTIDA {self.partida_id}] Turnos iniciados. Turno de J{turno}")
         await self._actualizar_turnos()
 
 
@@ -226,6 +216,7 @@ class SesionPVP:
                     tu_turno=jugador == turno
                 )
             )
+        logger.info(f"[PARTIDA {self.partida_id}] Turno actualizado: J{turno} juega ahora")
 
 
     async def _finalizar_partida(self) -> None:
@@ -241,6 +232,7 @@ class SesionPVP:
                     victoria = jugador == ganador
                 )
             )
+        logger.info(f"[PARTIDA {self.partida_id}] Partida finalizada. Ganador: J{ganador}")
 
 
     async def _enviar_estado(self, jugador: int) -> None:
@@ -293,6 +285,8 @@ class SesionPVP:
 
             rival = 2 if jugador == 1 else 1
             writer_rival = self._writers.get(rival)
+            
+            logger.warning(f"[PARTIDA {self.partida_id}] J{jugador} se desconectó")
 
             if writer_rival:
                 await enviar(writer_rival, 

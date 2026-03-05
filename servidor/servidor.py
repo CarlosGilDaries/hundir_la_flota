@@ -1,6 +1,7 @@
 from servidor.sesion_pvp import SesionPVP
 from servidor.globales import enviar, jugador_partida
 from config.protocolo import obtener_tipo
+from servidor.log import logger
 import asyncio
 import json
 
@@ -38,7 +39,7 @@ class Servidor:
             self.port
         )
 
-        print(f"\nServidor escuchando en {self.host}:{self.port}")
+        logger.info(f"\nServidor escuchando en {self.host}:{self.port}")
 
         async with server:
             await server.serve_forever()
@@ -52,6 +53,7 @@ class Servidor:
         lo asigna a partidas cuando hay rival disponible y procesa
         los mensajes entrantes durante la partida.
         
+        Asigna ids a los clientes y a las partidas entre ellos.        
         Limpia automáticamente los recursos cuando el cliente se desconecta.
         Elimina al cliente de colas y partidas activas al finalizar.
         Maneja errores de conexión como ConnectionResetError.
@@ -67,9 +69,9 @@ class Servidor:
         self._contador_jugadores += 1
         self._ids[writer] = jugador_id
         
-        print("\n=======================================================")
-        print(f"Jugador {jugador_id} conectado desde {addr}")
-        print("=======================================================")
+        logger.info("\n=======================================================")
+        logger.info(f"Jugador {jugador_id} conectado desde {addr}")
+        logger.info("=======================================================")
 
         self.cola_espera.append(writer)
 
@@ -78,9 +80,9 @@ class Servidor:
             "mensaje": "Esperando rival..."
         })
 
-        print("\n========================================================")
-        print(f"Jugadores en espera: {len(self.cola_espera)}")
-        print("========================================================")
+        logger.info("\n========================================================")
+        logger.info(f"Jugadores en espera: {len(self.cola_espera)}")
+        logger.info("========================================================")
 
         if len(self.cola_espera) >= 2:
             j1 = self.cola_espera.pop(0)
@@ -92,21 +94,21 @@ class Servidor:
             partida_id = self._contador_partidas
             self._contador_partidas += 1
 
-            sesion = SesionPVP(j1, j2)
+            sesion = SesionPVP(j1, j2, partida_id)
             self.partidas_activas.append(sesion)
 
             await sesion.iniciar()
             
-            print("\n----------- PARTIDA INICIADA -----------")
-            print(f"Partida #{partida_id}")
-            print(f"Jugador {id1} {addr1}")
-            print(f"Jugador {id2} {addr2}")
-            print("----------------------------------------\n")
-            print("========================================================")
-            print(f"Partidas activas: {len(self.partidas_activas)}")
-            print("\n========================================================")
-            print(f"Jugadores en espera: {len(self.cola_espera)}")
-            print("========================================================")
+            logger.info("\n----------- PARTIDA INICIADA -----------")
+            logger.info(f"Partida #{partida_id}")
+            logger.info(f"Jugador {id1} {addr1}")
+            logger.info(f"Jugador {id2} {addr2}")
+            logger.info("----------------------------------------\n")
+            logger.info("========================================================")
+            logger.info(f"Partidas activas: {len(self.partidas_activas)}")
+            logger.info("\n========================================================")
+            logger.info(f"Jugadores en espera: {len(self.cola_espera)}")
+            logger.info("========================================================")
 
         try:
             while True:
@@ -114,9 +116,9 @@ class Servidor:
                 data = await reader.readline()
 
                 if not data:
-                    print("\n=======================================================")
-                    print(f"Cliente desconectado: J{jugador_id} {addr}")
-                    print("========================================================")
+                    logger.info("\n=======================================================")
+                    logger.info(f"Cliente desconectado: J{jugador_id} {addr}")
+                    logger.info("========================================================")
                     break
 
                 mensaje = json.loads(data.decode().strip())
@@ -129,9 +131,9 @@ class Servidor:
             await writer.wait_closed()
 
         except ConnectionResetError:
-            print("\n=======================================================")
-            print(f"Conexión perdida con J{jugador_id} {addr}")
-            print("========================================================")
+            logger.info("\n=======================================================")
+            logger.info(f"Conexión perdida con J{jugador_id} {addr}")
+            logger.info("========================================================")
         
         finally:
             if writer in self._ids:
