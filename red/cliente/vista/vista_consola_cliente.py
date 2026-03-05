@@ -13,6 +13,4 @@ class VistaConsola:
         y = int(input("Y: "))
         return x, y
 
-    def pedir_orientacion(self) -> bool:
-        valor = input("Horizontal (s/n): ").lower()
-        return valor == "s"
+

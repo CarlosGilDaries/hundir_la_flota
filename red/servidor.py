@@ -5,14 +5,29 @@ import json
 
 class Servidor:
 
-    def __init__(self, host="127.0.0.1", port=8888):
+    def __init__(self, host: str = "127.0.0.1", port: int = 8888) -> None:
+        """
+        Inicializa el servidor con la configuración de red y estado inicial.
+
+        Args:
+            host (str, optional): IP del servidor. Defaults to "127.0.0.1".
+            port (int, optional): Puerto de conexión. Defaults to 8888.
+        """
         self.host = host
         self.port = port
         self.cola_espera = []
         self.partidas_activas = []
         
 
-    async def iniciar(self):
+    async def iniciar(self) -> None:
+        """
+        Inicia el servidor asíncrono y comienza a aceptar conexiones de clientes.
+    
+        Configura y ejecuta el servidor en la dirección y puerto especificados,
+        manteniéndolo en ejecución hasta que sea detenido manualmente.
+        
+        La corrutina se ejecuta indefinidamente (serve_forever).
+        """
         server = await asyncio.start_server(
             self._manejar_cliente,
             self.host,
@@ -25,7 +40,24 @@ class Servidor:
             await server.serve_forever()
 
 
-    async def _manejar_cliente(self, reader, writer):
+    async def _manejar_cliente(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+        """
+        Gestiona el ciclo de vida completo de un cliente conectado.
+    
+        Maneja la conexión del cliente, lo coloca en cola de espera,
+        lo asigna a partidas cuando hay rival disponible y procesa
+        los mensajes entrantes durante la partida.
+        
+        Limpia automáticamente los recursos cuando el cliente se desconecta.
+        Elimina al cliente de colas y partidas activas al finalizar.
+        Maneja errores de conexión como ConnectionResetError.
+
+        Args:
+            reader (asyncio.StreamReader): Flujo de lectura para recibir
+                datos del cliente.
+            writer (asyncio.StreamWriter): Flujo de escritura para enviar
+                datos al cliente.
+        """
         addr = writer.get_extra_info("peername")
         print(f"Cliente conectado desde {addr}")
 

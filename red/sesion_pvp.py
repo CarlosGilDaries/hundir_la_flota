@@ -3,11 +3,23 @@ from controlador.controlador_pvp import ControladorPVP
 from modelo.partida.estado_partida import EstadoPartida
 from modelo.resultado import ResultadoDisparo
 from config.mensajes import TRADUCCION
+import asyncio
 
 
 class SesionPVP:
 
-    def __init__(self, writer1, writer2):
+    def __init__(self, writer1: asyncio.StreamWriter, writer2: asyncio.StreamWriter):
+        """
+        Inicializa una sesión de juego PVP entre dos clientes conectados.
+        
+        Configura el controlador de la partida, registra a los jugadores
+        en el diccionario global y establece las relaciones entre writers
+        y números de jugador.
+
+        Args:
+            writer1 (asyncio.StreamWriter): Writer del primer jugador.
+            writer2 (asyncio.StreamWriter): Writer del segundo jugador.
+        """
         self.writer1 = writer1
         self.writer2 = writer2
 
@@ -27,8 +39,13 @@ class SesionPVP:
         }
 
 
-    async def iniciar(self):
-
+    async def iniciar(self) -> None:
+        """
+        Inicia la partida notificando a los jugadores y enviando la configuración inicial.
+        
+        Envía mensajes de inicio a ambos jugadores indicando su número y el estado actual,
+        seguido de la lista de barcos pendientes para colocar.
+        """
         await enviar(self.writer1, {
             "tipo": "inicio",
             "jugador": 1,
@@ -45,8 +62,17 @@ class SesionPVP:
         await self._enviar_barcos(2)
 
 
-    async def recibir_mensaje(self, writer, mensaje):
+    async def recibir_mensaje(self, writer: asyncio.StreamWriter, mensaje: dict) -> None:
+        """
+        Procesa un mensaje recibido de un jugador durante la partida.
+        
+        Según el estado actual de la partida (colocación o juego),
+        redirige el mensaje al método de procesamiento correspondiente.
 
+        Args:
+            writer (asyncio.StreamWriter): Writer del jugador que envía el mensaje.
+            mensaje (dict): Mensaje parseado recibido del cliente.
+        """
         jugador = self._jugadores[writer]
         estado = self._controlador.estado()
 
@@ -57,8 +83,18 @@ class SesionPVP:
             await self._procesar_juego(jugador, mensaje)
 
 
-    async def _procesar_colocacion(self, jugador, mensaje):
+    async def _procesar_colocacion(self, jugador: int, mensaje: dict) -> None:
+        """
+        Procesa un mensaje de colocación de barcos durante la fase de preparación.
+        
+        Intenta colocar un barco en la posición especificada, notifica el resultado
+        y gestiona la transición a la fase de juego cuando ambos jugadores han
+        colocado todos sus barcos.
 
+        Args:
+            jugador (int): Número del jugador (1 o 2).
+            mensaje (dict): Mensaje con los datos de colocación del barco.
+        """
         if mensaje.get("tipo") != "seleccionar_barco":
             return
 
@@ -107,8 +143,17 @@ class SesionPVP:
             })
 
 
-    async def _procesar_juego(self, jugador, mensaje):
+    async def _procesar_juego(self, jugador: int, mensaje: dict) -> None:
+        """
+        Procesa un mensaje de disparo durante la fase de juego.
+        
+        Ejecuta el disparo del jugador, notifica el resultado a ambos jugadores,
+        actualiza los estados de los tableros y verifica condiciones de victoria.
 
+        Args:
+            jugador (int): Número del jugador que dispara (1 o 2).
+            mensaje (dict): Mensaje con las coordenadas del disparo.
+        """
         if mensaje.get("tipo") != "disparo":
             return
 
@@ -155,12 +200,18 @@ class SesionPVP:
             })
 
 
-    async def _iniciar_turnos(self):
+    async def _iniciar_turnos(self) -> None:
+        """
+        Inicia la gestión de turnos al comenzar la fase de juego.
+        """
         turno = self._controlador.turno_actual()
         await self._actualizar_turnos()
 
 
-    async def _actualizar_turnos(self):
+    async def _actualizar_turnos(self) -> None:
+        """
+        Notifica a ambos jugadores sobre el estado del turno actual.
+        """
         turno = self._controlador.turno_actual()
 
         for jugador, writer in self._writers.items():
@@ -170,8 +221,10 @@ class SesionPVP:
             })
 
 
-    async def _finalizar_partida(self):
-
+    async def _finalizar_partida(self) -> None:
+        """
+        Finaliza la partida notificando el resultado a ambos jugadores.
+        """
         ganador = self._controlador.jugador_ganador()
 
         for jugador, writer in self._writers.items():
@@ -181,8 +234,13 @@ class SesionPVP:
             })
 
 
-    async def _enviar_estado(self, jugador):
-
+    async def _enviar_estado(self, jugador: int) -> None:
+        """
+        Envía a un jugador el estado visual de ambos tableros.
+        
+        Args:
+            jugador (int): Número del jugador que recibirá el estado (1 o 2).
+        """
         writer = self._writers[jugador]
 
         estado = self._controlador.obtener_estado_tableros(jugador)
@@ -194,8 +252,13 @@ class SesionPVP:
         })
 
 
-    async def _enviar_barcos(self, jugador):
-
+    async def _enviar_barcos(self, jugador: int) -> None:
+        """
+        Envía a un jugador la lista de barcos pendientes de colocar.
+        
+        Args:
+            jugador (int): Número del jugador que recibirá la lista (1 o 2).
+        """
         writer = self._writers[jugador]
 
         lista = self._controlador.obtener_barcos_pendientes(jugador)

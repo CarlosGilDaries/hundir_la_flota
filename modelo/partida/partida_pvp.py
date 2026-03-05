@@ -92,7 +92,7 @@ class PartidaPVP(Partida):
         return self._tableros[rival].ver_tablero_rival()
     
     
-    def colocar_barco(self, barco :Barco, x: int, y: int, horizontal: bool, jugador: int) -> bool:
+    def colocar_barco(self, barco: Barco, x: int, y: int, horizontal: bool, jugador: int) -> bool:
         """
         Coloca un barco en el tablero del jugador.
 
