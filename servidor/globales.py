@@ -17,5 +17,11 @@ async def enviar(writer: asyncio.StreamWriter, data: dict) -> None:
         writer (asyncio.StreamWriter): Writer del cliente destinatario.
         data (dict): Datos a enviar (JSON).
     """
-    writer.write((json.dumps(data) + "\n").encode())
+    # writer.write((json.dumps(data) + "\n").encode())
+    # await writer.drain()
+    mensaje = json.dumps(data) + "\n"
+
+    # print("SERVIDOR -> CLIENTE:", mensaje.strip())
+
+    writer.write(mensaje.encode())
     await writer.drain()

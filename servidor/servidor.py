@@ -60,7 +60,8 @@ class Servidor:
                 datos al cliente.
         """
         addr = writer.get_extra_info("peername")
-        print(f"Cliente conectado desde {addr}")
+        print("===================================")
+        print("Cliente conectado desde", addr)
 
         self.cola_espera.append(writer)
 
@@ -69,55 +70,37 @@ class Servidor:
             "mensaje": "Esperando rival..."
         })
 
-        sesion = None
+        print(f"Jugadores en espera: {len(self.cola_espera)}")
+
         if len(self.cola_espera) >= 2:
-            # Sacamos dos jugadores de la cola y creamos la partida
             j1 = self.cola_espera.pop(0)
             j2 = self.cola_espera.pop(0)
 
             sesion = SesionPVP(j1, j2)
             self.partidas_activas.append(sesion)
+
             await sesion.iniciar()
+            
+            print(f"Creando Partida entre {j1} y {j2}\n")
+            print(f"Jugadores en espera: {len(self.cola_espera)}")
 
         try:
             while True:
+
                 data = await reader.readline()
+
                 if not data:
-                    print(f"Cliente desconectado: {addr}")
+                    print("Cliente desconectado:", addr)
                     break
 
-                try:
-                    mensaje = json.loads(data.decode().strip())
-                except json.JSONDecodeError:
-                    continue  # ignorar mensajes corruptos
+                mensaje = json.loads(data.decode().strip())
 
                 if writer in jugador_partida:
                     partida = jugador_partida[writer]
                     await partida.recibir_mensaje(writer, mensaje)
 
         except ConnectionResetError:
-            print(f"Conexión perdida con {addr}")
-
-        finally:
-            # Si estaba en cola, quitarlo
-            if writer in self.cola_espera:
-                self.cola_espera.remove(writer)
-
-            # Si estaba en partida, notificar desconexión
-            partida = jugador_partida.get(writer)
-            if partida:
-                await partida.jugador_desconectado(writer)
-                for w in list(partida._writers.values()):
-                    if w in jugador_partida:
-                        del jugador_partida[w]
-                if partida in self.partidas_activas:
-                    self.partidas_activas.remove(partida)
-
-            try:
-                writer.close()
-                await writer.wait_closed()
-            except Exception:
-                pass
+            print("Conexión perdida con", addr)
 
 
 if __name__ == "__main__":

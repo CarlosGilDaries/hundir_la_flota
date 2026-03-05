@@ -19,19 +19,30 @@ class ClienteSocket:
 
     async def enviar(self, datos: dict) -> None:
         mensaje = json.dumps(datos) + "\n"
+
+        # print("CLIENTE -> SERVIDOR:", mensaje.strip())
+
         self._writer.write(mensaje.encode())
         await self._writer.drain()
 
 
     async def recibir(self) -> dict | None:
         data = await self._reader.readline()
+
+        # print("RAW RECIBIDO:", repr(data))
+
         if not data:
-            # El servidor cerró la conexión
+            print("SERVIDOR CERRÓ LA CONEXIÓN")
             return None
+
+        texto = data.decode().strip()
+
+        # print("SERVIDOR -> CLIENTE:", texto)
+
         try:
-            return json.loads(data.decode().strip())
+            return json.loads(texto)
         except json.JSONDecodeError:
-            # Mensaje corrupto o vacío
+            print("ERROR JSON:", texto)
             return None
     
     

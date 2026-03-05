@@ -34,17 +34,19 @@ class ControladorPVPCliente:
     async def iniciar(self):
         self._vista.mostrar_mensaje("Conectando al servidor...")
         await self._cliente.conectar()
-        asyncio.create_task(self._escuchar_servidor())
+        await self._escuchar_servidor()
 
     async def _escuchar_servidor(self):
         while self._jugando:
             mensaje = await self._cliente.recibir()
+            # print("MENSAJE RECIBIDO POR CONTROLADOR:", mensaje)
             if mensaje is None:
                 self._vista.mostrar_mensaje("Conexión cerrada por el servidor.")
                 self._jugando = False
                 break
             
             tipo = obtener_tipo(mensaje)
+            # print("TIPO MENSAJE:", tipo)
             await self._dispatch(tipo, mensaje)
 
     async def _dispatch(self, tipo, mensaje):
@@ -115,6 +117,7 @@ class ControladorPVPCliente:
     # =========================
     async def fase_turno(self):
         try:
+            print("ENTRANDO EN FASE TURNO.")
             if not self._mi_turno or not self._jugando:
                 return
 
@@ -156,14 +159,33 @@ class ControladorPVPCliente:
     async def _manejar_espera(self, mensaje):
         self._vista.mostrar_mensaje(mensaje["mensaje"])
 
+        self._colocando = False
+
+        if self._tarea_input:
+            self._tarea_input.cancel()
+            self._tarea_input = None
+            
+
     async def _manejar_turno(self, mensaje):
+
+        # TERMINAR COLOCACIÓN
+        if self._colocando:
+            self._colocando = False
+
+            if self._tarea_input:
+                self._tarea_input.cancel()
+                self._tarea_input = None   # ← CLAVE
+
         self._mi_turno = mensaje["tu_turno"]
+
         if self._mi_turno:
             self._vista.mostrar_mensaje("Es tu turno.")
-            if not self._tarea_input or self._tarea_input.done():
-                self._tarea_input = asyncio.create_task(self.fase_turno())
+
+            self._tarea_input = asyncio.create_task(self.fase_turno())
+
         else:
             self._vista.mostrar_mensaje("Turno del rival.")
+
 
     async def _manejar_resultado(self, mensaje):
         self._vista.mostrar_mensaje(f"Disparo en ({mensaje['x']},{mensaje['y']}): {mensaje['resultado']}")
@@ -176,7 +198,7 @@ class ControladorPVPCliente:
         self._vista.mostrar_tablero(mensaje["rival"])
 
     async def _manejar_fin(self, mensaje):
-        victoria = mensaje.get("victoria", False)
+        victoria = mensaje["victoria"]
         self._vista.mostrar_mensaje_final(victoria)
         self._jugando = False
         if self._tarea_input and not self._tarea_input.done():

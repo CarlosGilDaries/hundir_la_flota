@@ -4,6 +4,7 @@ from modelo.partida.partida_pvp import EstadoPartida
 from modelo.resultado import ResultadoDisparo
 from config.mensajes import TRADUCCION
 from config.protocolo import TipoMensaje, crear_mensaje, obtener_tipo
+from config.constantes import CONSTANTES
 import asyncio
 
 
@@ -24,7 +25,7 @@ class SesionPVP:
         self._writers = {1: writer1, 2: writer2}
         self._jugadores = {writer1: 1, writer2: 2}
 
-        self._controlador = ControladorPVP()
+        self._controlador = ControladorPVP(CONSTANTES)
 
         jugador_partida[writer1] = self
         jugador_partida[writer2] = self
@@ -161,29 +162,32 @@ class SesionPVP:
 
             resultado_str = TRADUCCION[resultado]
 
-            await enviar(writer, 
-                crear_mensaje(
-                    TipoMensaje.RECIBIDO,
-                    resultado = resultado_str,
-                    x = mensaje["x"],
-                    y = mensaje["y"]
-                ) 
-            )
-
             rival = 2 if jugador == 1 else 1
             writer_rival = self._writers[rival]
 
+            # jugador que dispara
+            await enviar(writer,
+                crear_mensaje(
+                    TipoMensaje.RESULTADO,
+                    resultado=resultado_str,
+                    x=mensaje["x"],
+                    y=mensaje["y"]
+            ))
+
+            # jugador que recibe
             await enviar(writer_rival,
-                    crear_mensaje(
+                crear_mensaje(
                     TipoMensaje.RECIBIDO,
-                    resultado = resultado_str,
-                    x = mensaje["x"],
-                    y = mensaje["y"]
-                ) 
-            )
+                    resultado=resultado_str,
+                    x=mensaje["x"],
+                    y=mensaje["y"]
+            ))
 
             await self._enviar_estado(jugador)
             await self._enviar_estado(rival)
+            
+            if resultado == ResultadoDisparo.INVALIDO:
+                return
 
             if self._controlador.hay_victoria():
                 await self._finalizar_partida()
@@ -195,7 +199,7 @@ class SesionPVP:
                 writer, 
                 crear_mensaje(
                     TipoMensaje.ERROR,
-                    mensaje == str(e)
+                    mensaje = str(e)
                 )
             )
 
@@ -234,7 +238,7 @@ class SesionPVP:
             await enviar(writer, 
                 crear_mensaje(
                     TipoMensaje.FIN,
-                    fin = jugador == ganador
+                    victoria = jugador == ganador
                 )
             )
 

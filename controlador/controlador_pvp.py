@@ -9,8 +9,8 @@ from config.constantes import CONSTANTES
 class ControladorPVP():
 
     def __init__(self, constantes: dict, dificultad: str = "PVP") -> None:
-        config = CONSTANTES["DIFICULTAD"][dificultad]
-        caracteres = CONSTANTES["CARACTERES"]
+        config = constantes["DIFICULTAD"][dificultad]
+        caracteres = constantes["CARACTERES"]
 
         barcos_j1 = self.crear_barcos(config["barcos"])
         barcos_j2 = self.crear_barcos(config["barcos"])
@@ -79,11 +79,11 @@ class ControladorPVP():
         barco = pendientes[indice - 1]
 
         colocado = self._partida.colocar_barco(
-            jugador,
             barco,
             x,
             y,
-            horizontal
+            horizontal,
+            jugador
         )
 
         if colocado:

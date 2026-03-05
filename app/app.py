@@ -57,25 +57,14 @@ class App:
             self._interfaz.mostrar_mensaje(f"Error en la conexión: {e}")
             if cliente:
                 asyncio.run(cliente.desconectar())
-
-        finally:
-            input("\nPresiona Enter para volver al menú principal...")
-            self._interfaz.borrar_consola()
             
             
     async def _ejecutar_pvp(self):
-        cliente = ClienteSocket("localhost", 8888)
+        cliente = ClienteSocket("127.0.0.1", 8888)
 
         controlador = ControladorPVPCliente(
             cliente,
             self._interfaz
         )
 
-        try:
-            await controlador.iniciar()
-        except asyncio.CancelledError:
-            # Tarea cancelada, cerrar socket
-            await cliente.desconectar()
-        finally:
-            # Asegurarse de cerrar la conexión aunque se salga de la partida
-            await cliente.desconectar()
+        await controlador.iniciar()

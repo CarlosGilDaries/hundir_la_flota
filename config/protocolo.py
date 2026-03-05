@@ -14,7 +14,6 @@ class TipoMensaje(str, Enum):
     CONFIRMACION = "confirmacion"
     ERROR = "error"
     FIN = "fin"
-    VICTORIA = "victoria"
 
 
 def crear_mensaje(tipo: TipoMensaje, **datos) -> dict:
