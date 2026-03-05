@@ -1,20 +1,19 @@
 from modelo.tablero import Tablero
 from modelo.barco import Barco
 from modelo.partida.partida_pvp import PartidaPVP
-from modelo.partida.estado_partida import EstadoPartida
+from modelo.partida.partida_pvp import EstadoPartida
 from modelo.resultado import ResultadoDisparo
 from config.constantes import CONSTANTES
-from controlador.controlador import Controlador
 
 
-class ControladorPVP(Controlador):
+class ControladorPVP():
 
     def __init__(self, dificultad: str = "PVP") -> None:
         config = CONSTANTES["DIFICULTAD"][dificultad]
         caracteres = CONSTANTES["CARACTERES"]
 
-        barcos_j1 = self._crear_barcos(config["barcos"])
-        barcos_j2 = self._crear_barcos(config["barcos"])
+        barcos_j1 = self.crear_barcos(config["barcos"])
+        barcos_j2 = self.crear_barcos(config["barcos"])
 
         tablero_j1 = Tablero(
             config["ancho"],
@@ -42,7 +41,7 @@ class ControladorPVP(Controlador):
         self._partida = PartidaPVP(tablero_j1, tablero_j2)
         
     
-    def _crear_barcos(self, config_barcos: list) -> list:
+    def crear_barcos(self, config_barcos: list) -> list:
         return [
             Barco(nombre, tamanyo, caracter)
             for nombre, tamanyo, caracter in config_barcos

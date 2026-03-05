@@ -13,7 +13,7 @@ class ControladorPVE(Controlador):
         self._partida: PartidaPVE | None = None
         
     
-    def iniciar_partida(self, dificultad: int) -> None:
+    def iniciar(self, dificultad: int) -> None:
         """
         Crea una nueva partida pve.
 

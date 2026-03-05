@@ -1,5 +1,6 @@
-from red.sesion_pvp import SesionPVP
-from red.globales import enviar, jugador_partida
+from servidor.sesion_pvp import SesionPVP
+from servidor.globales import enviar, jugador_partida
+from config.protocolo import obtener_tipo
 import asyncio
 import json
 
@@ -68,20 +69,27 @@ class Servidor:
             "mensaje": "Esperando rival..."
         })
 
+        sesion = None
         if len(self.cola_espera) >= 2:
+            # Sacamos dos jugadores de la cola y creamos la partida
             j1 = self.cola_espera.pop(0)
             j2 = self.cola_espera.pop(0)
 
             sesion = SesionPVP(j1, j2)
             self.partidas_activas.append(sesion)
+            await sesion.iniciar()
 
         try:
             while True:
                 data = await reader.readline()
                 if not data:
+                    print(f"Cliente desconectado: {addr}")
                     break
 
-                mensaje = json.loads(data.decode().strip())
+                try:
+                    mensaje = json.loads(data.decode().strip())
+                except json.JSONDecodeError:
+                    continue  # ignorar mensajes corruptos
 
                 if writer in jugador_partida:
                     partida = jugador_partida[writer]
@@ -91,27 +99,25 @@ class Servidor:
             print(f"Conexión perdida con {addr}")
 
         finally:
-            print(f"Cliente desconectado: {addr}")
-
-            # Si estaba en cola
+            # Si estaba en cola, quitarlo
             if writer in self.cola_espera:
                 self.cola_espera.remove(writer)
 
-            # Si estaba en partida
-            if writer in jugador_partida:
-                partida = jugador_partida[writer]
+            # Si estaba en partida, notificar desconexión
+            partida = jugador_partida.get(writer)
+            if partida:
                 await partida.jugador_desconectado(writer)
-
-                # limpiar asociaciones con seguridad
-                for jugador in [partida.jugador1, partida.jugador2]:
-                    if jugador in jugador_partida:
-                        del jugador_partida[jugador]
-
+                for w in list(partida._writers.values()):
+                    if w in jugador_partida:
+                        del jugador_partida[w]
                 if partida in self.partidas_activas:
                     self.partidas_activas.remove(partida)
 
-            writer.close()
-            await writer.wait_closed()
+            try:
+                writer.close()
+                await writer.wait_closed()
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

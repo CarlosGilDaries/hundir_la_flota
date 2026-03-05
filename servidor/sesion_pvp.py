@@ -1,8 +1,9 @@
-from red.globales import enviar, jugador_partida
+from servidor.globales import enviar, jugador_partida
 from controlador.controlador_pvp import ControladorPVP
-from modelo.partida.estado_partida import EstadoPartida
+from modelo.partida.partida_pvp import EstadoPartida
 from modelo.resultado import ResultadoDisparo
 from config.mensajes import TRADUCCION
+from config.protocolo import TipoMensaje, crear_mensaje, obtener_tipo
 import asyncio
 
 
@@ -20,23 +21,13 @@ class SesionPVP:
             writer1 (asyncio.StreamWriter): Writer del primer jugador.
             writer2 (asyncio.StreamWriter): Writer del segundo jugador.
         """
-        self.writer1 = writer1
-        self.writer2 = writer2
+        self._writers = {1: writer1, 2: writer2}
+        self._jugadores = {writer1: 1, writer2: 2}
 
         self._controlador = ControladorPVP()
 
         jugador_partida[writer1] = self
         jugador_partida[writer2] = self
-
-        self._writers = {
-            1: writer1,
-            2: writer2
-        }
-
-        self._jugadores = {
-            writer1: 1,
-            writer2: 2
-        }
 
 
     async def iniciar(self) -> None:
@@ -46,20 +37,13 @@ class SesionPVP:
         Envía mensajes de inicio a ambos jugadores indicando su número y el estado actual,
         seguido de la lista de barcos pendientes para colocar.
         """
-        await enviar(self.writer1, {
-            "tipo": "inicio",
-            "jugador": 1,
-            "estado": self._controlador.estado().value
-        })
-
-        await enviar(self.writer2, {
-            "tipo": "inicio",
-            "jugador": 2,
-            "estado": self._controlador.estado().value
-        })
-
-        await self._enviar_barcos(1)
-        await self._enviar_barcos(2)
+        for jugador, writer in self._writers.items():
+            await enviar(writer, crear_mensaje(
+                TipoMensaje.INICIO,
+                jugador=jugador,
+                estado=self._controlador.estado().value
+            ))
+            await self._enviar_barcos(jugador)
 
 
     async def recibir_mensaje(self, writer: asyncio.StreamWriter, mensaje: dict) -> None:
@@ -95,7 +79,7 @@ class SesionPVP:
             jugador (int): Número del jugador (1 o 2).
             mensaje (dict): Mensaje con los datos de colocación del barco.
         """
-        if mensaje.get("tipo") != "seleccionar_barco":
+        if obtener_tipo(mensaje) != TipoMensaje.SELECCIONAR_BARCO:
             return
 
         writer = self._writers[jugador]
@@ -110,16 +94,20 @@ class SesionPVP:
             )
 
             if not colocado:
-                await enviar(writer, {
-                    "tipo": "error",
-                    "mensaje": "Posición inválida"
-                })
+                await enviar(writer, 
+                    crear_mensaje(
+                        TipoMensaje.ERROR,
+                        mensaje = "Posición inválida"
+                    )
+                )
                 return
 
-            await enviar(writer, {
-                "tipo": "confirmacion",
-                "mensaje": "Barco colocado correctamente"
-            })
+            await enviar(writer, 
+                crear_mensaje(
+                    TipoMensaje.CONFIRMACION,
+                    mensaje = "Barco colocado correctamente"
+                )
+            )
 
             await self._enviar_estado(jugador)
 
@@ -128,19 +116,24 @@ class SesionPVP:
             if pendientes:
                 await self._enviar_barcos(jugador)
             else:
-                await enviar(writer, {
-                    "tipo": "espera",
-                    "mensaje": "Esperando al otro jugador..."
-                })
+                await enviar(writer, 
+                    crear_mensaje(
+                        TipoMensaje.ESPERA,
+                        mensaje = "Esperando al otro jugador..."
+                    )
+                )
 
             if self._controlador.estado() == EstadoPartida.JUGANDO:
                 await self._iniciar_turnos()
 
         except Exception as e:
-            await enviar(writer, {
-                "tipo": "error",
-                "mensaje": str(e)
-            })
+            await enviar(
+                writer, 
+                crear_mensaje(
+                    TipoMensaje.ERROR,
+                    mensaje = str(e)
+                )
+            )
 
 
     async def _procesar_juego(self, jugador: int, mensaje: dict) -> None:
@@ -154,7 +147,7 @@ class SesionPVP:
             jugador (int): Número del jugador que dispara (1 o 2).
             mensaje (dict): Mensaje con las coordenadas del disparo.
         """
-        if mensaje.get("tipo") != "disparo":
+        if obtener_tipo(mensaje) != TipoMensaje.DISPARO:
             return
 
         writer = self._writers[jugador]
@@ -168,22 +161,26 @@ class SesionPVP:
 
             resultado_str = TRADUCCION[resultado]
 
-            await enviar(writer, {
-                "tipo": "resultado",
-                "resultado": resultado_str,
-                "x": mensaje["x"],
-                "y": mensaje["y"]
-            })
+            await enviar(writer, 
+                crear_mensaje(
+                    TipoMensaje.RECIBIDO,
+                    resultado = resultado_str,
+                    x = mensaje["x"],
+                    y = mensaje["y"]
+                ) 
+            )
 
             rival = 2 if jugador == 1 else 1
             writer_rival = self._writers[rival]
 
-            await enviar(writer_rival, {
-                "tipo": "recibido",
-                "resultado": resultado_str,
-                "x": mensaje["x"],
-                "y": mensaje["y"]
-            })
+            await enviar(writer_rival,
+                    crear_mensaje(
+                    TipoMensaje.RECIBIDO,
+                    resultado = resultado_str,
+                    x = mensaje["x"],
+                    y = mensaje["y"]
+                ) 
+            )
 
             await self._enviar_estado(jugador)
             await self._enviar_estado(rival)
@@ -194,10 +191,13 @@ class SesionPVP:
                 await self._actualizar_turnos()
 
         except Exception as e:
-            await enviar(writer, {
-                "tipo": "error",
-                "mensaje": str(e)
-            })
+            await enviar(
+                writer, 
+                crear_mensaje(
+                    TipoMensaje.ERROR,
+                    mensaje == str(e)
+                )
+            )
 
 
     async def _iniciar_turnos(self) -> None:
@@ -215,10 +215,13 @@ class SesionPVP:
         turno = self._controlador.turno_actual()
 
         for jugador, writer in self._writers.items():
-            await enviar(writer, {
-                "tipo": "turno",
-                "tu_turno": jugador == turno
-            })
+            await enviar(
+                writer,
+                crear_mensaje(
+                    TipoMensaje.TURNO,
+                    tu_turno=jugador == turno
+                )
+            )
 
 
     async def _finalizar_partida(self) -> None:
@@ -228,10 +231,12 @@ class SesionPVP:
         ganador = self._controlador.jugador_ganador()
 
         for jugador, writer in self._writers.items():
-            await enviar(writer, {
-                "tipo": "fin",
-                "victoria": jugador == ganador
-            })
+            await enviar(writer, 
+                crear_mensaje(
+                    TipoMensaje.FIN,
+                    fin = jugador == ganador
+                )
+            )
 
 
     async def _enviar_estado(self, jugador: int) -> None:
@@ -245,11 +250,13 @@ class SesionPVP:
 
         estado = self._controlador.obtener_estado_tableros(jugador)
 
-        await enviar(writer, {
-            "tipo": "estado_tableros",
-            "propio": estado["propio"],
-            "rival": estado["rival"]
-        })
+        await enviar(writer, 
+            crear_mensaje(
+                TipoMensaje.ESTADO_TABLEROS,
+                propio = estado["propio"],
+                rival = estado["rival"]
+            )
+        )
 
 
     async def _enviar_barcos(self, jugador: int) -> None:
@@ -263,7 +270,39 @@ class SesionPVP:
 
         lista = self._controlador.obtener_barcos_pendientes(jugador)
 
-        await enviar(writer, {
-            "tipo": "lista_barcos",
-            "barcos": lista
-        })
+        await enviar(writer, 
+            crear_mensaje(
+                TipoMensaje.LISTA_BARCOS,
+                barcos = lista
+            )
+        )
+        
+        
+    async def jugador_desconectado(self, writer: asyncio.StreamWriter):
+            """
+            Maneja la desconexión de un jugador durante la partida.
+            Notifica al rival que ha ganado por abandono y limpia los datos.
+            """
+            jugador = self._jugadores.get(writer)
+            if not jugador:
+                return
+
+            rival = 2 if jugador == 1 else 1
+            writer_rival = self._writers.get(rival)
+
+            if writer_rival:
+                await enviar(writer_rival, 
+                    crear_mensaje(
+                        TipoMensaje.FIN,
+                        victoria=True,
+                        mensaje="Tu rival se ha desconectado. Has ganado la partida."
+                    )
+                )
+
+            # Limpiar referencias internas
+            if writer in self._writers.values():
+                del self._writers[jugador]
+            if writer in self._jugadores:
+                del self._jugadores[writer]
+            if writer in jugador_partida:
+                del jugador_partida[writer]

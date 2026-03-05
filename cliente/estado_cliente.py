@@ -1,10 +1,10 @@
 class EstadoCliente:
 
-    def __init__(self) -> None:
-        self.turno = None
-        self.estado_partida = None
+    def __init__(self):
         self.tablero_propio = None
         self.tablero_rival = None
+        self.tu_turno = False
+        self.partida_terminada = False
         self.ganador = None
 
     def actualizar(self, datos: dict) -> None:
