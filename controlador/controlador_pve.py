@@ -2,10 +2,9 @@ from modelo.tablero import Tablero
 from modelo.partida.partida_pve import PartidaPVE
 from modelo.barco import Barco
 from vista.consola.vista_consola_pve import VistaConsolaPVE
-from vista.consola.menu_consola_pve import Menu
 from utils.excepciones import VolverAlMenu
 from controlador.controlador import Controlador
-from modelo.resultado import ResultadoDisparo
+
 
 class ControladorPVE(Controlador):
     def __init__(self, vista: VistaConsolaPVE, config: dict) -> None:
@@ -23,11 +22,27 @@ class ControladorPVE(Controlador):
         :return: Objeto PartidaPVE inicializado.
         :rtype: PartidaPVE
         """
-        self._partida = self._crear_partida(dificultad)
-        self._ejecutar_bucle_principal()
+        self._partida = self.crear_partida(dificultad)
+        self.ejecutar_bucle_principal()
+        
+    
+    def crear_barcos(self, config_barcos: list) -> list[Barco]:
+        """
+        Crea los objetos Barco.
+
+        Args:
+            config_barcos (list): Lista de barcos.
+
+        Returns:
+            list[Barco]: Lista de objetos Barco.
+        """
+        return [
+            Barco(nombre, tamanyo, caracter)
+            for nombre, tamanyo, caracter in config_barcos
+        ]
 
 
-    def _crear_partida(self, dificultad: int) -> PartidaPVE:
+    def crear_partida(self, dificultad: int) -> PartidaPVE:
         """
         Crea la partida pve.
 
@@ -40,7 +55,7 @@ class ControladorPVE(Controlador):
         config_dificultad = self._config["DIFICULTAD"]["PVE"][dificultad]
         caracteres = self._config["CARACTERES"]
 
-        barcos = self._crear_barcos(config_dificultad["barcos"])
+        barcos = self.crear_barcos(config_dificultad["barcos"])
 
         tablero = Tablero(
             config_dificultad["ancho"],
@@ -57,7 +72,7 @@ class ControladorPVE(Controlador):
         )
 
 
-    def _ejecutar_bucle_principal(self) -> None:
+    def ejecutar_bucle_principal(self) -> None:
         """
         Ejecuta el bucle principal de la partida pve.
         """
@@ -65,35 +80,19 @@ class ControladorPVE(Controlador):
             self._vista.borrar_consola()
 
             while self._partida.quedan_disparos() and not self._partida.hay_victoria():
-                self._mostrar_estado()
-                self._fase_turno()
+                self.mostrar_estado()
+                self.fase_turno()
 
-            self._mostrar_estado()
+            self.mostrar_estado()
             self._vista.mostrar_mensaje_final(
                 self._partida.hay_victoria()
             )
 
         except VolverAlMenu:
             self._vista.borrar_consola()
-            
-            
-    def _crear_barcos(self, config_barcos: list) -> list[Barco]:
-        """
-        Crea los objetos Barco.
-
-        Args:
-            config_barcos (list): Lista de barcos.
-
-        Returns:
-            list[Barco]: Lista de objetos Barco.
-        """
-        return [
-            Barco(nombre, tamanyo, caracter)
-            for nombre, tamanyo, caracter in config_barcos
-        ]
         
     
-    def _mostrar_estado(self) -> None:
+    def mostrar_estado(self) -> None:
         """
         Muestra tablero y disparos restantes.
         """
@@ -105,7 +104,7 @@ class ControladorPVE(Controlador):
         )
         
     
-    def _fase_turno(self) -> None:
+    def fase_turno(self) -> None:
         """
         Lógica de cada turno.
         """

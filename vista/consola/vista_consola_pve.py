@@ -160,6 +160,7 @@ class VistaConsolaPVE(VistaConsola):
         :param restantes: Número de disparos restantes.
         :type restantes: int
         """
+        print("")
         print(self._textos["BALAS_RESTANTES"], restantes)
         
         
