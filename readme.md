@@ -202,7 +202,7 @@ python -m red.servidor.servidor
 Para ejecutar el cliente:
 
 ```bash
-python -m red.servidor.servidor
+python -m main
 ```
 
 ### Comportamiento según la opción seleccionada
