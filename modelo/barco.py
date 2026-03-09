@@ -3,20 +3,20 @@ from typing import Optional
 
 class Barco:
 
-    def __init__(self, nombre: str,  tamanyo: int, caracter: str, horizontal: Optional[bool] = None) -> None:
+    def __init__(self, nombre: str, tamanyo: int, caracter: str, horizontal: Optional[bool] = None) -> None:
         """
         Inicializa un barco con un tamaño y una orientación aleatoria.
-        La vida restante es igual al tamaño y se va reduciendo en 1
-        con cada disparo recibido (método recibir_impacto).
+        La vida restante es igual al tamaño y se va reduciendo en 1 con cada disparo recibido.
 
-        :param nombre: Nombre del barco.
-        :type nombre: str
-        :param tamanyo: Tamaño del barco.
-        :type tamanyo: int
-        :param caracter: Carácter que representa al barco.
-        :type caracter: str
-        :param horizontal: Booleano que indica si es horizontal (True) o vertical (False). Si no se introduce, se genera aleatorio.
-        :type caracter: bool
+        Args:
+            nombre (str): Nombre del barco.
+            tamanyo (int): Tamaño del barco.
+            caracter (str): Carácter que representa al barco.
+            horizontal (Optional[bool], optional): Indica si es horizontal (True) o vertical (False).
+                Si no se introduce, se genera aleatorio. Defaults to None.
+
+        Returns:
+            None
         """
         self.nombre = nombre
         self.tamanyo = tamanyo
@@ -28,13 +28,16 @@ class Barco:
             self._horizontal = self.set_horizontal()
 
 
-    def set_horizontal(self, horizontal: bool = None) -> None:
+    def set_horizontal(self, horizontal: Optional[bool] = None) -> None:
         """
         Determina si la orientación del barco es horizontal o vertical.
-        Para el pve lo determina aleatoriamente y para pvp el jugador lo elige introduciendo parámetro.
+        Para PvE lo determina aleatoriamente; para PvP, se puede especificar manualmente.
 
-        :param horizontal: Si el usuario lo introduce, elige orientación del barco.
-        :type horizontal: bool
+        Args:
+            horizontal (Optional[bool], optional): Orientación elegida por el usuario. Defaults to None.
+
+        Returns:
+            None
         """
         if horizontal is not None:
             self._horizontal = horizontal
@@ -44,22 +47,23 @@ class Barco:
     
     def get_horizontal(self) -> bool:
         """
-        Getter del atributo _horizontal
+        Devuelve la orientación del barco.
 
         Returns:
-            bool: Atributo horizontal del barco
+            bool: True si el barco es horizontal, False si es vertical.
         """
         return self._horizontal
     
 
     def calcular_maximo(self, alto_o_ancho: int) -> int:
         """
-        Calcula el límite máximo para colocar un barco en un eje determinado.
+        Calcula la posición máxima para colocar un barco en un eje determinado.
 
-        :param alto_o_ancho: Dimensión total del eje.
-        :type alto_o_ancho: int
-        :return: Posición máxima permitida.
-        :rtype: int
+        Args:
+            alto_o_ancho (int): Dimensión total del eje.
+
+        Returns:
+            int: Posición máxima permitida para el barco.
         """
         return alto_o_ancho - self.tamanyo
     
@@ -73,9 +77,9 @@ class Barco:
 
     def hundido(self) -> bool:
         """
-        Comprueba si el barco ha sido hundido (vida restante es igual a 0).
-        
-        :return: True si ha sido hundido, False si no.
-        :rtype: bool
+        Comprueba si el barco ha sido hundido.
+
+        Returns:
+            bool: True si el barco no tiene vida restante, False en caso contrario.
         """
         return self._vida_restante == 0

@@ -4,22 +4,20 @@ from modelo.resultado import ResultadoDisparo
 
 class Tablero:
 
-    def __init__(self, ancho: int, alto: int, barcos: list[Barco], caracter_vacio:str, caracter_tocado:str, caracter_agua:str) -> None:
+    def __init__(self, ancho: int, alto: int, barcos: list[Barco], caracter_vacio: str, caracter_tocado: str, caracter_agua: str) -> None:
         """
         Inicializa un tablero bidimensional.
-        
-        :param ancho: número de columnas.
-        :type ancho: int
-        :param alto: número de filas.
-        :type alto: int
-        :param barcos: Array de objetos tipo barco.
-        :type barcos: list
-        :param caracter_vacio: Carácter que representa un espacio vacío.
-        :type caracter_vacio: str
-        :param caracter_tocado: Carácter que representa un disparo acertado.
-        :type caracter_tocado: str
-        :param caracter_agua: Carácter que representa un disparo fallado.
-        :type caracter_agua: str
+
+        Args:
+            ancho (int): Número de columnas.
+            alto (int): Número de filas.
+            barcos (list[Barco]): Lista de objetos tipo Barco.
+            caracter_vacio (str): Carácter que representa un espacio vacío.
+            caracter_tocado (str): Carácter que representa un disparo acertado.
+            caracter_agua (str): Carácter que representa un disparo fallado.
+
+        Returns:
+            None
         """
         self.ancho = ancho
         self.alto = alto
@@ -35,12 +33,12 @@ class Tablero:
         ]
 
 
-    def ver_tablero(self) -> list:
+    def ver_tablero(self) -> list[list[str]]:
         """
-        Devuelve el tablero.
+        Devuelve una vista del tablero con los barcos visibles.
 
-        :return: Array que representa el tablero
-        :rtype: list
+        Returns:
+            list[list[str]]: Matriz representando el tablero.
         """
         vista = []
 
@@ -59,12 +57,12 @@ class Tablero:
         return vista
 
     
-    def ver_tablero_rival(self) -> list:
+    def ver_tablero_rival(self) -> list[list[str]]:
         """
-        Devuelve el tablero rival.
+        Devuelve el tablero ocultando los barcos, solo mostrando disparos.
 
-        :return: Array que representa el tablero rival con los barcos ocultos.
-        :rtype: list
+        Returns:
+            list[list[str]]: Matriz representando el tablero rival.
         """
         vista = []
         
@@ -83,29 +81,28 @@ class Tablero:
 
     def marcar_disparo(self, x: int, y: int, caracter: str) -> None:
         """
-        Marca un disparo en el tablero.
+        Marca un disparo en la posición indicada del tablero.
 
-        :param x: Coordenada inicial en el eje X.
-        :type x: int
-        :param y: Coordenada inicial en el eje Y.
-        :type y: int
-        :param caracter: Carácter que representa el resultado del disparo.
-        :type caracter: str
+        Args:
+            x (int): Coordenada X.
+            y (int): Coordenada Y.
+            caracter (str): Carácter que representa el resultado del disparo.
+
+        Returns:
+            None
         """
         self.__casillas[y][x] = caracter
     
 
     def colocar_barco_aleatorio(self, barco: Barco) -> bool:
         """
-        Coloca un barco aleatoriamente en el tablero.
+        Coloca un barco aleatoriamente en el tablero sin solapamientos.
 
-        El proceso se repite hasta introducir el barco,
-        comprobando que no se solapen entre sí.
+        Args:
+            barco (Barco): Barco a colocar.
 
-        :param barco: Barco que se va a colocar en el tablero.
-        :type barco: Barco
-        :return colocado: True si se ha podido colocar y False si no.
-        :rtype colocado: bool
+        Returns:
+            bool: True si se colocó correctamente, False si no se pudo colocar.
         """
         intentos_maximos = 1000
         intentos = 0
@@ -131,16 +128,15 @@ class Tablero:
         
     def colocar_barco_manual(self, barco: Barco, x: int, y: int) -> bool:
         """
-        Coloca un barco en el tablero según la posición y orientación indicadas por el usuario.
+        Coloca un barco en la posición indicada manualmente.
 
-        :param barco: Barco que se va a colocar en el tablero.
-        :type barco: Barco
-        :param x: Coordenada inicial en el eje X.
-        :type x: int
-        :param y: Coordenada inicial en el eje Y.
-        :type y: int
-        :return: True si se coloca el barco y False si había barco en posición o la posición no es válida.
-        :rtype: bool
+        Args:
+            barco (Barco): Barco a colocar.
+            x (int): Coordenada X inicial.
+            y (int): Coordenada Y inicial.
+
+        Returns:
+            bool: True si se colocó correctamente, False si hay conflicto.
         """
         if not self._puede_colocarse(barco, x, y):
             return False
@@ -152,17 +148,15 @@ class Tablero:
 
     def _introducir_barco_en_tablero(self, barco: Barco, x: int, y: int) -> None:
         """
-        Introduce un barco en el tablero según la orientación indicada.
+        Introduce un barco en el tablero según su orientación.
 
-        El barco se coloca a partir de la posición (x, y) y ocupa tantas
-        posiciones como indique su tamaño.
+        Args:
+            barco (Barco): Barco a colocar.
+            x (int): Coordenada X inicial.
+            y (int): Coordenada Y inicial.
 
-        :param barco: Barco que se va a colocar en el tablero.
-        :type barco: Barco
-        :param x: Coordenada inicial en el eje X.
-        :type x: int
-        :param y: Coordenada inicial en el eje Y.
-        :type y: int
+        Returns:
+            None
         """
         if barco.get_horizontal():
             for i in range(barco.tamanyo):
@@ -176,14 +170,14 @@ class Tablero:
 
     def recibir_disparo(self, x: int, y: int) -> tuple[ResultadoDisparo, str]:
         """
-        Realiza un disparo sobre el tablero.
+        Procesa un disparo en la posición indicada.
 
-        :param x: Coordenada X.
-        :type x: int
-        :param y: Coordenada Y.
-        :type y: int
-        :return: Resultado del disparo y contenido de la celda.
-        :rtype: tuple[ResultadoDisparo, str]
+        Args:
+            x (int): Coordenada X.
+            y (int): Coordenada Y.
+
+        Returns:
+            tuple[ResultadoDisparo, str]: Resultado del disparo y contenido de la celda.
         """
         if not self._coordenadas_validas(x, y):
             return [ResultadoDisparo.INVALIDO, ""]
@@ -212,24 +206,24 @@ class Tablero:
         
     def todos_hundidos(self) -> bool:
         """
-        Comprueba si quedan barcos en el tablero.
+        Comprueba si todos los barcos del tablero han sido hundidos.
 
-        :return: True si no quedan barcos, False si quedan.
-        :rtype: bool
+        Returns:
+            bool: True si todos los barcos están hundidos, False si queda alguno.
         """
         return all(barco.hundido() for barco in self.barcos)
 
 
     def _coordenadas_validas(self, x: int, y: int) -> bool:
         """
-        Valida las coordenadas.
+        Valida si las coordenadas están dentro del tablero.
 
         Args:
             x (int): Coordenada X.
             y (int): Coordenada Y.
 
         Returns:
-            bool: True si la coordenada es válida y False si no lo es.
+            bool: True si las coordenadas son válidas, False si no.
         """
         return (
             isinstance(x, int) and
@@ -241,17 +235,15 @@ class Tablero:
     
     def _puede_colocarse(self, barco: Barco, x: int, y: int) -> bool:
         """
-        Comprueba si un barco puede colocarse en la posición indicada,
-        validando límites y solapamientos en un único recorrido.
-        
-        :param barco: Barco que se pretende colocar en el tablero.
-        :type barco: Barco
-        :param x: Coordenada X.
-        :type x: int
-        :param y: Coordenada Y.
-        :type y: int
-        :return: True si puede colocarse y False si no.
-        :rtype: bool
+        Comprueba si un barco puede colocarse en la posición indicada.
+
+        Args:
+            barco (Barco): Barco a colocar.
+            x (int): Coordenada X.
+            y (int): Coordenada Y.
+
+        Returns:
+            bool: True si se puede colocar, False si hay conflicto o límite.
         """
         # Coordenada inicial válida
         if not self._coordenadas_validas(x, y):
