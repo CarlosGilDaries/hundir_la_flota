@@ -6,14 +6,17 @@ import json
 
 
 class Servidor:
-
+    """
+    Servidor TCP asíncrono encargado de gestionar las conexiones de clientes
+    y emparejar jugadores en partidas PVP.
+    """
     def __init__(self, host: str = "0.0.0.0", port: int = 8888) -> None:
         """
-        Inicializa el servidor con la configuración de red y estado inicial.
+        Inicializa el servidor.
 
         Args:
-            host (str, optional): IP del servidor. Defaults to "127.0.0.1".
-            port (int, optional): Puerto de conexión. Defaults to 8888.
+            host (str): Dirección IP del servidor.
+            port (int): Puerto en el que escuchar conexiones.
         """
         self.host = host
         self.port = port
@@ -28,12 +31,11 @@ class Servidor:
 
     async def iniciar(self) -> None:
         """
-        Inicia el servidor asíncrono y comienza a aceptar conexiones de clientes.
-    
-        Configura y ejecuta el servidor en la dirección y puerto especificados,
-        manteniéndolo en ejecución hasta que sea detenido manualmente.
-        
-        La corrutina se ejecuta indefinidamente (serve_forever).
+        Inicia el servidor TCP y comienza a aceptar conexiones.
+        El servidor se ejecuta indefinidamente mediante `serve_forever()`.
+
+        Returns:
+            None
         """
         server = await asyncio.start_server(
             self._manejar_cliente,
@@ -47,24 +49,22 @@ class Servidor:
             await server.serve_forever()
 
 
-    async def _manejar_cliente(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    async def _manejar_cliente(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         """
         Gestiona el ciclo de vida completo de un cliente conectado.
-    
-        Maneja la conexión del cliente, lo coloca en cola de espera,
-        lo asigna a partidas cuando hay rival disponible y procesa
-        los mensajes entrantes durante la partida.
-        
-        Asigna ids a los clientes y a las partidas entre ellos.        
-        Limpia automáticamente los recursos cuando el cliente se desconecta.
-        Elimina al cliente de colas y partidas activas al finalizar.
-        Maneja errores de conexión como ConnectionResetError.
+
+        - Asigna un identificador al jugador
+        - Lo añade a la cola de espera
+        - Crea partidas cuando hay dos jugadores disponibles
+        - Procesa los mensajes del cliente
+        - Limpia recursos cuando el cliente se desconecta
 
         Args:
-            reader (asyncio.StreamReader): Flujo de lectura para recibir
-                datos del cliente.
-            writer (asyncio.StreamWriter): Flujo de escritura para enviar
-                datos al cliente.
+            reader (asyncio.StreamReader): Flujo de lectura del socket.
+            writer (asyncio.StreamWriter): Flujo de escritura del socket.
+
+        Returns:
+            None
         """
         addr = writer.get_extra_info("peername")
         jugador_id = self._contador_jugadores
