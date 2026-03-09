@@ -7,9 +7,13 @@ class Controlador(ABC):
     """
 
     @abstractmethod
-    def iniciar(self, *args, **kwargs):
+    def iniciar(self, *args, **kwargs) -> None:
         """
         Inicia el controlador.
+
         Cada modo de juego implementa su propia lógica.
+
+        Returns:
+            None
         """
         pass

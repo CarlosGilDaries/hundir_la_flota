@@ -15,26 +15,27 @@ class ControladorPVE(Controlador):
     
     def iniciar(self, dificultad: int) -> None:
         """
-        Crea una nueva partida pve.
+            Inicia una nueva partida PVE.
 
-        :param dificultad: Índice para la dificultad.
-        :type dificultad: int
-        :return: Objeto PartidaPVE inicializado.
-        :rtype: PartidaPVE
-        """
+            Args:
+                dificultad (int): Índice de dificultad seleccionado.
+
+            Returns:
+                None
+            """
         self._partida = self.crear_partida(dificultad)
         self.ejecutar_bucle_principal()
         
     
-    def crear_barcos(self, config_barcos: list) -> list[Barco]:
+    def crear_barcos(self, config_barcos: list[tuple[str, int, str]]) -> list[Barco]:
         """
-        Crea los objetos Barco.
+        Crea los objetos Barco a partir de la configuración.
 
         Args:
-            config_barcos (list): Lista de barcos.
+            config_barcos (list[tuple[str, int, str]]): Configuración de barcos.
 
         Returns:
-            list[Barco]: Lista de objetos Barco.
+            list[Barco]: Lista de objetos Barco creados.
         """
         return [
             Barco(nombre, tamanyo, caracter)
@@ -74,7 +75,10 @@ class ControladorPVE(Controlador):
 
     def ejecutar_bucle_principal(self) -> None:
         """
-        Ejecuta el bucle principal de la partida pve.
+        Ejecuta el bucle principal de la partida PVE.
+
+        Returns:
+            None
         """
         try:
             self._vista.borrar_consola()
@@ -94,7 +98,10 @@ class ControladorPVE(Controlador):
     
     def mostrar_estado(self) -> None:
         """
-        Muestra tablero y disparos restantes.
+        Muestra el tablero y los disparos restantes.
+
+        Returns:
+            None
         """
         self._vista.mostrar_tablero(
             self._partida.obtener_tablero_rival()
@@ -106,7 +113,10 @@ class ControladorPVE(Controlador):
     
     def fase_turno(self) -> None:
         """
-        Lógica de cada turno.
+        Ejecuta la lógica de un turno del jugador.
+
+        Returns:
+            None
         """
         ancho, alto = self._partida.obtener_dimensiones_tablero()
         self._vista.opcion_volver_menu()

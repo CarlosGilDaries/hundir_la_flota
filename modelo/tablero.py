@@ -220,7 +220,7 @@ class Tablero:
         return all(barco.hundido() for barco in self.barcos)
 
 
-    def _coordenadas_validas(self, x, y) -> bool:
+    def _coordenadas_validas(self, x: int, y: int) -> bool:
         """
         Valida las coordenadas.
 
