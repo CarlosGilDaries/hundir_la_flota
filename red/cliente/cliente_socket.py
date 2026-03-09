@@ -2,6 +2,8 @@ import asyncio
 import json
 from typing import Any
 from asyncio import StreamReader, StreamWriter
+from red.protocolo.mensajes import MensajeProtocolo
+
 
 class ClienteSocket:
     """
@@ -37,7 +39,7 @@ class ClienteSocket:
         )
 
 
-    async def enviar(self, data: dict[str, Any]) -> None:
+    async def enviar(self, data: MensajeProtocolo) -> None:
         """
         Envía un mensaje JSON al servidor.
         El mensaje se serializa como JSON y se delimita con un salto de línea
@@ -54,7 +56,7 @@ class ClienteSocket:
         await self._writer.drain()
 
 
-    async def recibir(self) -> dict[str, Any] | None:
+    async def recibir(self) -> MensajeProtocolo | None:
         """
         Recibe un mensaje JSON desde el servidor.
         Lee una línea completa del socket y la convierte en un diccionario.
