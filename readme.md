@@ -127,7 +127,7 @@ Incluyendo eventos como:
 ## Estructura del proyecto
 
 ```text
-hundir_flota/
+hundir_la_flota/
 ├── main.py                          # Punto de entrada del cliente
 ├── app/
 │   └── app.py                       # Orquestador principal
@@ -177,7 +177,7 @@ hundir_flota/
 
 El sistema se divide en **cliente y servidor**.
 
-## Servidor
+### Servidor
 
 El servidor gestiona:
 
@@ -192,7 +192,7 @@ Para iniciar el servidor:
 python -m red.servidor.servidor
 ```
 
-## Cliente
+### Cliente
 
 1. Jugar contra la Máquina (PVE)
 2. Jugar contra otro Jugador (PVP)
@@ -205,14 +205,14 @@ Para ejecutar el cliente:
 python -m red.servidor.servidor
 ```
 
-## Comportamiento según la opción seleccionada
+### Comportamiento según la opción seleccionada
 
-### Opción 1 – PVE
+#### Opción 1 – PVE
 
 - Se inicia una partida local contra la máquina  
 - No requiere conexión con el servidor  
 
-### Opción 2 – PVP
+#### Opción 2 – PVP
 
 - El cliente se conecta al servidor  
 - Entra en una cola de emparejamiento  
@@ -237,7 +237,7 @@ python -m red.servidor.servidor
 
 La arquitectura del proyecto permite incorporar nuevas funcionalidades con relativa facilidad:
 
-- Interfaz web (por ejemplo con **WebSockets + React/Vue**)
+- Interfaz web
 - Sistema de ranking de jugadores
 - Matchmaking avanzado
 - Persistencia de partidas
@@ -246,7 +246,3 @@ La arquitectura del proyecto permite incorporar nuevas funcionalidades con relat
 - Replays de partidas
 
 ---
-
-## Autor
-
-Proyecto desarrollado como ejercicio de mejora de competencias en **arquitectura de software, diseño orientado a objetos y sistemas concurrentes en Python**.
