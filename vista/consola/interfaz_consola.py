@@ -107,15 +107,20 @@ class InterfazConsola:
         - La primera línea muestra los índices de las columnas.
         - Cada fila se muestra precedida por su índice correspondiente.
 
-        :param tablero: Objeto tablero.
-        :type tablero: Tablero
+        :param tablero: Lista de listas con los caracteres del tablero.
+        :type tablero: list
         """
 
-        encabezado = "   " + " ".join(str(i) for i in range(tablero.ancho))
+        alto = len(tablero) 
+        ancho = len(tablero[0])
+
+        # Mostrar encabezado con coordenadas X
+        encabezado = "   " + " ".join(str(i) for i in range(ancho))
         print(encabezado)
 
-        for i in range(tablero.alto):
-            fila = tablero.obtener_fila(i)
+        # Mostrar cada fila con su coordenada Y
+        for i in range(alto):
+            fila = tablero[i]
             fila_str = f"{i:<2} " + " ".join(fila)
             print(fila_str)
 
@@ -180,3 +185,25 @@ class InterfazConsola:
         :rtype: str
         """
         return self._textos.get(clave, f"[Texto no encontrado: {clave}]")
+
+
+    def mostrar_turno_jugador(self, jugador):
+        """
+        Muestra el turno del jugador actual.
+
+        :param jugador: Número del jugador actual.
+        :type jugador: int
+        """
+        print("")
+        print(self._textos["TEXTO_TURNO"].format(jugador))
+        
+        
+    def mostrar_mensaje(self, mensaje):
+        """
+        Muestra el mensaje introducido como parámetro.
+
+        :param mensaje: Mensaje a mostrar.
+        :type mensaje: str
+        """
+        print("")
+        print(mensaje)

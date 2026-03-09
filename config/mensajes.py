@@ -4,6 +4,8 @@ Centraliza todos los mensajes mostrados al usuario.
 """
 
 TEXTOS = {
+    "TEXTO_TURNO": "TURNO DEL JUGADOR {}",
+    
     # Inputs
     "TEXTO_POSICION_X": "Introduzca la coordenada x: ",
     "TEXTO_POSICION_Y": "Introduzca la coordenada y: ",
@@ -28,6 +30,24 @@ TEXTOS = {
     "ERROR_LIMITE_TABLERO": "ERROR: La posición del disparo excede los límites del tablero",
     "ERROR_NUMERO_ENTERO": "ERROR: Introduce números enteros, por favor",
     "ERROR_MENU" : "ERROR: Opción inválida",
+}
+
+RED = {
+    # Cliente -> Servidor
+    "BUSCAR_PARTIDA" : "buscar_partida",
+    "CANCELAR_BUSQUEDA" : "cancelar_busqueda",
+    "REALIZAR_DISPARO" : "realizar_disparo",
+    "ABANDONAR" : "abandonar",
+    
+    # Servidor -> Cliente
+    "ESPERANDO_OPONENTE" : "esperando_oponente",
+    "PARTIDA_INICIADA" : "partida_iniciada",
+    "TU_TURNO" : "tu_turno",
+    "RESULTADO_DISPARO" : "resultado_disparo",
+    "VICTORIA" : "victoria",
+    "DERROTA" : "derrota",
+    "OPONENTE_ABANDONO" : "oponente_abandono",
+    "ERROR" : "error"
 }
 
 # Instrucciones

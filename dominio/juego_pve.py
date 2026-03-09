@@ -1,7 +1,7 @@
-class Juego:
+class JuegoPVE():
     def __init__(self, tablero_usuario, tablero_barco, disparos_maximos, caracter_vacio, caracter_tocado, caracter_agua):
         """
-        Inicializa una nueva partida.
+        Inicializa una nueva partida PVE.
 
         :param tablero_usuario: Objeto tablero para el usuario.
         :type tablero_usuario: Tablero
@@ -16,14 +16,13 @@ class Juego:
         :param caracter_agua: Carácter para disparos fallidos.
         :type caracter_agua: str
         """
-        self.tablero_usuario = tablero_usuario
-        self.tablero_barco = tablero_barco
-
-        self._disparos_maximos = disparos_maximos
-        self._disparos_realizados = 0
         self._caracter_vacio = caracter_vacio
         self._caracter_tocado = caracter_tocado
         self._caracter_agua = caracter_agua
+        self.tablero_usuario = tablero_usuario
+        self.tablero_barco = tablero_barco
+        self._disparos_maximos = disparos_maximos
+        self._disparos_realizados = 0
 
         # Inicialización
         for barco in self.tablero_barco.barcos:
@@ -41,8 +40,8 @@ class Juego:
         :return: Resultado del disparo.
         :rtype: str
         """
-        if self.tablero_usuario.disparo_repetido(
-            x, y, self._caracter_tocado, self._caracter_agua
+        if self.tablero_barco.disparo_repetido(
+            x, y
         ):
             return "REPETIDO"
 
@@ -87,7 +86,7 @@ class Juego:
         :return: True si no quedan barcos.
         :rtype: bool
         """
-        return not self.tablero_barco.quedan_barcos()
+        return self.tablero_barco.todos_hundidos()
 
 
     def disparos_restantes(self):
