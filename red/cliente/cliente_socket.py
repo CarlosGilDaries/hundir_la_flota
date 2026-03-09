@@ -17,9 +17,8 @@ class ClienteSocket:
         )
 
 
-    async def enviar(self, datos: dict) -> None:
-        mensaje = json.dumps(datos) + "\n"
-        # print("CLIENTE -> SERVIDOR:", mensaje.strip())
+    async def enviar(self, data: dict):
+        mensaje = json.dumps(data) + "\n"
         self._writer.write(mensaje.encode())
         await self._writer.drain()
 

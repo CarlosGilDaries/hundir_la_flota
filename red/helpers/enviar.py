@@ -1,9 +1,5 @@
-import json
 import asyncio
-from utils.log import configurar_logger
-
-jugador_partida = {}
-logger = configurar_logger()
+import json
 
 async def enviar(writer: asyncio.StreamWriter, data: dict) -> None:
     """

@@ -2,43 +2,36 @@ from modelo.partida.partida_pvp import EstadoPartida
 from modelo.resultado import ResultadoDisparo
 from config.textos import TRADUCCION
 from red.protocolo.mensajes import TipoMensaje, crear_mensaje, obtener_tipo
+from red.helpers.enviar import enviar
 from config.constantes import CONSTANTES
 from servicios.partida_service import PartidaService
-import asyncio
-import json
 
 
 class SesionPVP:
 
     def __init__(self, writer1, writer2, id1, id2, addr1, addr2, partida_id, logger, jugador_partida):
-
+        self._terminada = False
         self.partida_id = partida_id
-
         self._writers = {
             1: writer1,
             2: writer2
         }
-
         self._jugadores = {
             writer1: 1,
             writer2: 2
         }
-
         self._player_ids = {
             1: id1,
             2: id2
         }
-
         self._addrs = {
             1: addr1,
             2: addr2
         }
-
         self._service = PartidaService(
             CONSTANTES["DIFICULTAD"]["PVP"],
             CONSTANTES["CARACTERES"]
         )
-
         self.jugador_partida = jugador_partida
         jugador_partida[writer1] = self
         jugador_partida[writer2] = self
@@ -56,7 +49,7 @@ class SesionPVP:
 
         for jugador, writer in self._writers.items():
 
-            await self._enviar(writer, crear_mensaje(
+            await enviar(writer, crear_mensaje(
                 TipoMensaje.INICIO,
                 jugador=jugador,
                 estado=self._service.estado().value
@@ -99,7 +92,7 @@ class SesionPVP:
 
             if colocado:
 
-                await self._enviar(writer,
+                await enviar(writer,
                     crear_mensaje(
                         TipoMensaje.CONFIRMACION,
                         mensaje="Barco colocado correctamente"
@@ -108,7 +101,7 @@ class SesionPVP:
 
             else:
 
-                await self._enviar(writer,
+                await enviar(writer,
                     crear_mensaje(
                         TipoMensaje.ERROR,
                         mensaje="Posición inválida"
@@ -127,7 +120,7 @@ class SesionPVP:
 
             else:
 
-                await self._enviar(writer,
+                await enviar(writer,
                     crear_mensaje(
                         TipoMensaje.ESPERA,
                         mensaje="Esperando al rival..."
@@ -140,7 +133,7 @@ class SesionPVP:
 
         except Exception as e:
 
-            await self._enviar(writer,
+            await enviar(writer,
                 crear_mensaje(
                     TipoMensaje.ERROR,
                     mensaje=str(e)
@@ -168,7 +161,7 @@ class SesionPVP:
             rival = 2 if jugador == 1 else 1
             writer_rival = self._writers[rival]
 
-            await self._enviar(writer,
+            await enviar(writer,
                 crear_mensaje(
                     TipoMensaje.RESULTADO,
                     resultado=resultado_str,
@@ -177,7 +170,7 @@ class SesionPVP:
                 )
             )
 
-            await self._enviar(writer_rival,
+            await enviar(writer_rival,
                 crear_mensaje(
                     TipoMensaje.RECIBIDO,
                     resultado=resultado_str,
@@ -199,7 +192,7 @@ class SesionPVP:
 
         except Exception as e:
 
-            await self._enviar(writer,
+            await enviar(writer,
                 crear_mensaje(
                     TipoMensaje.ERROR,
                     mensaje=str(e)
@@ -213,7 +206,7 @@ class SesionPVP:
 
         for jugador, writer in self._writers.items():
 
-            await self._enviar(writer,
+            await enviar(writer,
                 crear_mensaje(
                     TipoMensaje.TURNO,
                     tu_turno=jugador == turno
@@ -227,7 +220,7 @@ class SesionPVP:
 
         for jugador, writer in self._writers.items():
 
-            await self._enviar(writer,
+            await enviar(writer,
                 crear_mensaje(
                     TipoMensaje.FIN,
                     victoria=jugador == ganador
@@ -241,7 +234,7 @@ class SesionPVP:
 
         estado = self._service.estado_tableros(jugador)
 
-        await self._enviar(writer,
+        await enviar(writer,
             crear_mensaje(
                 TipoMensaje.ESTADO_TABLEROS,
                 propio=estado["propio"],
@@ -256,28 +249,58 @@ class SesionPVP:
 
         lista = self._service.barcos_pendientes(jugador)
 
-        await self._enviar(writer,
+        await enviar(writer,
             crear_mensaje(
                 TipoMensaje.LISTA_BARCOS,
                 barcos=lista
             )
         )
-
-    async def _enviar(self, writer: asyncio.StreamWriter, data: dict) -> None:
-        """
-        Envía un mensaje JSON a un cliente a través de su writer.
         
-        Serializa los datos a formato JSON, añade un salto de línea como
-        delimitador de mensaje, codifica a bytes y escribe en el stream.
-        El salto de línea añadido sirve como marcador de fin de mensaje,
-        permitiendo al cliente leer línea por línea con reader.readline().
-        Finaliza asegurando que los datos se envían completamente (drain).
+        
+    async def jugador_desconectado(self, writer):
+        if self._terminada:
+            return
 
-        Args:
-            writer (asyncio.StreamWriter): Writer del cliente destinatario.
-            data (dict): Datos a enviar (JSON).
-        """
-        mensaje = json.dumps(data) + "\n"
-        # print("SERVIDOR -> CLIENTE:", mensaje.strip())
-        writer.write(mensaje.encode())
-        await writer.drain()
+        self._terminada = True
+        if writer not in self._jugadores:
+            return
+
+        jugador = self._jugadores[writer]
+        rival = 2 if jugador == 1 else 1
+
+        writer_rival = self._writers.get(rival)
+
+        self.logger.info(
+            f"MATCH_PLAYER_DISCONNECTED match={self.partida_id} "
+            f"player={self._player_ids[jugador]}"
+        )
+
+        # avisar al rival
+        if writer_rival:
+
+            try:
+                await enviar(writer_rival,
+                    crear_mensaje(
+                        TipoMensaje.FIN,
+                        victoria=True
+                    )
+                )
+            except:
+                pass
+
+        # limpiar referencias
+        if writer in self.jugador_partida:
+            del self.jugador_partida[writer]
+
+        if writer_rival and writer_rival in self.jugador_partida:
+            del self.jugador_partida[writer_rival]
+
+        # cerrar writers si siguen abiertos
+        for w in self._writers.values():
+            try:
+                w.close()
+                await w.wait_closed()
+            except:
+                pass
+
+        self.logger.info(f"MATCH_TERMINATED match={self.partida_id}")

@@ -1,5 +1,6 @@
 from red.servidor.sesion_pvp import SesionPVP
 from utils.log import configurar_logger
+from red.helpers.enviar import enviar
 from red.protocolo.mensajes import obtener_tipo
 import asyncio
 import json
@@ -78,7 +79,7 @@ class Servidor:
         self.logger.info(f"QUEUE_ADD player={jugador_id} waiting={len(self.cola_espera)}")
 
 
-        await self._enviar(writer, {
+        await enviar(writer, {
             "tipo": "espera",
             "mensaje": "Esperando rival..."
         })
@@ -125,7 +126,7 @@ class Servidor:
 
                 mensaje = json.loads(data.decode().strip())
                 if mensaje.get("tipo") == "salir":
-                    self.logger.info(f"PLAYER_EXIT player={jugador_id}")
+                    self.logger.info(f"PLAYER_EXIT player={jugador_id} addr={addr}")
 
                     if writer in self.jugador_partida:
                         partida = self.jugador_partida[writer]
@@ -163,26 +164,6 @@ class Servidor:
                 await writer.wait_closed()
             except:
                 pass
- 
-            
-    async def _enviar(self, writer: asyncio.StreamWriter, data: dict) -> None:
-        """
-        Envía un mensaje JSON a un cliente a través de su writer.
-        
-        Serializa los datos a formato JSON, añade un salto de línea como
-        delimitador de mensaje, codifica a bytes y escribe en el stream.
-        El salto de línea añadido sirve como marcador de fin de mensaje,
-        permitiendo al cliente leer línea por línea con reader.readline().
-        Finaliza asegurando que los datos se envían completamente (drain).
-
-        Args:
-            writer (asyncio.StreamWriter): Writer del cliente destinatario.
-            data (dict): Datos a enviar (JSON).
-        """
-        mensaje = json.dumps(data) + "\n"
-        # print("SERVIDOR -> CLIENTE:", mensaje.strip())
-        writer.write(mensaje.encode())
-        await writer.drain()
 
 
 if __name__ == "__main__":

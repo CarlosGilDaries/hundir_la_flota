@@ -1,41 +1,60 @@
 app/
    app.py
-   partida_service.py
 
 config/
-    constantes.py
-    mensajes.py
-    protocolo.py
+    __init__.py
+    constantes.py               # Constantes de configuración, dificultad y caracteres
+    textos.py                   # Textos, instrucciones y traducción de enum a str
+
+controlador/
+    __init__.py
+    controlador.py              # Clase abstracta/base
+    controlador_pve.py          # Controlador para partidas pve
+    controlador_pvp_cliente.py  # Controlador para partidas pvp
 
 modelo/
-    partida/                    # 📁 Nuevo directorio
+    partida/
         __init__.py
         partida.py              # Clase abstracta/base
         partida_pve.py          # Implementación PVE
         partida_pvp.py          # Implementación PVP
+    __init__.py
     barco.py
     tablero.py
     resultado.py
 
-controlador/
-    controlador.py              # Clase abstracta/base
-    controlador_pve.py
-    controlador_pvp_cliente.py
-
 red/
-    servidor.py
-    sesion_pvp.py
-    globales.py
-
-vista/
-    vista_base.py
-    consola/
+    cliente/
         __init__.py
-        vista_consola.py    # Clase abstracta
+        cliente_socket.py
+    helpers/
+        __initi__.py
+        enviar.py
+    protocolo/
+        __init__.py
+    mensajes.py
+    servidor/
+        __init__.py
+        servidor_log.log
+        servidor.py
+        sesion_pvp.py
+
+servicios/
+    __init__.py
+    partida_service.py
 
 utils/
     __init__.py
-    validador.py
     excepciones.py
+    log_decorador.py
+    log.py
+    utils.py
+
+vista/
+    vista.py    # Clase abstracta
+    consola/
+        __init__.py
+        menu_consola.py
+        vista_consola.py
 
 main.py
