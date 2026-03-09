@@ -1,7 +1,6 @@
 from red.servidor.sesion_pvp import SesionPVP
 from utils.log import configurar_logger
 from red.helpers.enviar import enviar
-from red.protocolo.mensajes import obtener_tipo
 import asyncio
 import json
 
