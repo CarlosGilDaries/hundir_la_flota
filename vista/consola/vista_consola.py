@@ -9,10 +9,11 @@ class VistaConsola(Vista):
 
     def __init__(self, textos: dict, validador: Util) -> None:
         """
-        :param textos: Diccionario de textos del juego.
-        :type textos: dict
-        :param validador: Objeto validador.
-        :type validador: Util
+        Inicializa la vista utilizada en consola.
+
+        Args:
+            textos (dict): Textos guardados como clave valor en config/textos.
+            validador (Util): Validador de la clase Util.
         """
         self._textos = textos
         self._validador = validador
@@ -23,12 +24,12 @@ class VistaConsola(Vista):
         Solicita al usuario las coordenadas del disparo.
         Permite escribir 'salir' para terminar el juego.
 
-        :param ancho: Ancho del tablero.
-        :type ancho: int
-        :param alto: Alto del tablero.
-        :type alto: int
-        :return: El valor para X e Y introducido por el usuario.
-        :rtype: tuple[int, int]
+        Args:
+            ancho (int): Entero que representa el ancho del tablero.
+            alto (int): Entero que representa el alto del tablero.
+
+        Returns:
+            tuple[int, int]: El valor de X e Y que introduce el usuario.
         """
         x = self.pedir_coordenada("x", ancho - 1)
         y = self.pedir_coordenada("y", alto - 1)
@@ -40,13 +41,14 @@ class VistaConsola(Vista):
         Solicita una coordenada válida al usuario.
         'Salir' es el valor establecido para terminar el programa.
 
-        :param eje: Eje ('x' o 'y').
-        :type eje: str
-        :param limite: Valor máximo permitido.
-        :type limite: int
-        :return: Coordenada válida.
-        :rtype: int
-        :raises VolverAlMenu: Si el usuario selecciona la opción de salir.
+        Args:
+            eje (str): Eje ('x' o 'y').
+            limite (int): Valor máximo permitido.
+        Raises:
+            VolverAlMenu: Si el usuario selecciona la opción de salir.
+
+        Returns:
+            int: Coordenada válida.
         """
         valido = False
         while not valido:
@@ -83,8 +85,8 @@ class VistaConsola(Vista):
         """
         Muestra el resultado del disparo.
 
-        :param resultado_enum: Resultado del disparo.
-        :type resultado_enum: ResultadoDisparo
+        Args:
+            resultado_enum (ResultadoDisparo): Resultado del disparo
         """
         print("")
         resultado = self.adaptar_resultado_a_string(resultado_enum)
@@ -100,10 +102,9 @@ class VistaConsola(Vista):
         - La primera línea muestra los índices de las columnas.
         - Cada fila se muestra precedida por su índice correspondiente.
 
-        :param tablero: Lista de listas con los caracteres del tablero.
-        :type tablero: list
+        Args:
+            tablero (list): Lista de listas con los caracteres del tablero.
         """
-
         alto = len(tablero) 
         ancho = len(tablero[0])
 
@@ -122,8 +123,8 @@ class VistaConsola(Vista):
         """
         Muestra el mensaje final del juego.
 
-        :param victoria: Indica si el jugador ha ganado.
-        :type victoria: bool
+        Args:
+            victoria (bool): Indica si el jugador ha ganado
         """
         if victoria:
             print("")
@@ -148,8 +149,8 @@ class VistaConsola(Vista):
         """
         Muestra las balas restantes.
 
-        :param restantes: Número de disparos restantes.
-        :type restantes: int
+        Args:
+            restantes (int): Número de disparos restantes.
         """
         print("")
         print(self._textos["BALAS_RESTANTES"], restantes)
@@ -159,10 +160,11 @@ class VistaConsola(Vista):
         """
         Devuelve el texto correspondiente a la clave.
 
-        :param clave: Clave del texto.
-        :type clave: str
-        :return: Texto asociado.
-        :rtype: str
+        Args:
+            clave (str): Clave del texto.
+
+        Returns:
+            str: Texto asociado.
         """
         return self._textos.get(clave, f"[Texto no encontrado: {clave}]")
     
@@ -171,8 +173,8 @@ class VistaConsola(Vista):
         """
         Muestra el mensaje introducido como parámetro.
 
-        :param mensaje: Mensaje a mostrar.
-        :type mensaje: str
+        Args:
+            mensaje (str): Mensaje a mostrar.
         """
         print(mensaje)
 
@@ -181,8 +183,8 @@ class VistaConsola(Vista):
         """
         Muestra las instrucciones del juego.
 
-        :param instrucciones: Instrucciones del juego.
-        :type instrucciones: str
+        Args:
+            instrucciones (str): Instrucciones del juego.
         """
         self.borrar_consola()
         print(instrucciones)
@@ -192,7 +194,10 @@ class VistaConsola(Vista):
     
     def borrar_consola(self) -> None:
         """
-        Borra lo escrito en la consola.
+        Limpia la pantalla de la consola.
+
+        Utiliza secuencias ANSI y el comando del sistema operativo
+        correspondiente para garantizar compatibilidad entre sistemas.
         """
         # \033[2J → limpia toda la pantalla
         # \033[H → mueve el cursor a la posición (0,0)
@@ -200,7 +205,14 @@ class VistaConsola(Vista):
         os.system('cls' if os.name == 'nt' else 'clear')
 
 
-    def mostrar_tableros(self, propio, rival):
+    def mostrar_tableros(self, propio: list[list[str]], rival: list[list[str]]) -> None:
+        """
+        Muestra simultáneamente el tablero del jugador y el del rival.
+
+        Args:
+            propio (list[list[str]]): Tablero del jugador.
+            rival (list[list[str]]): Tablero visible del rival.
+        """
         ancho = 25
         print()
         print("Tu tablero".ljust(ancho) + "Tablero rival")
