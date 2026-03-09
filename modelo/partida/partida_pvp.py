@@ -6,13 +6,18 @@ from enum import Enum
 
 
 class EstadoPartida(Enum):
+    """
+    Estados posibles de una partida PVP.
+    """
     COLOCACION = "colocacion"
     JUGANDO = "jugando"
     FINALIZADA = "finalizada"
 
 
 class PartidaPVP(Partida):
-
+    """
+    Implementación de una partida entre dos jugadores (PVP).
+    """
     def __init__(self, tablero_j1: Tablero, tablero_j2: Tablero) -> None:
         """
         Inicializa una partida PVP.
@@ -34,22 +39,19 @@ class PartidaPVP(Partida):
 
     def disparar(self, jugador: int, x: int, y: int) -> ResultadoDisparo:
         """
-        Dispara sobre el tablero del defensor.
+        Realiza un disparo sobre el tablero rival.
 
         Args:
-            jugador (int): Entero que representa al jugador.
-            x (int): Coordenada X del disparo.
-            y (int): Coordenada Y del disparo.
+            jugador (int): Jugador que dispara.
+            x (int): Coordenada X.
+            y (int): Coordenada Y.
 
         Raises:
-            ValueError: Se ejecuta si el jugador intenta disparar en el turno rival.
+            ValueError: Si no es el turno del jugador.
 
         Returns:
-            ResultadoDisparo: Enum que representa el resultado del disparo.
+            ResultadoDisparo: Resultado del disparo.
         """
-        # if self._estado != EstadoPartida.JUGANDO:
-        #     raise ValueError("La partida no está en fase de juego")
-
         if jugador != self._turno:
             raise ValueError("No es tu turno")
 
@@ -65,28 +67,28 @@ class PartidaPVP(Partida):
         return resultado
     
     
-    def obtener_tablero_propio(self, jugador: int) -> list:
+    def obtener_tablero_propio(self, jugador: int) -> list[list[str]]:
         """
-        Obtiene el tablero del jugador.
+        Devuelve el tablero propio del jugador.
 
         Args:
-            jugador (int): Entero que representa al jugador.
+            jugador (int): Identificador del jugador.
 
         Returns:
-            list: Lista que representa el tablero del jugador.
+            list[list[str]]: Tablero completo del jugador.
         """
         return self._tableros[jugador].ver_tablero()
 
 
-    def obtener_tablero_rival(self, jugador: int) -> list:
+    def obtener_tablero_rival(self, jugador: int) -> list[list[str]]:
         """
-        Obtiene el tablero del rival.
+        Devuelve el tablero visible del rival.
 
         Args:
-            jugador (int): Entero que representa al jugador rival.
+            jugador (int): Identificador del jugador.
 
         Returns:
-            list: Lista que representa el tablero del jugador rival.
+            list[list[str]]: Tablero del rival con barcos ocultos.
         """
         rival = self._oponente(jugador)
         return self._tableros[rival].ver_tablero_rival()
@@ -97,18 +99,15 @@ class PartidaPVP(Partida):
         Coloca un barco en el tablero del jugador.
 
         Args:
-            barco (Barco): Objeto barco a colocar.
-            x (int): Coordenada X de la posición inicial.
-            y (int): Coordenada Y de la posición inicial.
+            barco (Barco): Barco a colocar.
+            x (int): Coordenada X inicial.
+            y (int): Coordenada Y inicial.
             horizontal (bool): Orientación del barco.
-            jugador (int): Entero que representa al jugador.
+            jugador (int): Identificador del jugador.
 
         Returns:
-            bool: True si se pudo colocar y False si no.
+            bool: True si se colocó correctamente, False si no.
         """
-        # if self._estado != EstadoPartida.COLOCACION:
-        #     raise ValueError("La fase de colocación ha terminado")
-
         tablero = self._tableros[jugador]
         barco.set_horizontal(horizontal)
         colocado = tablero.colocar_barco_manual(barco, x, y)
@@ -126,40 +125,40 @@ class PartidaPVP(Partida):
     
     def hay_victoria(self) -> bool:
         """
-        Comprueba si ha habido victoria.
+        Indica si la partida ha terminado.
 
         Returns:
-            bool: True si la ha habido y False si no.
+            bool: True si la partida ha finalizado.
         """
         return self._estado == EstadoPartida.FINALIZADA
 
 
     def estado(self) -> EstadoPartida:
         """
-        Estado actual de la partida.
+        Devuelve el estado actual de la partida.
 
         Returns:
-            EstadoPartida: Estado de la partida.
+            EstadoPartida: Estado actual.
         """
         return self._estado
 
 
     def turno_actual(self) -> int:
         """
-        Turno actual para comprobar quién ataca.
+        Devuelve el jugador al que le toca atacar.
 
         Returns:
-            int: Turno actual.
+            int: Jugador actual.
         """
         return self._turno
     
     
     def jugador_ganador(self) -> int | None:
         """
-        Comprueba si hay un ganador.
+        Determina el jugador ganador.
 
         Returns:
-            int | None: Entero que representa al ganador, None si no ha ganado nadie aún.
+            int | None: Jugador ganador o None si aún no hay.
         """
         if self._estado != EstadoPartida.FINALIZADA:
             return None
@@ -173,13 +172,13 @@ class PartidaPVP(Partida):
 
     def _oponente(self, jugador: int) -> int:
         """
-        Devuelve el entero que representa al oponente.
+        Devuelve el identificador del jugador rival.
 
         Args:
-            jugador (int): Entero que representa al oponente.
+            jugador (int): Jugador actual.
 
         Returns:
-            int: entero que representa al oponente.
+            int: Jugador rival.
         """
         return 2 if jugador == 1 else 1
 

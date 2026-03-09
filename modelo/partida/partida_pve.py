@@ -4,15 +4,17 @@ from modelo.tablero import Tablero
 from modelo.barco import Barco
 
 class PartidaPVE(Partida):
+    """
+    Implementación de una partida contra la máquina (PVE).
+    """
 
     def __init__(self, tablero_maquina: Tablero, disparos_maximos: int) -> None:
         """
         Inicializa una nueva partida PVE.
 
-        :param tablero_maquina: Objeto tablero interno.
-        :type tablero_maquina: Tablero
-        :param disparos_maximos: Número máximo de disparos permitidos.
-        :type disparos_maximos: int
+        Args:
+            tablero_maquina (Tablero): Tablero donde se colocan los barcos de la máquina.
+            disparos_maximos (int): Número máximo de disparos permitidos.
         """
         self.tablero_maquina = tablero_maquina
         self._disparos_maximos = disparos_maximos
@@ -23,80 +25,83 @@ class PartidaPVE(Partida):
     
     def disparar(self, x: int, y: int) -> ResultadoDisparo:
         """
-        Realiza un disparo sobre los tableros.
+        Realiza un disparo sobre el tablero de la máquina.
 
-        :param x: Coordenada X.
-        :type x: int
-        :param y: Coordenada Y.
-        :type y: int
-        :return: Resultado del disparo.
-        :rtype: ResultadoDisparo
+        Args:
+            x (int): Coordenada X.
+            y (int): Coordenada Y.
+
+        Returns:
+            ResultadoDisparo: Resultado del disparo.
         """
-        [resultado, caracter] = self.tablero_maquina.recibir_disparo(x, y)
+        [resultado, _] = self.tablero_maquina.recibir_disparo(x, y)
         if resultado != ResultadoDisparo.REPETIDO and resultado != ResultadoDisparo.INVALIDO:
             self._disparos_realizados += 1
 
         return resultado
     
     
-    def obtener_tablero_propio(self) -> list:
+    def obtener_tablero_propio(self) -> list[list[str]]:
         """
-        Obtiene el tablero de la máquina con barcos (para Debugging).
+        Devuelve el tablero completo de la máquina.
+
+        Utilizado principalmente para debugging.
 
         Returns:
-            list: Array que representa el tablero de la máquina.
+            list[list[str]]: Tablero con los barcos visibles.
         """
         return self.tablero_maquina.ver_tablero()
 
     
-    def obtener_tablero_rival(self) -> list:
+    def obtener_tablero_rival(self) -> list[list[str]]:
         """
-        Devuelve el tablero que debe ver el jugador.
-        
-        Retunrns:
-            list: Array que representa el tablero de la máquina con los barcos ocultos.
+        Devuelve el tablero visible para el jugador.
+
+        Returns:
+            list[list[str]]: Tablero con barcos ocultos.
         """
         return self.tablero_maquina.ver_tablero_rival()
     
     
     def colocar_barco(self, barco: Barco) -> bool:
-        """_summary_
+        """
+        Coloca un barco de forma automática en el tablero.
 
         Args:
-            barco (_type_): _description_
+            barco (Barco): Barco a colocar.
 
         Returns:
-            bool: _description_
+            bool: True si se pudo colocar, False si no.
         """
         return self.tablero_maquina.colocar_barco_aleatorio(barco)
 
 
     def hay_victoria(self) -> bool:
         """
-        Comprueba si quedan barcos en el tablero interno.
+        Comprueba si todos los barcos han sido hundidos.
 
-        :return: True si no quedan barcos, False si quedan.
-        :rtype: bool
+        Returns:
+            bool: True si el jugador ha ganado, False si no.
         """
         return self.tablero_maquina.todos_hundidos()
 
 
     def quedan_disparos(self) -> bool:
         """
-        Indica si aún quedan disparos disponibles.
+        Comprueba si quedan disparos disponibles.
 
-        :return: True si quedan disparos, False en caso contrario.
-        :rtype: bool
+        Returns:
+            bool: True si aún quedan disparos.
         """
         return self._disparos_realizados < self._disparos_maximos
 
 
     def disparos_restantes(self) -> int:
         """
-        Calcula las balas restantes
+        Calcula el número de disparos restantes.
 
-        :return: Balas restantes.
-        :rtype: int
+        Returns:
+            int: Número de disparos restantes.
         """
         return self._disparos_maximos - self._disparos_realizados
     
@@ -113,10 +118,10 @@ class PartidaPVE(Partida):
     
     def _colocar_barcos_automaticamente(self):
         """
-        Coloca los barcos automáticamente en el tablero.
+        Coloca automáticamente todos los barcos del tablero.
 
         Raises:
-            RuntimeError: En caso de que un barco no se pueda colocar.
+            RuntimeError: Si algún barco no se puede colocar.
         """
         for barco in self.tablero_maquina.barcos:
             colocado = self.colocar_barco(barco)            
