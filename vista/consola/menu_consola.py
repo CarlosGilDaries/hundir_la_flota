@@ -66,8 +66,6 @@ class Menu:
                     return 2
                 case "3":
                     return 3
-                case "4":
-                    raise VolverAlMenu()
                 case _:
                     self._interfaz.borrar_consola()
                     print(self._interfaz.obtener_texto("ERROR_MENU"))
