@@ -59,7 +59,7 @@ class App:
             
             
     async def _ejecutar_pvp(self):
-        cliente = ClienteSocket("127.0.0.1", 8888)
+        cliente = ClienteSocket("0.0.0.0", 8888)
 
         controlador = ControladorPVPCliente(
             cliente,

@@ -8,7 +8,7 @@ import json
 
 class Servidor:
 
-    def __init__(self, host: str = "127.0.0.1", port: int = 8888) -> None:
+    def __init__(self, host: str = "0.0.0.0", port: int = 8888) -> None:
         """
         Inicializa el servidor con la configuración de red y estado inicial.
 
