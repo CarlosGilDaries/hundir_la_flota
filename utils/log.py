@@ -3,20 +3,20 @@ import os
 
 def configurar_logger(nombre: str = "servidor", archivo: str = "red/servidor/servidor_log.log") -> logging.Logger:
     """
-    Configura y devuelve un logger que escribe tanto en consola como en un archivo.
+    Configura y devuelve un logger que escribe tanto en consola como en archivo.
+    Si el logger ya tiene handlers configurados, reutiliza la configuración
+    existente para evitar duplicación de logs.
 
     Args:
-        nombre (str): nombre del logger
-        archivo (str): ruta del archivo donde se volcará el log
+        nombre (str): Nombre identificador del logger.
+        archivo (str): Ruta del archivo donde se almacenarán los logs.
 
     Returns:
-        logging.Logger: logger configurado
+        logging.Logger: Instancia del logger configurado.
     """
-
     logger = logging.getLogger(nombre)
 
     if not logger.handlers:
-
         logger.setLevel(logging.INFO)
 
         # Handler para consola

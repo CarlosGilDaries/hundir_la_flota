@@ -61,6 +61,26 @@ Existen dos controladores principales:
 
 ---
 
+## Documentación del código
+
+El código del proyecto está **completamente documentado utilizando `pydoc`**, incluyendo:
+
+- Descripción de clases y responsabilidades
+- Documentación de métodos
+- Tipado estático de parámetros
+- Tipos de retorno explícitos
+
+Esto facilita:
+
+- La comprensión de la arquitectura del proyecto
+- El mantenimiento del código
+- La detección temprana de errores mediante herramientas de análisis estático
+- La futura extensión del sistema
+
+Además, el protocolo de comunicación cliente-servidor está **tipado mediante `TypedDict`**, permitiendo trabajar con mensajes JSON estructurados y mejorando el autocompletado y la seguridad del código.
+
+---
+
 ## Networking y concurrencia
 
 Inicialmente se planteó una arquitectura basada en **crear un hilo por jugador o por partida**.
@@ -94,18 +114,20 @@ La comunicación entre cliente y servidor se realiza mediante **mensajes JSON so
 
 La versión actual del proyecto permite:
 
-## Modo PVE
+### Modo PVE
 
 - Partidas contra la máquina
 - Diferentes niveles de dificultad
 
-## Modo PVP
+### Modo PVP
 
 - Servidor multijugador basado en `asyncio`
 - Emparejamiento automático de jugadores
 - Múltiples partidas simultáneas
 - Gestión de desconexiones de clientes
 - Comunicación cliente-servidor mediante protocolo JSON
+
+---
 
 ## Logging del servidor
 
