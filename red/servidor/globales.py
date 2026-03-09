@@ -1,6 +1,6 @@
 import json
 import asyncio
-from config.log import configurar_logger
+from utils.log import configurar_logger
 
 jugador_partida = {}
 logger = configurar_logger()

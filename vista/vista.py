@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from modelo.resultado import ResultadoDisparo
-from config.mensajes import TRADUCCION
+from config.textos import TRADUCCION
 
 class Vista(ABC):
     

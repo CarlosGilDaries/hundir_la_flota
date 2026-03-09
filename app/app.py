@@ -2,12 +2,12 @@ from vista.consola.vista_consola import VistaConsola
 from vista.consola.menu_consola import Menu
 from utils.utils import Util
 from utils.excepciones import SalirDelPrograma
-from config.mensajes import TEXTOS, INSTRUCCIONES
+from config.textos import TEXTOS, INSTRUCCIONES
 from config.constantes import CONSTANTES
 import asyncio
 from controlador.controlador_pve import ControladorPVE
 from controlador.controlador_pvp_cliente import ControladorPVPCliente
-from cliente.cliente_socket import ClienteSocket
+from red.cliente.cliente_socket import ClienteSocket
 
 
 class App:

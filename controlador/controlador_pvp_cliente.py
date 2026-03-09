@@ -1,6 +1,6 @@
 import asyncio
 from controlador.controlador import Controlador
-from config.protocolo import TipoMensaje, obtener_tipo, crear_mensaje
+from red.protocolo.mensajes import TipoMensaje, obtener_tipo, crear_mensaje
 
 class ControladorPVPCliente(Controlador):
 

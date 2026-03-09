@@ -1,6 +1,6 @@
-from servidor.sesion_pvp import SesionPVP
-from servidor.globales import enviar, jugador_partida, logger
-from config.protocolo import obtener_tipo
+from red.servidor.sesion_pvp import SesionPVP
+from utils.log import configurar_logger
+from red.protocolo.mensajes import obtener_tipo
 import asyncio
 import json
 
@@ -22,6 +22,8 @@ class Servidor:
         self._contador_jugadores = 1
         self._contador_partidas = 1
         self._ids = {}
+        self.logger = configurar_logger()
+        self.jugador_partida = {}
         
 
     async def iniciar(self) -> None:
@@ -39,7 +41,7 @@ class Servidor:
             self.port
         )
 
-        logger.info(f"SERVER_START host={self.host} port={self.port}")
+        self.logger.info(f"SERVER_START host={self.host} port={self.port}")
 
         async with server:
             await server.serve_forever()
@@ -69,14 +71,14 @@ class Servidor:
         self._contador_jugadores += 1
         self._ids[writer] = jugador_id
         
-        logger.info(f"PLAYER_CONNECTED player={jugador_id} addr={addr}")
+        self.logger.info(f"PLAYER_CONNECTED player={jugador_id} addr={addr}")
 
         self.cola_espera.append(writer)
         
-        logger.info(f"QUEUE_ADD player={jugador_id} waiting={len(self.cola_espera)}")
+        self.logger.info(f"QUEUE_ADD player={jugador_id} waiting={len(self.cola_espera)}")
 
 
-        await enviar(writer, {
+        await self._enviar(writer, {
             "tipo": "espera",
             "mensaje": "Esperando rival..."
         })
@@ -98,54 +100,56 @@ class Servidor:
                 id2,
                 addr1,
                 addr2,
-                partida_id
+                partida_id,
+                self.logger,
+                self.jugador_partida
             )
             self.partidas_activas.append(sesion)
 
             await sesion.iniciar()
             
-            logger.info(f"MATCH_CREATED match={partida_id} player1={id1} player2={id2}")
+            self.logger.info(f"MATCH_CREATED match={partida_id} player1={id1} player2={id2}")
 
         try:
             while True:
                 data = await reader.readline()
 
                 if not data:
-                    logger.info(f"PLAYER_DISCONNECTED player={jugador_id} addr={addr}")
+                    self.logger.info(f"PLAYER_DISCONNECTED player={jugador_id} addr={addr}")
                     
-                    if writer in jugador_partida:
-                        partida = jugador_partida[writer]
+                    if writer in self.jugador_partida:
+                        partida = self.jugador_partida[writer]
                         await partida.jugador_desconectado(writer)
 
                     break
 
                 mensaje = json.loads(data.decode().strip())
                 if mensaje.get("tipo") == "salir":
-                    logger.info(f"PLAYER_EXIT player={jugador_id}")
+                    self.logger.info(f"PLAYER_EXIT player={jugador_id}")
 
-                    if writer in jugador_partida:
-                        partida = jugador_partida[writer]
+                    if writer in self.jugador_partida:
+                        partida = self.jugador_partida[writer]
                         await partida.jugador_desconectado(writer)
 
                     break
 
-                if writer in jugador_partida:
-                    partida = jugador_partida[writer]
+                if writer in self.jugador_partida:
+                    partida = self.jugador_partida[writer]
                     await partida.recibir_mensaje(writer, mensaje)
             
             writer.close()
             await writer.wait_closed()
 
         except ConnectionResetError:
-            logger.warning(f"PLAYER_CONNECTION_LOST player={jugador_id} addr={addr}")
+            self.logger.warning(f"PLAYER_CONNECTION_LOST player={jugador_id} addr={addr}")
 
-            if writer in jugador_partida:
-                partida = jugador_partida[writer]
+            if writer in self.jugador_partida:
+                partida = self.jugador_partida[writer]
                 await partida.jugador_desconectado(writer)
         
         finally:
-            if writer in jugador_partida:
-                partida = jugador_partida[writer]
+            if writer in self.jugador_partida:
+                partida = self.jugador_partida[writer]
                 await partida.jugador_desconectado(writer)
 
             if writer in self.cola_espera:
@@ -159,6 +163,26 @@ class Servidor:
                 await writer.wait_closed()
             except:
                 pass
+ 
+            
+    async def _enviar(self, writer: asyncio.StreamWriter, data: dict) -> None:
+        """
+        Envía un mensaje JSON a un cliente a través de su writer.
+        
+        Serializa los datos a formato JSON, añade un salto de línea como
+        delimitador de mensaje, codifica a bytes y escribe en el stream.
+        El salto de línea añadido sirve como marcador de fin de mensaje,
+        permitiendo al cliente leer línea por línea con reader.readline().
+        Finaliza asegurando que los datos se envían completamente (drain).
+
+        Args:
+            writer (asyncio.StreamWriter): Writer del cliente destinatario.
+            data (dict): Datos a enviar (JSON).
+        """
+        mensaje = json.dumps(data) + "\n"
+        # print("SERVIDOR -> CLIENTE:", mensaje.strip())
+        writer.write(mensaje.encode())
+        await writer.drain()
 
 
 if __name__ == "__main__":

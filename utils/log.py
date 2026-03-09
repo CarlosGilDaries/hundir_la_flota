@@ -1,7 +1,7 @@
 import logging
 import os
 
-def configurar_logger(nombre: str = "servidor", archivo: str = "servidor/servidor_log.log") -> logging.Logger:
+def configurar_logger(nombre: str = "servidor", archivo: str = "red/servidor/servidor_log.log") -> logging.Logger:
     """
     Configura y devuelve un logger que escribe tanto en consola como en un archivo.
 
