@@ -1,27 +1,34 @@
-from utils.excepciones import SalirDelPrograma, VolverAlMenu
+from utils.excepciones import SalirDelPrograma
+from vista.consola.vista_consola import VistaConsola
+from config.constantes import CONSTANTES
 
 class Menu:
 
-    def __init__(self, interfaz, instrucciones):
+    def __init__(self, interfaz: VistaConsola, instrucciones: str) -> None:
         """
         Inicializa un menú con opciones para que el usuario interactúe
 
-        :param interfaz: Objeto de la clase InterfazConsola.
-        :type interfaz: InterfazConsola
-        :param instrucciones: Instrucciones del juego.
-        :type instrucciones: str
+        Args:
+            interfaz (VistaConsola): Objeto de la clase VistaConsola.
+            instrucciones (str): VistaConsola
         """
         self._interfaz = interfaz
         self._instrucciones = instrucciones
 
 
-    def ejecutar_menu_principal(self):
+    def ejecutar_menu_principal(self) -> int:
         """
-        Ejecuta el menú principal mostrando las opciones hasta que el usuario inicie el juego o decida salir.
-        
-        :return: El valor devuelto por el menú de dificultad cuando el usuario selecciona jugar.
-        :rtype: str
-        :raises SalirDelPrograma: Si el usuario selecciona la opción de salir.
+        Ejecuta el menú principal del juego.
+        El menú se muestra de forma repetida hasta que el usuario
+        selecciona iniciar una partida o salir del programa.
+
+        Returns:
+            int:
+                - 1, 2 o 3 → dificultad seleccionada para modo PVE
+                - 4 → iniciar modo PVP
+
+        Raises:
+            SalirDelPrograma: Si el usuario selecciona salir.
         """
         self._interfaz.borrar_consola()
         while True:
@@ -41,12 +48,12 @@ class Menu:
                     print(self._interfaz.obtener_texto("ERROR_MENU"))
 
     
-    def ejecutar_menu_dificultad(self):
+    def ejecutar_menu_dificultad(self) -> int:
         """
         Ejecuta el menú de dificultad.
-        
-        :return: El número correspondiente a la opción.
-        :rtype: int
+
+        Returns:
+            int: El número correspondiente a la opción.
         """
         self._interfaz.borrar_consola()
         while True:
@@ -69,9 +76,9 @@ class Menu:
     def _menu_principal(self):
         """
         Muestra las opciones del menú principal y solicita una opción al usuario.
-        
-        :return: Opción introducida por el usuario.
-        :rtype: str
+
+        Returns:
+            str: Número introducido por el usuario por teclado.
         """
         print("")
         print("HUNDIR LA FLOTA")
@@ -84,19 +91,19 @@ class Menu:
         return input("Introduzca el número correspondiente a la opción deseada: ")
     
 
-    def _menu_dificultad(self):
+    def _menu_dificultad(self) -> str:
         """
         Muestra las dificultades.
-        
-        :return: Opción introducida por el usuario.
-        :rtype: str
+
+        Returns:
+            str: Opción introducida por el usuario.
         """
         print("")
         print("Dificultad")
         print("")
-        print("1. Fácil")
-        print("2. Media")
-        print("3. Difícil")
-        print("4. Salir")
+        
+        for num, dificultad in CONSTANTES["DIFICULTAD"]["PVE"].items():
+            print(f"{num}. {dificultad['nombre']}")
+        
         print("")
         return input("Introduzca el número correspondiente a la opción deseada: ")
