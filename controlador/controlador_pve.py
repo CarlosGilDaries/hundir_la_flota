@@ -89,7 +89,8 @@ class ControladorPVE(Controlador):
 
             self.mostrar_estado()
             self._vista.mostrar_mensaje_final(
-                self._partida.hay_victoria()
+                self._partida.hay_victoria(),
+                False
             )
 
         except VolverAlMenu:

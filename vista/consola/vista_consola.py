@@ -119,12 +119,13 @@ class VistaConsola(Vista):
             print(fila_str)
         
     
-    def mostrar_mensaje_final(self, victoria: bool) -> None:
+    def mostrar_mensaje_final(self, victoria: bool, pvp: bool) -> None:
         """
         Muestra el mensaje final del juego.
 
         Args:
-            victoria (bool): Indica si el jugador ha ganado
+            victoria (bool): Indica si el jugador ha ganado.
+            pvp (bool): Indica si la partida es pve (False) o pvp (True).
         """
         if victoria:
             print("")
@@ -133,7 +134,20 @@ class VistaConsola(Vista):
             print("")
             print(self._textos["DERROTA"])
 
-        input(self._textos["PULSAR_ENTER"])
+        if not pvp:
+            input(self._textos["PULSAR_ENTER"])
+    
+    
+    def mostrar_mensaje_abandono(self, abandono: bool) -> None:
+        """
+        Muestra el mensaje final si el rival ha abandonado.
+
+        Args:
+            abandono (bool): Indica si el jugador rival ha abandonado.
+        """
+        if abandono:
+            print("")
+            print(self._textos["ABANDONO_PVP"])
 
 
     def fin_programa(self) -> None:

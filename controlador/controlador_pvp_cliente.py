@@ -37,7 +37,8 @@ class ControladorPVPCliente(Controlador):
             TipoMensaje.RESULTADO: self._manejar_resultado,
             TipoMensaje.TURNO: self._manejar_turno,
             TipoMensaje.FIN: self._manejar_fin,
-            TipoMensaje.ERROR: self._manejar_error
+            TipoMensaje.ERROR: self._manejar_error,
+            TipoMensaje.ABANDONO: self._manejar_abandono
         }
 
 
@@ -431,7 +432,26 @@ class ControladorPVPCliente(Controlador):
             None
         """
         victoria = mensaje["victoria"]
-        self._vista.mostrar_mensaje_final(victoria)
+        self._vista.mostrar_mensaje_final(victoria, True)
+        await self.input_async("\nPULSA INTRO PARA CONTINUAR...")
+        self._jugando = False
+        if self._tarea_input and not self._tarea_input.done():
+            self._tarea_input.cancel()
+        await self._cliente.desconectar()
+        
+        
+    async def _manejar_abandono(self, mensaje: dict) -> None:
+        """
+        Gestiona el final de la partida por abandono de un jugador mostrando el resultado y cerrando la conexión.
+
+        Args:
+            mensaje (dict): Mensaje indicando abandono del rival.
+
+        Returns:
+            None
+        """
+        abandono = mensaje["abandono"]
+        self._vista.mostrar_mensaje_abandono(abandono)
         self._jugando = False
         if self._tarea_input and not self._tarea_input.done():
             self._tarea_input.cancel()

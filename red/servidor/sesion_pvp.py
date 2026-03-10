@@ -361,8 +361,8 @@ class SesionPVP:
             try:
                 await enviar(writer_rival,
                     crear_mensaje(
-                        TipoMensaje.FIN,
-                        victoria=True
+                        TipoMensaje.ABANDONO,
+                        abandono=True
                     )
                 )
             except:

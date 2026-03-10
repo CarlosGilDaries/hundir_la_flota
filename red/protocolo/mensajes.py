@@ -19,6 +19,7 @@ class TipoMensaje(str, Enum):
     ERROR = "error"
     FIN = "fin"
     SALIR = "salir"
+    ABANDONO = "abandono"
     
 
 class MensajeBase(TypedDict):
@@ -155,8 +156,20 @@ class MensajeFin(MensajeBase):
 
     Attributes:
         victoria (bool): Indica si el jugador ha ganado.
+        pvp (bool): Indica si la partida es pvp.
     """
     victoria: bool
+    pvp: bool
+    
+    
+class MensajeAbandono(MensajeBase):
+    """
+    Mensaje enviado si un jugador se desconecta.
+
+    Attributes:
+        abandono (bool): Indica si el jugador rival se ha desconectado.
+    """
+    abandono: bool
     
     
 MensajeProtocolo: TypeAlias = (
@@ -171,6 +184,7 @@ MensajeProtocolo: TypeAlias = (
     | MensajeConfirmacion
     | MensajeError
     | MensajeFin
+    | MensajeAbandono
 )
 
 
