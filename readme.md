@@ -1,5 +1,11 @@
 # Hundir la Flota (Battleship) – Python Async MVC
 
+![Python](https://img.shields.io/badge/Python-3.13.2-blue)
+![asyncio](https://img.shields.io/badge/Async-asyncio-green)
+![Architecture](https://img.shields.io/badge/Architecture-MVC-orange)
+![Principles](https://img.shields.io/badge/Principles-SOLID-yellow)
+![Network](https://img.shields.io/badge/Network-TCP%2FJSON-blueviolet)
+
 Implementación del clásico juego **Hundir la Flota** desarrollada en **Python 3.13.2**, diseñada como ejercicio práctico para mejorar competencias avanzadas en:
 
 - Programación Orientada a Objetos (POO)
