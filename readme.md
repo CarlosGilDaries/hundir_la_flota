@@ -6,13 +6,7 @@
 ![Principles](https://img.shields.io/badge/Principles-SOLID-yellow)
 ![Network](https://img.shields.io/badge/Network-TCP%2FJSON-blueviolet)
 
-Implementación del clásico juego **Hundir la Flota** desarrollada en **Python 3.13.2**, diseñada como ejercicio práctico para mejorar competencias avanzadas en:
-
-- Programación Orientada a Objetos (POO)
-- Principios **SOLID**
-- Arquitectura **MVC**
-- Programación **asíncrona con `asyncio`**
-- Diseño modular y escalable
+Implementación del clásico juego **Hundir la Flota** desarrollada en **Python 3.13.2**, diseñada como ejercicio práctico para mejorar competencias avanzadas en: Programación Orientada a Objetos (POO), Principios **SOLID**, Arquitectura **MVC**, Programación **asíncrona con `asyncio`** y Diseño modular y escalable.
 
 El proyecto incluye tanto **modo local (PVE)** como **modo multijugador por red (PVP)**, permitiendo partidas simultáneas entre jugadores mediante un servidor asíncrono.
 
