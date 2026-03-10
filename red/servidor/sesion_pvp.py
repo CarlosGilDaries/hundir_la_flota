@@ -1,5 +1,4 @@
 from modelo.partida.partida_pvp import EstadoPartida
-from modelo.resultado import ResultadoDisparo
 from config.textos import TRADUCCION
 from red.protocolo.mensajes import TipoMensaje, crear_mensaje, obtener_tipo
 from red.helpers.enviar import enviar
@@ -162,7 +161,9 @@ class SesionPVP:
                 )
 
             if self._service.estado() == EstadoPartida.JUGANDO:
+                
                 await self._actualizar_turnos()
+                self.logger.info(f"MATCH_FIRST_TURN match={self.partida_id} player={self._service.turno()}")
 
         except Exception as e:
             await enviar(writer,

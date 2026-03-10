@@ -3,6 +3,7 @@ from modelo.tablero import Tablero
 from modelo.barco import Barco
 from modelo.resultado import ResultadoDisparo
 from enum import Enum
+import random
 
 
 class EstadoPartida(Enum):
@@ -118,7 +119,7 @@ class PartidaPVP(Partida):
 
                 if len(self._jugadores_listos) == 2:
                     self._estado = EstadoPartida.JUGANDO
-                    self._turno = 1
+                    self._turno = self._randomizar_turnos()
 
         return colocado
     
@@ -182,3 +183,12 @@ class PartidaPVP(Partida):
         """
         return 2 if jugador == 1 else 1
 
+
+    def _randomizar_turnos(self) -> int:
+        """
+        Randomiza el primer turno para que sea aleatorio quién empieza.
+
+        Returns:
+            int: 1 para que empiece el jugador 1 y 2 para que empiece el jugador 2.
+        """
+        return random.randint(1, 2)
