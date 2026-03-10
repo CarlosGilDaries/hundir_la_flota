@@ -1,4 +1,4 @@
-# Hundir la Flota (Battleship) – Python Async MVC
+# 🚢 Hundir la Flota (Battleship) – Python Async MVC
 
 ![Python](https://img.shields.io/badge/Python-3.13.2-blue)
 ![asyncio](https://img.shields.io/badge/Async-asyncio-green)
@@ -18,7 +18,7 @@ El proyecto incluye tanto **modo local (PVE)** como **modo multijugador por red 
 
 ---
 
-## Objetivos del proyecto
+## 🎯 Objetivos del proyecto
 
 El objetivo principal del proyecto fue **mejorar la competencia en Python** aplicando buenas prácticas de arquitectura y diseño de software.
 
@@ -37,7 +37,7 @@ El diseño del proyecto se planteó desde el inicio con una intención clara:
 
 ---
 
-## Arquitectura
+## 🏗️ Arquitectura
 
 El proyecto utiliza una arquitectura **MVC (Model – View – Controller)** para separar responsabilidades y facilitar la escalabilidad.
 
@@ -67,7 +67,7 @@ Existen dos controladores principales:
 
 ---
 
-## Documentación del código
+## 📚 Documentación del código
 
 El código del proyecto está **completamente documentado utilizando `pydoc`**, incluyendo:
 
@@ -87,7 +87,7 @@ Además, el protocolo de comunicación cliente-servidor está **tipado mediante 
 
 ---
 
-## Networking y concurrencia
+## 🌐 Networking y concurrencia
 
 Inicialmente se planteó una arquitectura basada en **crear un hilo por jugador o por partida**.
 
@@ -116,7 +116,7 @@ La comunicación entre cliente y servidor se realiza mediante **mensajes JSON so
 
 ---
 
-## Funcionalidades actuales
+## 🎮 Funcionalidades actuales
 
 La versión actual del proyecto permite:
 
@@ -135,7 +135,7 @@ La versión actual del proyecto permite:
 
 ---
 
-## Logging del servidor
+## 📝 Logging del servidor
 
 Toda la actividad del servidor queda registrada en:
 
@@ -152,7 +152,7 @@ Incluyendo eventos como:
 
 ---
 
-## Estructura del proyecto
+## 📂 Estructura del proyecto
 
 ```text
 hundir_la_flota/
@@ -201,7 +201,7 @@ hundir_la_flota/
 
 ---
 
-## Flujo de ejecución
+## ▶️ Flujo de ejecución
 
 El sistema se divide en **cliente y servidor**.
 
@@ -244,11 +244,31 @@ python -m main
 
 - El cliente se conecta al servidor  
 - Entra en una cola de emparejamiento  
-- Cuando hay dos jugadores disponibles se crea una partida automáticamente  
+- Cuando hay dos jugadores disponibles se crea una partida automáticamente
+
+Si el servidor se ejecuta en otro equipo dentro de la misma red local, es necesario modificar la dirección IP del servidor en el cliente.
+
+En el archivo:
+
+```bash
+app/app.py
+```
+
+método:
+
+```bash
+async def _ejecutar_pvp(self):
+```
+
+actualizar la IP del equipo que ejecuta el servidor, por ejemplo:
+
+```bash
+cliente = ClienteSocket("192.168.1.35", 8888)
+```
 
 ---
 
-## Tecnologías utilizadas
+## 🧰 Tecnologías utilizadas
 
 - **Python 3.13.2**
 - **asyncio**
@@ -261,7 +281,7 @@ python -m main
 
 ---
 
-## Posibles mejoras futuras
+## 🚀 Posibles mejoras futuras
 
 La arquitectura del proyecto permite incorporar nuevas funcionalidades con relativa facilidad:
 
