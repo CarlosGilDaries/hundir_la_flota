@@ -189,4 +189,15 @@ class Servidor:
 
 if __name__ == "__main__":
     servidor = Servidor()
-    asyncio.run(servidor.iniciar())
+    try:
+        asyncio.run(servidor.iniciar())
+    except KeyboardInterrupt:
+        print("\n[INFO] Servidor detenido manualmente. Cerrando partidas...")
+        for sesion in servidor.partidas_activas:
+            for w in sesion._writers.values():
+                try:
+                    w.close()
+                    asyncio.run(w.wait_closed())
+                except:
+                    pass
+        print("[INFO] Todas las partidas cerradas.")
