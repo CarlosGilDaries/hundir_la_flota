@@ -133,7 +133,7 @@ La versión actual del proyecto permite:
 
 Toda la actividad del servidor queda registrada en:
 
-`red/servidor/servidor_log.log`
+`logs/servidor_log.log`
 
 Incluyendo eventos como:
 
@@ -244,15 +244,11 @@ Si el servidor se ejecuta en otro equipo dentro de la misma red local, es necesa
 
 En el archivo:
 
-```bash
-app/app.py
-```
+`app/app.py`
 
 método:
 
-```bash
-async def _ejecutar_pvp(self):
-```
+`async def _ejecutar_pvp(self):`
 
 actualizar la IP del equipo que ejecuta el servidor, por ejemplo:
 
