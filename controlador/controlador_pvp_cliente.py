@@ -384,7 +384,8 @@ class ControladorPVPCliente(Controlador):
         Returns:
             None
         """
-        self._vista.mostrar_mensaje(f"\nDisparo en ({mensaje['x']},{mensaje['y']}): {mensaje['resultado']}\n")
+        texto = self._vista.obtener_texto(mensaje["resultado"]) 
+        self._vista.mostrar_mensaje(f"\nDisparo en ({mensaje['x']},{mensaje['y']}): {texto}\n")
 
 
     async def _manejar_recibido(self, mensaje: dict) -> None:
@@ -397,7 +398,8 @@ class ControladorPVPCliente(Controlador):
         Returns:
             None
         """
-        self._vista.mostrar_mensaje(f"\nTe dispararon en ({mensaje['x']},{mensaje['y']}): {mensaje['resultado']}\n")
+        texto = self._vista.obtener_texto(mensaje["resultado"])
+        self._vista.mostrar_mensaje(f"\nTe dispararon en ({mensaje['x']},{mensaje['y']}): {texto}\n")
 
 
     async def _manejar_estado_tableros(self, mensaje: dict) -> None:

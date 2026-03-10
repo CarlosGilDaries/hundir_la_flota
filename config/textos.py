@@ -3,7 +3,7 @@ from modelo.resultado import ResultadoDisparo
 TRADUCCION = {
     ResultadoDisparo.AGUA: "AGUA",
     ResultadoDisparo.TOCADO: "TOCADO",
-    ResultadoDisparo.HUNDIDO: "TOCADO_Y_HUNDIDO",
+    ResultadoDisparo.HUNDIDO: "HUNDIDO",
     ResultadoDisparo.REPETIDO: "REPETIDO",
     ResultadoDisparo.INVALIDO: "INVALIDO",
 }
@@ -17,7 +17,7 @@ TEXTOS = {
     "PULSAR_ENTER" : "\nPulsa Enter para continuar...",
 
     # Disparos
-    "TOCADO_Y_HUNDIDO": "TOCADO Y HUNDIDO",
+    "HUNDIDO": "TOCADO Y HUNDIDO",
     "TOCADO": "TOCADO",
     "AGUA": "AGUA",
     "REPETIDO": "YA HABÍAS DISPARADO EN ESTE HUECO. NO PIERDES LA BALA.",
