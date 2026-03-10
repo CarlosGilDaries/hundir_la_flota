@@ -5,8 +5,8 @@ CONSTANTES = {
             # Fácil
             1: {
                 "nombre": "Fácil",
-                "ancho": 4,
-                "alto": 4,
+                "ancho": 8,
+                "alto": 8,
                 "disparos": 60,
                 "barcos": [
                     ("Portaaviones", 5, "P"),
