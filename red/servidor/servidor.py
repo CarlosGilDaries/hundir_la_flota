@@ -1,5 +1,10 @@
 from red.servidor.sesion_pvp import SesionPVP
 from utils.log import configurar_logger
+from utils.log_decorator import log_async
+from config.eventos_log import (
+    SERVER_START, PLAYER_CONNECTED, QUEUE_ADD, PLAYER_DISCONNECTED,
+    PLAYER_EXIT, PLAYER_CONNECTION_LOST, MATCH_CREATED
+)
 from red.helpers.enviar import enviar
 from collections import deque
 import asyncio
@@ -45,7 +50,7 @@ class Servidor:
             self.port
         )
 
-        self.logger.info(f"SERVER_START host={self.host} port={self.port}")
+        self.logger.info(f"{SERVER_START} host={self.host} port={self.port}")
         
         asyncio.create_task(self._matchmaker())
 
@@ -53,6 +58,7 @@ class Servidor:
             await server.serve_forever()
 
 
+    @log_async
     async def _manejar_cliente(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         """
         Gestiona el ciclo de vida completo de un cliente conectado.
@@ -79,11 +85,11 @@ class Servidor:
         self._contador_jugadores += 1
         self._ids[writer] = jugador_id
         
-        self.logger.info(f"PLAYER_CONNECTED player={jugador_id} addr={addr}")
+        self.logger.info(f"{PLAYER_CONNECTED} player={jugador_id} addr={addr}")
         
         async with self._lock_cola:
             self.cola_espera.append(writer)
-            self.logger.info(f"QUEUE_ADD player={jugador_id} waiting={len(self.cola_espera)}")
+            self.logger.info(f"{QUEUE_ADD} player={jugador_id} waiting={len(self.cola_espera)}")
 
 
         await enviar(writer, {
@@ -96,7 +102,7 @@ class Servidor:
                 data = await reader.readline()
 
                 if not data:
-                    self.logger.info(f"PLAYER_DISCONNECTED player={jugador_id} addr={addr}")
+                    self.logger.info(f"{PLAYER_DISCONNECTED} player={jugador_id} addr={addr}")
                     
                     if writer in self.jugador_partida:
                         partida = self.jugador_partida[writer]
@@ -106,7 +112,7 @@ class Servidor:
 
                 mensaje = json.loads(data.decode().strip())
                 if mensaje.get("tipo") == "salir":
-                    self.logger.info(f"PLAYER_EXIT player={jugador_id} addr={addr}")
+                    self.logger.info(f"{PLAYER_EXIT} player={jugador_id} addr={addr}")
 
                     if writer in self.jugador_partida:
                         partida = self.jugador_partida[writer]
@@ -119,7 +125,7 @@ class Servidor:
                     await partida.recibir_mensaje(writer, mensaje)
 
         except ConnectionResetError:
-            self.logger.warning(f"PLAYER_CONNECTION_LOST player={jugador_id} addr={addr}")
+            self.logger.warning(f"{PLAYER_CONNECTION_LOST} player={jugador_id} addr={addr}")
 
             if writer in self.jugador_partida:
                 partida = self.jugador_partida[writer]
@@ -182,7 +188,7 @@ class Servidor:
             
             if sesion:    
                 await sesion.iniciar()
-                self.logger.info(f"MATCH_CREATED match={partida_id} player1={id1} player2={id2}")
+                self.logger.info(f"{MATCH_CREATED} match={partida_id} player1={id1} player2={id2}")
                 
             await asyncio.sleep(0.1)
 
