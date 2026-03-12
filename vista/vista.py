@@ -84,12 +84,13 @@ class Vista(ABC):
     
     
     @abstractmethod
-    def mostrar_mensaje_final(self, victoria: bool) -> None:
+    def mostrar_mensaje_final(self, victoria: bool, pvp: bool) -> None:
         """
         Muestra el mensaje final de la partida.
 
         Args:
             victoria (bool): Indica si el jugador ha ganado.
+            pvp (bool): Indica si es una partida entre jugadores.
         """
         pass
     

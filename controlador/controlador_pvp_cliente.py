@@ -388,8 +388,9 @@ class ControladorPVPCliente(Controlador):
             None
         """
         self._vista.borrar_consola()
-        texto = self._vista.obtener_texto(mensaje["resultado"]) 
-        self._vista.mostrar_mensaje(f"\nDisparo en ({mensaje['x']},{mensaje['y']}): {texto}\n")
+        resultado = mensaje['resultado'] if mensaje['resultado'] != "REPETIDO" else "REPETIDO_PVP"
+        texto = f"{self._vista.obtener_texto(resultado)}"
+        self._vista.mostrar_mensaje(f"\nDisparo en ({mensaje['x']},{mensaje['y']}): {texto}")
 
 
     async def _manejar_recibido(self, mensaje: dict) -> None:
@@ -403,8 +404,9 @@ class ControladorPVPCliente(Controlador):
             None
         """
         self._vista.borrar_consola()
-        texto = self._vista.obtener_texto(mensaje["resultado"])
-        self._vista.mostrar_mensaje(f"\nTe dispararon en ({mensaje['x']},{mensaje['y']}): {texto}\n")
+        resultado = mensaje['resultado'] if mensaje['resultado'] != "REPETIDO" else "REPETIDO_PVP"
+        texto = f"{self._vista.obtener_texto(resultado)}"
+        self._vista.mostrar_mensaje(f"\nTe dispararon en ({mensaje['x']},{mensaje['y']}): {texto}")
 
 
     async def _manejar_estado_tableros(self, mensaje: dict) -> None:
