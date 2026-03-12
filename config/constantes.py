@@ -52,10 +52,10 @@ CONSTANTES = {
             "ancho": 10,
             "alto": 10,
             "barcos": [
-                ("Portaaviones", 5, "P"),
-                ("Acorazado", 4, "A"),
-                ("Destructor", 3, "D"),
-                ("Submarino", 3, "S"),
+                # ("Portaaviones", 5, "P"),
+                # ("Acorazado", 4, "A"),
+                # ("Destructor", 3, "D"),
+                # ("Submarino", 3, "S"),
                 ("Lancha", 2, "L"),
             ]
         }

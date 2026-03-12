@@ -303,6 +303,7 @@ class ControladorPVPCliente(Controlador):
         """
         barcos = mensaje["barcos"]
         self._barcos_disponibles = barcos
+        self._vista.borrar_consola()
         self._vista.mostrar_mensaje("\nEscribe 'salir' para abandonar.")
         self._vista.mostrar_mensaje("\nBarcos disponibles:\n")
         for b in barcos:
@@ -322,6 +323,7 @@ class ControladorPVPCliente(Controlador):
         Returns:
             None
         """
+        self._vista.borrar_consola()
         self._vista.mostrar_mensaje(f"\nConfirmación: {mensaje['mensaje']}")
 
 
@@ -358,6 +360,7 @@ class ControladorPVPCliente(Controlador):
         # TERMINAR COLOCACIÓN
         if self._colocando:
             self._colocando = False
+            self._vista.borrar_consola()
 
             if self._tarea_input:
                 self._tarea_input.cancel()
@@ -384,6 +387,7 @@ class ControladorPVPCliente(Controlador):
         Returns:
             None
         """
+        self._vista.borrar_consola()
         texto = self._vista.obtener_texto(mensaje["resultado"]) 
         self._vista.mostrar_mensaje(f"\nDisparo en ({mensaje['x']},{mensaje['y']}): {texto}\n")
 
@@ -398,6 +402,7 @@ class ControladorPVPCliente(Controlador):
         Returns:
             None
         """
+        self._vista.borrar_consola()
         texto = self._vista.obtener_texto(mensaje["resultado"])
         self._vista.mostrar_mensaje(f"\nTe dispararon en ({mensaje['x']},{mensaje['y']}): {texto}\n")
 
