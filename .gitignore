@@ -5,3 +5,6 @@ __pycache__/
 
 # Logs del servidor
 *.log
+
+# Entornos virtuales
+venv/
