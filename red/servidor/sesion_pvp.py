@@ -286,8 +286,10 @@ class SesionPVP:
             await self._enviar_estado(rival)
 
             if self._service.hay_victoria():
-                self._log_evento(GANADOR, player=player_id)
+                self._log_evento(GANADOR, player=f"{player_id} addr={self._addrs[jugador]}")
                 await self._finalizar_partida()
+                self._terminada = True
+                self._log_evento(SESION_TERMINADA)
 
             else:
                 await self._actualizar_turnos()
@@ -427,7 +429,7 @@ class SesionPVP:
             player=self._player_ids[jugador]
         )
         
-        self._log_evento(GANADOR, player=self._player_ids[jugador])
+        self._log_evento(GANADOR, player=f"{self._player_ids[rival]} addr={self._addrs[rival]}")
 
         # avisar al rival
         if writer_rival:
