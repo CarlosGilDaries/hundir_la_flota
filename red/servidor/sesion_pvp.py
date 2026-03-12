@@ -426,6 +426,8 @@ class SesionPVP:
             JUGADOR_DESCONECTADO,
             player=self._player_ids[jugador]
         )
+        
+        self._log_evento(GANADOR, player=self._player_ids[jugador])
 
         # avisar al rival
         if writer_rival:

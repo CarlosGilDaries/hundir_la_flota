@@ -442,7 +442,7 @@ class ControladorPVPCliente(Controlador):
         """
         victoria = mensaje["victoria"]
         self._vista.mostrar_mensaje_final(victoria, True)
-        await self.input_async("\nPULSA INTRO PARA CONTINUAR...")
+        await self.input_async("\nPULSA INTRO PARA VOLVER AL MENÚ...")
         self._jugando = False
         if self._tarea_input and not self._tarea_input.done():
             self._tarea_input.cancel()
@@ -464,6 +464,7 @@ class ControladorPVPCliente(Controlador):
         self._jugando = False
         if self._tarea_input and not self._tarea_input.done():
             self._tarea_input.cancel()
+        await self.input_async("\nPULSA INTRO PARA VOLVER AL MENÚ...")
         await self._cliente.desconectar()
 
 
