@@ -221,17 +221,41 @@ class VistaConsola(Vista):
 
     def mostrar_tableros(self, propio: list[list[str]], rival: list[list[str]]) -> None:
         """
-        Muestra simultáneamente el tablero del jugador y el del rival.
+        Muestra simultáneamente el tablero del jugador y el del rival,
+        incluyendo coordenadas X e Y como encabezados.
 
         Args:
             propio (list[list[str]]): Tablero del jugador.
             rival (list[list[str]]): Tablero visible del rival.
         """
-        ancho = 25
+        alto = len(propio)
+        ancho = len(propio[0])
+        
+        # Calcular el ancho de cada tablero impreso
+        # Formato: "Y " (3 caracteres) + números con espacios
+        ancho_tablero_impreso = 3 + (ancho * 2 - 1)
+        espaciador = 5
+        
         print()
-        print("Tu tablero".ljust(ancho) + "Tablero rival")
-
-        for fila1, fila2 in zip(propio, rival):
-            linea1 = " ".join(fila1)
-            linea2 = " ".join(fila2)
-            print(linea1.ljust(ancho) + linea2)
+        
+        # Mostrar títulos centrados sobre los tableros
+        titulo_propio = "Tu tablero"
+        titulo_rival = "Tablero rival"
+        linea_titulo = titulo_propio.ljust(ancho_tablero_impreso) + (" " * espaciador) + titulo_rival
+        print(f"{linea_titulo}\n")
+        
+        # Mostrar encabezados X
+        encabezado = "   " + " ".join(str(i) for i in range(ancho))
+        linea_encabezado = encabezado.ljust(ancho_tablero_impreso) + (" " * espaciador) + encabezado
+        print(linea_encabezado)
+        
+        # Mostrar filas con índices Y
+        for i in range(alto):
+            fila1 = propio[i]
+            fila2 = rival[i]
+            
+            fila_str1 = f"{i:<2} " + " ".join(fila1)
+            fila_str2 = f"{i:<2} " + " ".join(fila2)
+            
+            linea = fila_str1.ljust(ancho_tablero_impreso) + (" " * espaciador) + fila_str2
+            print(linea)
