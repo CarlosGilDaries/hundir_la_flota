@@ -227,6 +227,7 @@ class ControladorPVPCliente(Controlador):
                     crear_mensaje(
                         TipoMensaje.SELECCIONAR_BARCO,
                         indice=indice,
+                        nombre=barco["nombre"],
                         x=x,
                         y=y,
                         horizontal=horizontal

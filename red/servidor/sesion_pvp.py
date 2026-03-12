@@ -163,7 +163,7 @@ class SesionPVP:
                 self._log_evento(
                     BARCO_COLOCADO,
                     player=player_id,
-                    boat=mensaje["indice"],
+                    boat=mensaje.get("nombre", f"boat_{mensaje['indice']}"),
                     x=mensaje["x"],
                     y=mensaje["y"],
                     horizontal=mensaje["horizontal"]
@@ -180,7 +180,7 @@ class SesionPVP:
                 self._log_evento(
                     ERROR_COLOCACION,
                     player=player_id,
-                    boat=mensaje["indice"],
+                    boat=mensaje.get("nombre", f"boat_{mensaje['indice']}"),
                     reason="invalid_position"
                 )
 
@@ -216,7 +216,7 @@ class SesionPVP:
             self._log_evento(
                 ERROR_COLOCACION,
                 player=player_id,
-                boat=mensaje.get("indice", "?"),
+                boat=mensaje.get("nombre", f"boat_{mensaje.get('indice', '?')}"),
                 reason=str(e)
             )
 
