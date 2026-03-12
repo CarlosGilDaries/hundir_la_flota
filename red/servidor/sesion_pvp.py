@@ -228,6 +228,10 @@ class SesionPVP:
             await self._enviar_estado(rival)
 
             if self._service.hay_victoria():
+                self.logger.info(
+                    f"MATCH_WINNER match={self.partida_id} "
+                    f"player={self._player_ids[jugador]}"
+                )
                 await self._finalizar_partida()
 
             else:
