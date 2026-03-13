@@ -16,16 +16,19 @@ class Menu:
         self._instrucciones = instrucciones
 
 
-    def ejecutar_menu_principal(self) -> int:
+    def ejecutar_menu_principal(self, dificultades: list[int]) -> int:
         """
         Ejecuta el menú principal del juego.
         El menú se muestra de forma repetida hasta que el usuario
         selecciona iniciar una partida o salir del programa.
+        
+        Args:             
+            dificultades (list[int]): Lista de índices de dificultades disponibles para modo PVE.
 
         Returns:
             int:
-                - 1, 2 o 3 → dificultad seleccionada para modo PVE
-                - 4 → iniciar modo PVP
+                - entero dentro del rango de dificultades → dificultad seleccionada para modo PVE
+                - entero fuera del rango de dificultades → iniciar modo PVP
 
         Raises:
             SalirDelPrograma: Si el usuario selecciona salir.
@@ -36,9 +39,9 @@ class Menu:
 
             match opcion:
                 case "1":
-                    return self.ejecutar_menu_dificultad()
+                    return self.ejecutar_menu_dificultad(dificultades)
                 case "2":
-                    return 4
+                    return len(dificultades) + 1
                 case "3":
                     self._interfaz.mostrar_instrucciones(self._instrucciones)
                 case "4":
@@ -48,9 +51,12 @@ class Menu:
                     print(self._interfaz.obtener_texto("ERROR_MENU"))
 
     
-    def ejecutar_menu_dificultad(self) -> int:
+    def ejecutar_menu_dificultad(self, dificultades: list[int]) -> int:
         """
         Ejecuta el menú de dificultad.
+        
+        Args:             
+            dificultades (list[int]): Lista de índices de dificultades disponibles para modo PVE.
 
         Returns:
             int: El número correspondiente a la opción.
@@ -59,16 +65,11 @@ class Menu:
         while True:
             opcion = self._menu_dificultad()
 
-            match opcion:
-                case "1":
-                    return 1
-                case "2":
-                    return 2
-                case "3":
-                    return 3
-                case _:
-                    self._interfaz.borrar_consola()
-                    print(self._interfaz.obtener_texto("ERROR_MENU"))
+            if opcion.isdigit() and int(opcion) in dificultades:
+                return int(opcion)
+
+            self._interfaz.borrar_consola()
+            print(self._interfaz.obtener_texto("ERROR_MENU"))
 
 
     def _menu_principal(self):

@@ -45,6 +45,21 @@ CONSTANTES = {
                     ("Lancha", 2, "L"),
                 ]
             },
+            
+            # Muy Difícil
+            4: {
+                "nombre": "Muy Difícil",
+                "ancho": 12,
+                "alto": 12,
+                "disparos": 40,
+                "barcos": [
+                    ("Portaaviones", 5, "P"),
+                    ("Acorazado", 4, "A"),
+                    ("Destructor", 3, "D"),
+                    ("Submarino", 3, "S"),
+                    ("Lancha", 2, "L"),
+                ]
+            },
         },
         
         # PVP

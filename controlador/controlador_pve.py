@@ -11,6 +11,7 @@ class ControladorPVE(Controlador):
         self._vista = vista
         self._config = config
         self._partida: PartidaPVE | None = None
+        self.config_dificultad = self._config["DIFICULTAD"]["PVE"]
         
     
     def iniciar(self, dificultad: int) -> None:

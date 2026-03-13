@@ -102,6 +102,16 @@ INSTRUCCIONES = """
             - 1 destructor de tamaño 3
             - 1 submarino de tamaño 3
             - 1 lancha de tamaño 2
+            
+            MUY DIFÍCIL
+            --------
+            - Tablero 12x12.
+            - 40 disparos.
+            - 1 portaaviones de tamaño 5.
+            - 1 acorazado de tamaño 4
+            - 1 destructor de tamaño 3
+            - 1 submarino de tamaño 3
+            - 1 lancha de tamaño 2
 
             ------------------------------------------------------------
             Pulsa ENTER para volver al menú...

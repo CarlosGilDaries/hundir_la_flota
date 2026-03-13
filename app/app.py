@@ -28,13 +28,20 @@ class App:
         Inicia la ejecución de la aplicación.
         """
         try:
+            pve_dificultades = []
+            for clave in self.controlador_pve.config_dificultad.keys():
+                pve_dificultades.append(int(clave))
+                
             while True:
-                opcion = self._menu.ejecutar_menu_principal()
-                if opcion in [1, 2, 3]:
+                opcion = self._menu.ejecutar_menu_principal(pve_dificultades)
+                
+                if opcion in pve_dificultades:
                     dificultad = opcion
                     self.controlador_pve.iniciar(dificultad)
-                elif opcion == 4:
+                    
+                elif opcion == len(pve_dificultades) + 1:
                     self._iniciar_cliente_pvp()
+                    
         except SalirDelPrograma:
             self._interfaz.fin_programa()
             
