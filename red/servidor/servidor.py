@@ -9,6 +9,7 @@ from red.helpers.enviar import enviar
 from collections import deque
 import asyncio
 import json
+import time
 
 
 class Servidor:
@@ -27,6 +28,7 @@ class Servidor:
         self.host = host
         self.port = port
         self.cola_espera = deque()
+        self.cola_tiempos = {}  # Mapea writer -> timestamp de entrada a cola
         self.partidas_activas = []
         self._contador_jugadores = 1
         self._contador_partidas = 1
@@ -36,6 +38,7 @@ class Servidor:
         self._lock_cola = asyncio.Lock()
         self._lock_contador = asyncio.Lock()
         self._lock_partida = asyncio.Lock()
+        self.TIMEOUT_COLA = 15  # Segundos
         
 
     async def iniciar(self) -> None:
@@ -93,6 +96,7 @@ class Servidor:
         
         async with self._lock_cola:
             self.cola_espera.append(writer)
+            self.cola_tiempos[writer] = time.time()  # Guardar timestamp de entrada a cola
             self.logger.info(f"{QUEUE_ADD} player={jugador_id} waiting={len(self.cola_espera)}")
 
 
@@ -104,7 +108,7 @@ class Servidor:
         try:
             while True:
                 data = await reader.readline()
-
+                
                 if not data:
                     self.logger.info(f"{PLAYER_DISCONNECTED} player={jugador_id} addr={addr}")
                     
@@ -163,6 +167,8 @@ class Servidor:
             async with self._lock_cola:
                 if writer in self.cola_espera:
                     self.cola_espera.remove(writer)
+                if writer in self.cola_tiempos:
+                    del self.cola_tiempos[writer]
 
             async with self._lock_contador:
                 if writer in self._ids:
@@ -179,13 +185,23 @@ class Servidor:
         """
         Tarea asíncrona que empareja jugadores de la cola
         y crea partidas cuando hay suficientes.
+        También revisa timeouts para jugadores que han esperado demasiado.
         """
         while True:
+            # Revisar timeouts
+            await self._revisar_timeouts_cola()
+            
             sesion = None
             async with self._lock_cola:
                 if len(self.cola_espera) >= 2:
                     j1 = self.cola_espera.popleft()
                     j2 = self.cola_espera.popleft()
+                    
+                    # Limpiar tiempos
+                    if j1 in self.cola_tiempos:
+                        del self.cola_tiempos[j1]
+                    if j2 in self.cola_tiempos:
+                        del self.cola_tiempos[j2]
                 else:
                     j1 = j2 = None
 
@@ -227,6 +243,53 @@ class Servidor:
                 self.logger.info(f"{MATCH_CREATED} match={partida_id} player1={id1} player2={id2}")
                 
             await asyncio.sleep(0.1)
+
+    
+    async def _revisar_timeouts_cola(self) -> None:
+        """
+        Revisa si hay jugadores en la cola que han excedido el tiempo de espera.
+        Si es así, los saca de la cola y les envía un mensaje de timeout.
+
+        Returns:
+            None
+        """
+        tiempo_actual = time.time()
+        
+        async with self._lock_cola:
+            jugadores_timeout = []
+            
+            # Identificar jugadores con timeout
+            for writer in list(self.cola_espera):
+                if writer in self.cola_tiempos:
+                    tiempo_espera = tiempo_actual - self.cola_tiempos[writer]
+                    if tiempo_espera >= self.TIMEOUT_COLA:
+                        jugadores_timeout.append(writer)
+            
+            # Remover de cola
+            for writer in jugadores_timeout:
+                try:
+                    self.cola_espera.remove(writer)
+                    del self.cola_tiempos[writer]
+                except (ValueError, KeyError):
+                    pass
+        
+        # Enviar mensajes (fuera del lock para no bloquear)
+        for writer in jugadores_timeout:
+            try:
+                await enviar(writer, {
+                    "tipo": "timeout_cola",
+                    "razon": "rivales_no_disponibles"
+                })
+                
+                # Obtener ID para loguear
+                async with self._lock_contador:
+                    jugador_id = self._ids.get(writer, -1)
+                
+                if jugador_id >= 0:
+                    self.logger.info(f"PLAYER_TIMEOUT player={jugador_id} razón=sin_rival_disponible")
+                
+            except Exception as e:
+                self.logger.warning(f"Error enviando timeout: {e}")
 
 
 if __name__ == "__main__":

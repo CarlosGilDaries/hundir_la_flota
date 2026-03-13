@@ -21,6 +21,7 @@ class TipoMensaje(str, Enum):
     SALIR = "salir"
     ABANDONO = "abandono"
     CIERRE_CONEXION = "cierre_conexion"
+    TIMEOUT_COLA = "timeout_cola"
     
 
 class MensajeBase(TypedDict):
@@ -181,6 +182,16 @@ class MensajeCierreConexion(MensajeBase):
         mensaje (str): Mensaje comunicando el cierre del servidor.
     """
     mesnaje: str
+
+
+class MensajeTimeoutCola(MensajeBase):
+    """
+    Mensaje enviado si el jugador espera más de 15 segundos sin rival.
+
+    Attributes:
+        razon (str): Razón del timeout (rivales no disponibles).
+    """
+    razon: str
     
     
 MensajeProtocolo: TypeAlias = (
@@ -197,6 +208,7 @@ MensajeProtocolo: TypeAlias = (
     | MensajeFin
     | MensajeAbandono
     | MensajeCierreConexion
+    | MensajeTimeoutCola
 )
 
 

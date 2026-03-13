@@ -39,7 +39,8 @@ class ControladorPVPCliente(Controlador):
             TipoMensaje.FIN: self._manejar_fin,
             TipoMensaje.ERROR: self._manejar_error,
             TipoMensaje.ABANDONO: self._manejar_abandono,
-            TipoMensaje.CIERRE_CONEXION: self._manejar_cierre_conexion
+            TipoMensaje.CIERRE_CONEXION: self._manejar_cierre_conexion,
+            TipoMensaje.TIMEOUT_COLA: self._manejar_timeout_cola
         }
 
 
@@ -483,6 +484,26 @@ class ControladorPVPCliente(Controlador):
         """
         self._vista.borrar_consola()
         self._vista.mostrar_mensaje("Conexión cerrada por el servidor. Pulse Intro para continuar...")
+        self._jugando = False
+        if self._tarea_input and not self._tarea_input.done():
+            self._tarea_input.cancel()
+        await self._cliente.desconectar()
+
+
+    async def _manejar_timeout_cola(self, mensaje: dict) -> None:
+        """
+        Gestiona el timeout por espera demasiado tiempo en cola sin rival.
+        Muestra un mensaje informando que no se encontró rival y vuelve al menú.
+
+        Args:
+            mensaje (dict): Mensaje indicando timeout en cola.
+
+        Returns:
+            None
+        """
+        self._vista.borrar_consola()
+        self._vista.mostrar_mensaje("\nNo se encontró ningún rival disponible tras 15 segundos. Vuelva a intentarlo más tarde.\n")
+        await self.input_async("\nPULSA INTRO PARA VOLVER AL MENÚ...")
         self._jugando = False
         if self._tarea_input and not self._tarea_input.done():
             self._tarea_input.cancel()

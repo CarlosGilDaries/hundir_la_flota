@@ -8,6 +8,7 @@ import asyncio
 from controlador.controlador_pve import ControladorPVE
 from controlador.controlador_pvp_cliente import ControladorPVPCliente
 from red.cliente.cliente_socket import ClienteSocket
+import time
 
 
 class App:
@@ -54,6 +55,7 @@ class App:
                 
         except Exception as e:
             self._interfaz.mostrar_mensaje(f"Error en la conexión: {e}")
+            asyncio.run(asyncio.sleep(5))
             if cliente:
                 asyncio.run(cliente.desconectar())
             
