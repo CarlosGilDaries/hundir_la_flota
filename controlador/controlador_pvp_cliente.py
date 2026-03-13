@@ -38,7 +38,8 @@ class ControladorPVPCliente(Controlador):
             TipoMensaje.TURNO: self._manejar_turno,
             TipoMensaje.FIN: self._manejar_fin,
             TipoMensaje.ERROR: self._manejar_error,
-            TipoMensaje.ABANDONO: self._manejar_abandono
+            TipoMensaje.ABANDONO: self._manejar_abandono,
+            TipoMensaje.CIERRE_CONEXION: self._manejar_cierre_conexion
         }
 
 
@@ -65,7 +66,8 @@ class ControladorPVPCliente(Controlador):
             mensaje = await self._cliente.recibir()
             # print("MENSAJE RECIBIDO POR CONTROLADOR:", mensaje)
             if mensaje is None:
-                self._vista.mostrar_mensaje("Conexión cerrada por el servidor.")
+                self._vista.borrar_consola()
+                self._vista.mostrar_mensaje("Conexión cerrada por el servidor. Pulse Intro para continuar...")
                 self._jugando = False
                 break
             
@@ -465,6 +467,25 @@ class ControladorPVPCliente(Controlador):
         if self._tarea_input and not self._tarea_input.done():
             self._tarea_input.cancel()
         await self.input_async("\nPULSA INTRO PARA VOLVER AL MENÚ...")
+        await self._cliente.desconectar()
+
+
+    async def _manejar_cierre_conexion(self, mensaje: dict) -> None:
+        """
+        Gestiona la desconexión por cierre del servidor.
+        Muestra un mensaje indicando que la conexión fue cerrada por el servidor.
+
+        Args:
+            mensaje (dict): Mensaje indicando cierre de conexión.
+
+        Returns:
+            None
+        """
+        self._vista.borrar_consola()
+        self._vista.mostrar_mensaje("Conexión cerrada por el servidor. Pulse Intro para continuar...")
+        self._jugando = False
+        if self._tarea_input and not self._tarea_input.done():
+            self._tarea_input.cancel()
         await self._cliente.desconectar()
 
 

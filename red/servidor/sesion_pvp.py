@@ -436,8 +436,8 @@ class SesionPVP:
             try:
                 await enviar(writer_rival,
                     crear_mensaje(
-                        TipoMensaje.ABANDONO,
-                        abandono=True
+                        TipoMensaje.CIERRE_CONEXION,
+                        razon="jugador_desconectado"
                     )
                 )
             except:

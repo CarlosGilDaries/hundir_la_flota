@@ -20,6 +20,7 @@ class TipoMensaje(str, Enum):
     FIN = "fin"
     SALIR = "salir"
     ABANDONO = "abandono"
+    CIERRE_CONEXION = "cierre_conexion"
     
 
 class MensajeBase(TypedDict):
@@ -171,6 +172,16 @@ class MensajeAbandono(MensajeBase):
     """
     abandono: bool
     
+
+class MensajeCierreConexion(MensajeBase):
+    """
+    Mensaje enviado si un se cierra el servidor.
+
+    Attributes:
+        mensaje (str): Mensaje comunicando el cierre del servidor.
+    """
+    mesnaje: str
+    
     
 MensajeProtocolo: TypeAlias = (
     MensajeInicio
@@ -185,6 +196,7 @@ MensajeProtocolo: TypeAlias = (
     | MensajeError
     | MensajeFin
     | MensajeAbandono
+    | MensajeCierreConexion
 )
 
 
