@@ -401,14 +401,16 @@ class SesionPVP:
         
         
     @log_async
-    async def jugador_desconectado(self, writer: StreamWriter) -> None:
+    async def jugador_desconectado(self, writer: StreamWriter, es_abandono: bool = False) -> None:
         """
         Maneja la desconexión de un jugador durante una partida.
         Finaliza la partida automáticamente otorgando la victoria
-        al jugador restante.
+        al jugador restante si fue una desconexión voluntaria.
 
         Args:
             writer (StreamWriter): Conexión del jugador desconectado.
+            es_abandono (bool): True si fue salida voluntaria (escribió 'salir'),
+                              False si fue desconexión/cierre del servidor.
 
         Returns:
             None
@@ -429,16 +431,26 @@ class SesionPVP:
             player=self._player_ids[jugador]
         )
         
-        self._log_evento(GANADOR, player=f"{self._player_ids[rival]} addr={self._addrs[rival]}")
+        # Solo registrar ganador si fue abandono voluntario
+        if es_abandono:
+            self._log_evento(GANADOR, player=f"{self._player_ids[rival]} addr={self._addrs[rival]}")
+        else:
+            self._log_evento("SERVER_SHUTDOWN", player=f"{self._player_ids[jugador]} addr={self._addrs[jugador]}")
 
-        # avisar al rival
+        # Avisar al rival con el mensaje apropiado
         if writer_rival:
             try:
+                if es_abandono:
+                    # Jugador abandonó voluntariamente → Victoria por abandono
+                    tipo_mensaje = TipoMensaje.ABANDONO
+                    datos = {"abandono": True}
+                else:
+                    # Cierre del servidor → Conexión cerrada
+                    tipo_mensaje = TipoMensaje.CIERRE_CONEXION
+                    datos = {"razon": "cierre_servidor"}
+                
                 await enviar(writer_rival,
-                    crear_mensaje(
-                        TipoMensaje.CIERRE_CONEXION,
-                        razon="jugador_desconectado"
-                    )
+                    crear_mensaje(tipo_mensaje, **datos)
                 )
             except:
                 pass
