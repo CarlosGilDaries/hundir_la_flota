@@ -150,24 +150,27 @@ Incluyendo eventos como:
 
 ```text
 hundir_la_flota/
-├── main.py                          # Punto de entrada del cliente
+├── main.py                           # Punto de entrada del cliente
 ├── app/
-│   └── app.py                       # Orquestador principal
+│   └── app.py                        # Orquestador principal
 ├── config/
 │   ├── constantes.py                 # Constantes de configuración
+│   └── eventos_log.py                # Constantes para eventos de logging del servidor
 │   └── textos.py                     # Textos e instrucciones
 ├── controlador/
-│   ├── controlador.py                 # Clase abstracta base
-│   ├── controlador_pve.py              # Controlador para partidas PVE
-│   └── controlador_pvp_cliente.py      # Controlador para partidas PVP
+│   ├── controlador.py                # Clase abstracta base
+│   ├── controlador_pve.py            # Controlador para partidas PVE
+│   └── controlador_pvp_cliente.py    # Controlador para partidas PVP
+├── logs/
+│   ├── servidor_log.log              # Inicialmente no existe al estar en gitignore          
 ├── modelo/
 │   ├── barco.py
 │   ├── resultado.py
 │   ├── tablero.py
 │   └── partida/
-│       ├── partida.py                  # Clase abstracta
-│       ├── partida_pve.py               # Implementación PVE
-│       └── partida_pvp.py               # Implementación PVP
+│       ├── partida.py                 # Clase abstracta
+│       ├── partida_pve.py             # Implementación PVE
+│       └── partida_pvp.py             # Implementación PVP
 ├── red/
 │   ├── cliente/
 │   │   └── cliente_socket.py
@@ -176,18 +179,17 @@ hundir_la_flota/
 │   ├── protocolo/
 │   │   └── mensajes.py
 │   └── servidor/
-│       ├── servidor.py                  # Servidor asíncrono
-│       ├── sesion_pvp.py                 # Gestión de partidas
-│       └── servidor_log.log              # Logs del servidor
+│       ├── servidor.py                 # Servidor asíncrono
+│       └── sesion_pvp.py               # Gestión de partidas
 ├── servicios/
-│   └── partida_service.py                # Fachada para el modelo
+│   └── partida_service.py              # Fachada para el modelo
 ├── utils/
 │   ├── excepciones.py
 │   ├── log.py
-│   ├── log_decorador.py
+│   ├── log_decorator.py
 │   └── utils.py
 └── vista/
-    ├── vista.py                          # Clase abstracta
+    ├── vista.py                         # Clase abstracta
     └── consola/
         ├── menu_consola.py
         └── vista_consola.py
