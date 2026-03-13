@@ -106,7 +106,7 @@ class Servidor:
                     
                     if writer in self.jugador_partida:
                         partida = self.jugador_partida[writer]
-                        await partida.jugador_desconectado(writer)
+                        await partida.jugador_desconectado(writer, es_abandono=True)
 
                     break
 
@@ -129,7 +129,7 @@ class Servidor:
 
             if writer in self.jugador_partida:
                 partida = self.jugador_partida[writer]
-                await partida.jugador_desconectado(writer)
+                await partida.jugador_desconectado(writer, es_abandono=True)
         
         finally:
             if writer in self.jugador_partida:
