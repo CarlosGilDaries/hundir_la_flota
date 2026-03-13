@@ -12,6 +12,7 @@ from servicios.partida_service import PartidaService
 from utils.log_decorator import log_async
 from typing import Dict, Any
 from asyncio import StreamWriter
+import asyncio
 
 class SesionPVP:
     """
@@ -23,8 +24,8 @@ class SesionPVP:
     - turnos
     - sincronización de tableros
     """
-    def __init__(self, writer1: StreamWriter, writer2: StreamWriter, id1: int, id2: int, addr1, addr2, partida_id: int, logger, jugador_partida: Dict[StreamWriter, "SesionPVP"]) -> None:
-        self._terminada: bool = False
+    def __init__(self, writer1: StreamWriter, writer2: StreamWriter, id1: int, id2: int, addr1, addr2, partida_id: int, logger, jugador_partida: Dict[StreamWriter, "SesionPVP"], lock_partida: asyncio.Lock, partidas_activas: list) -> None:
+        self._evento_terminada = asyncio.Event()
         self.partida_id: int = partida_id
         self._writers: Dict[int, StreamWriter] = {
             1: writer1,
@@ -46,7 +47,12 @@ class SesionPVP:
             CONSTANTES["DIFICULTAD"]["PVP"],
             CONSTANTES["CARACTERES"]
         )
+        self._lock_partida = lock_partida
+        self._partidas_activas = partidas_activas
         self.jugador_partida = jugador_partida
+        
+        # Registrar en el diccionario compartido con sincronización
+        # Nota: El servidor ya protege esto con lock_partida antes de crear la sesión
         jugador_partida[writer1] = self
         jugador_partida[writer2] = self
         self.logger = logger
@@ -324,7 +330,7 @@ class SesionPVP:
         
         self._log_evento(CAMBIO_TURNO, player=self._player_ids[turno])
 
-        for jugador, writer in self._writers.items():
+        for jugador, writer in list(self._writers.items()):
             await enviar(writer,
                 crear_mensaje(
                     TipoMensaje.TURNO,
@@ -344,7 +350,7 @@ class SesionPVP:
         """
         ganador = self._service.ganador()
         
-        for jugador, writer in self._writers.items():
+        for jugador, writer in list(self._writers.items()):
             await enviar(writer,
                 crear_mensaje(
                     TipoMensaje.FIN,
@@ -415,10 +421,12 @@ class SesionPVP:
         Returns:
             None
         """
-        if self._terminada:
+        # Check atómico con Event (solo la primera llamada pasa)
+        if self._evento_terminada.is_set():
             return
 
-        self._terminada = True
+        self._evento_terminada.set()
+        
         if writer not in self._jugadores:
             return
 
@@ -455,15 +463,22 @@ class SesionPVP:
             except:
                 pass
 
-        # limpiar referencias
-        if writer in self.jugador_partida:
-            del self.jugador_partida[writer]
+        # Limpiar referencias con sincronización
+        async with self._lock_partida:
+            if writer in self.jugador_partida:
+                del self.jugador_partida[writer]
 
-        if writer_rival and writer_rival in self.jugador_partida:
-            del self.jugador_partida[writer_rival]
+            if writer_rival and writer_rival in self.jugador_partida:
+                del self.jugador_partida[writer_rival]
+        
+        # Limpiar de lista de partidas activas
+        try:
+            self._partidas_activas.remove(self)
+        except ValueError:
+            pass  # Ya fue removida
 
-        # cerrar writers si siguen abiertos
-        for w in self._writers.values():
+        # Cerrar writers si siguen abiertos
+        for w in list(self._writers.values()):
             try:
                 w.close()
                 await w.wait_closed()

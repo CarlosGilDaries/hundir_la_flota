@@ -34,6 +34,8 @@ class Servidor:
         self.logger = configurar_logger()
         self.jugador_partida = {}
         self._lock_cola = asyncio.Lock()
+        self._lock_contador = asyncio.Lock()
+        self._lock_partida = asyncio.Lock()
         
 
     async def iniciar(self) -> None:
@@ -81,9 +83,11 @@ class Servidor:
             None
         """
         addr = writer.get_extra_info("peername")
-        jugador_id = self._contador_jugadores
-        self._contador_jugadores += 1
-        self._ids[writer] = jugador_id
+        
+        async with self._lock_contador:
+            jugador_id = self._contador_jugadores
+            self._contador_jugadores += 1
+            self._ids[writer] = jugador_id
         
         self.logger.info(f"{PLAYER_CONNECTED} player={jugador_id} addr={addr}")
         
@@ -104,8 +108,12 @@ class Servidor:
                 if not data:
                     self.logger.info(f"{PLAYER_DISCONNECTED} player={jugador_id} addr={addr}")
                     
-                    if writer in self.jugador_partida:
-                        partida = self.jugador_partida[writer]
+                    partida = None
+                    async with self._lock_partida:
+                        if writer in self.jugador_partida:
+                            partida = self.jugador_partida[writer]
+                    
+                    if partida:
                         await partida.jugador_desconectado(writer, es_abandono=True)
 
                     break
@@ -114,34 +122,51 @@ class Servidor:
                 if mensaje.get("tipo") == "salir":
                     self.logger.info(f"{PLAYER_EXIT} player={jugador_id} addr={addr}")
 
-                    if writer in self.jugador_partida:
-                        partida = self.jugador_partida[writer]
+                    partida = None
+                    async with self._lock_partida:
+                        if writer in self.jugador_partida:
+                            partida = self.jugador_partida[writer]
+                    
+                    if partida:
                         await partida.jugador_desconectado(writer, es_abandono=True)
 
                     break
 
-                if writer in self.jugador_partida:
-                    partida = self.jugador_partida[writer]
+                partida = None
+                async with self._lock_partida:
+                    if writer in self.jugador_partida:
+                        partida = self.jugador_partida[writer]
+                
+                if partida:
                     await partida.recibir_mensaje(writer, mensaje)
 
         except ConnectionResetError:
             self.logger.warning(f"{PLAYER_CONNECTION_LOST} player={jugador_id} addr={addr}")
 
-            if writer in self.jugador_partida:
-                partida = self.jugador_partida[writer]
+            partida = None
+            async with self._lock_partida:
+                if writer in self.jugador_partida:
+                    partida = self.jugador_partida[writer]
+            
+            if partida:
                 await partida.jugador_desconectado(writer, es_abandono=True)
         
         finally:
-            if writer in self.jugador_partida:
-                partida = self.jugador_partida[writer]
+            partida = None
+            async with self._lock_partida:
+                if writer in self.jugador_partida:
+                    partida = self.jugador_partida[writer]
+            
+            if partida:
                 await partida.jugador_desconectado(writer)
 
             async with self._lock_cola:
                 if writer in self.cola_espera:
                     self.cola_espera.remove(writer)
 
-            if writer in self._ids:
-                del self._ids[writer]
+            async with self._lock_contador:
+                if writer in self._ids:
+                    del self._ids[writer]
 
             try:
                 writer.close()
@@ -159,31 +184,42 @@ class Servidor:
             sesion = None
             async with self._lock_cola:
                 if len(self.cola_espera) >= 2:
-
                     j1 = self.cola_espera.popleft()
                     j2 = self.cola_espera.popleft()
+                else:
+                    j1 = j2 = None
 
-                    id1 = self._ids[j1]
-                    id2 = self._ids[j2]
+            if j1 is not None and j2 is not None:
+                async with self._lock_contador:
+                    id1 = self._ids.get(j1, -1)
+                    id2 = self._ids.get(j2, -1)
+                    
+                    # Si alguno fue limpiado, no crear sesión
+                    if id1 < 0 or id2 < 0:
+                        j1 = j2 = None
+                    else:
+                        addr1 = j1.get_extra_info("peername")
+                        addr2 = j2.get_extra_info("peername")
 
-                    addr1 = j1.get_extra_info("peername")
-                    addr2 = j2.get_extra_info("peername")
+                        partida_id = self._contador_partidas
+                        self._contador_partidas += 1
 
-                    partida_id = self._contador_partidas
-                    self._contador_partidas += 1
+            if j1 is not None and j2 is not None:
+                sesion = SesionPVP(
+                    j1,
+                    j2,
+                    id1,
+                    id2,
+                    addr1,
+                    addr2,
+                    partida_id,
+                    self.logger,
+                    self.jugador_partida,
+                    self._lock_partida,
+                    self.partidas_activas
+                )
 
-                    sesion = SesionPVP(
-                        j1,
-                        j2,
-                        id1,
-                        id2,
-                        addr1,
-                        addr2,
-                        partida_id,
-                        self.logger,
-                        self.jugador_partida
-                    )
-
+                async with self._lock_partida:
                     self.partidas_activas.append(sesion)
             
             if sesion:    
