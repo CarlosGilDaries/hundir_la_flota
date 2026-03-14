@@ -1,6 +1,7 @@
 import random
 from modelo.barco import Barco
 from modelo.resultado import ResultadoDisparo
+import copy
 
 class Tablero:
 
@@ -31,6 +32,16 @@ class Tablero:
             [None for _ in range(ancho)]
             for _ in range(alto)
         ]
+        
+
+    def get_casillas(self) -> list[list[str|None]]:
+        """
+        Devuelve el atributo privado casillas.
+
+        Returns:
+            list[list[str|None]]: Casillas del tablero.
+        """
+        return copy.deepcopy(self.__casillas)
 
 
     def ver_tablero(self) -> list[list[str]]:

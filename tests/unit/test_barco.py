@@ -14,7 +14,7 @@ def barco(request):
     return Barco(nombre, tamanyo, caracter, horizontal)
 
 
-class TestBoat:
+class TestBarco:
     """Tests de comportamiento de la clase Barco."""
 
     def test_constructor_atributos(self, barco):
