@@ -34,14 +34,28 @@ class Tablero:
         ]
         
 
-    def get_casillas(self) -> list[list[str|None]]:
+    def get_todas_las_casillas(self) -> list[list[Barco|str|None]]:
         """
-        Devuelve el atributo privado casillas.
+        Devuelve una copia del atributo privado casillas.
 
         Returns:
-            list[list[str|None]]: Casillas del tablero.
+            list[list[Barco|str|None]]: Casillas del tablero.
         """
         return copy.deepcopy(self.__casillas)
+    
+    
+    def get_una_casilla(self, x: int, y: int) -> Barco|str|None:
+        """
+        Devuelve la copia de una casilla concreta.
+        
+        Args:
+            x (int): Coordenada X.
+            y (int): Coordenada Y.
+
+        Returns:
+            Barco|str|None: Contenido de la casilla.
+        """
+        return copy.deepcopy(self.__casillas[y][x])
 
 
     def ver_tablero(self) -> list[list[str]]:
