@@ -25,7 +25,7 @@ class Barco:
         if horizontal is not None: 
             self._horizontal = horizontal
         else: 
-            self._horizontal = self.set_horizontal()
+            self.set_horizontal()
 
 
     def set_horizontal(self, horizontal: Optional[bool] = None) -> None:

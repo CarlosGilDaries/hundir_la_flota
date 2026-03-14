@@ -3,6 +3,9 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Pytest cache
+.pytest_cache/
+
 # Logs del servidor
 *.log
 
