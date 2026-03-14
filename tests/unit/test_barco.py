@@ -1,58 +1,65 @@
 import pytest
 from modelo.barco import Barco
 
-# Barco tamaño 2
-@pytest.fixture
-def lancha():
-    return Barco("Lancha", 2, "L")
+
+@pytest.fixture(params=[
+    ("Lancha", 2, "L", None),
+    ("Submarino", 3, "S", False),
+    ("Acorazado", 4, "A", True),
+    ("Portaaviones", 5, "P", None),
+])
+def barco(request):
+    """Fixture que devuelve distintas instancias de Barco."""
+    nombre, tamanyo, caracter, horizontal = request.param
+    return Barco(nombre, tamanyo, caracter, horizontal)
 
 
-# Barco tamaño 4
-@pytest.fixture
-def acorazado():
-    return Barco("Acorazado", 4, "A",  True)
+class TestBoat:
+    """Tests de comportamiento de la clase Barco."""
+
+    def test_constructor_atributos(self, barco):
+        """Verifica que los atributos básicos se inicializan correctamente."""
+        assert barco.nombre in ["Lancha", "Submarino", "Acorazado", "Portaaviones"]
+        assert barco._vida_restante == barco.tamanyo
+        assert isinstance(barco.caracter, str)
 
 
-class TestBoat: 
-    
-    # SET_HORIZONTAL()
+    def test_constructor_horizontal(self, barco):
+        """Comprueba que la orientación inicial es un booleano."""
+        assert isinstance(barco.get_horizontal(), bool)
+
+
     @pytest.mark.parametrize("horizontal", [True, False])
-    def test_set_horizontal_pvp(self, lancha, horizontal):
-        lancha.set_horizontal(horizontal)
-        assert lancha._horizontal == horizontal
+    def test_set_horizontal(self, barco, horizontal):
+        """Verifica que se puede establecer la orientación manualmente."""
+        barco.set_horizontal(horizontal)
+        assert barco.get_horizontal() is horizontal
 
 
-    def test_set_horizontal_pve(self, lancha):
-        lancha.set_horizontal(None)
-        assert isinstance(lancha._horizontal, bool)
-        
-    
-    # GET_HORIZONTAL()
-    def test_get_horizontal_pve(self, lancha):
-        assert lancha.get_horizontal() == lancha._horizontal
-        
-    
-    # CALCULAR_MAXIMO()
-    @pytest.mark.parametrize("alto_o_ancho, maximo", [
-        (10, 8),
-        (8, 6),
-        (12, 10)
-    ])
-    def test_calcular_maximo(self, lancha, alto_o_ancho, maximo):
-        assert lancha.calcular_maximo(alto_o_ancho) == maximo
-        
-    
-    # RECIBIR_IMPACTO()
-    def test_recibir_impacto(self, acorazado):
-        acorazado.recibir_impacto()
-        assert acorazado._vida_restante == 3
-        acorazado.recibir_impacto()
-        assert acorazado._vida_restante == 2
-        
-    
-    # HUNDIDO()
-    def test_hundido(self, lancha):
-        lancha.recibir_impacto()
-        assert lancha.hundido() == False  # vida_restante == 1
-        lancha.recibir_impacto()
-        assert lancha.hundido() == True   # vida_restante == 0
+    def test_set_horizontal_random(self, barco):
+        """Verifica que se asigna orientación aleatoria si no se especifica."""
+        barco.set_horizontal(None)
+        assert isinstance(barco.get_horizontal(), bool)
+
+
+    @pytest.mark.parametrize("dimension", [8, 10, 12])
+    def test_calcular_maximo(self, barco, dimension):
+        """Comprueba el cálculo de la posición máxima del barco."""
+        esperado = dimension - barco.tamanyo
+        assert barco.calcular_maximo(dimension) == esperado
+
+
+    def test_recibir_impacto(self, barco):
+        """Verifica que la vida restante disminuye al recibir un impacto."""
+        vida_inicial = barco._vida_restante
+        barco.recibir_impacto()
+        assert barco._vida_restante == vida_inicial - 1
+
+
+    def test_hundido(self, barco):
+        """Comprueba que el barco solo se considera hundido cuando su vida es 0."""
+        while barco._vida_restante > 0:
+            assert barco.hundido() is False
+            barco.recibir_impacto()
+
+        assert barco.hundido() is True
