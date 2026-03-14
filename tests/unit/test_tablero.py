@@ -155,3 +155,11 @@ class TestTablero:
             y += 1
 
         assert tablero.todos_colocados() is True
+        
+        
+        # todo ver_tablero()
+        # todo get_casillas()
+        # todo get_una_casilla()
+        # todo recibir_disparo()
+        # todo coordenadas_validas)()
+        # todo todos_hundidos()
