@@ -1,13 +1,13 @@
 import pytest
 from modelo.barco import Barco
 
-# Barco tamaño 2 sin orientación para PVE
+# Barco tamaño 2
 @pytest.fixture
 def lancha():
     return Barco("Lancha", 2, "L")
 
 
-# Barco tamaño 4 horizontal
+# Barco tamaño 4
 @pytest.fixture
 def acorazado():
     return Barco("Acorazado", 4, "A",  True)
