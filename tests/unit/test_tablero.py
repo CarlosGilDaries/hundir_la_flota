@@ -3,19 +3,25 @@ from modelo.tablero import Tablero
 from modelo.barco import Barco
 from modelo.resultado import ResultadoDisparo
 
-barcos_facil = [
-    Barco("Lancha", 2, "L", None), 
-    Barco("Submarino", 3, "S", None), 
-    Barco("Acorazado", 4, "A", None), 
-    Barco("Portaaviones", 5, "P", None)
-]
 
-barcos = [
-    Barco("Lancha", 2, "L", True), 
-    Barco("Submarino", 3, "S", False), 
-    Barco("Destructor", 3, "D", True), 
-    Barco("Acorazado", 4, "A", True), 
-    Barco("Portaaviones", 5, "P", False)
+@pytest.fixture
+def barcos_facil():
+    return [
+        Barco("Lancha", 2, "L", None), 
+        Barco("Submarino", 3, "S", None), 
+        Barco("Acorazado", 4, "A", None), 
+        Barco("Portaaviones", 5, "P", None)
+    ]
+
+
+@pytest.fixture
+def barcos():
+    return [
+        Barco("Lancha", 2, "L", True),
+        Barco("Submarino", 3, "S", False),
+        Barco("Destructor", 3, "D", True),
+        Barco("Acorazado", 4, "A", True),
+        Barco("Portaaviones", 5, "P", False),
     ]
 
 caracteres_barcos = ["A", "D", "S", "L", "P"]
@@ -33,7 +39,7 @@ def tablero(request):
 
 
 @pytest.fixture
-def tablero_pvp():
+def tablero_pvp(barcos):
     """Fixture que devuelve una instancia de un tablero pvp"""
     return Tablero(10, 10, barcos, "~", "X", "O")
 
@@ -53,14 +59,6 @@ class TestTablero:
         for fila in tablero.get_todas_las_casillas():
             for columna in fila:
                 assert columna == None
-                
-    
-    # def test_get_casillas(self, tablero):
-    #     """Comprueba que el método devuelve una copia del atributo casillas"""
-    #     vista = tablero.get_casillas()
-    #     for fila in vista:
-    #         for columna in fila:
-    #             assert columna in ["A", "D", "S", "L", "P", None]
     
     
     @pytest.mark.parametrize("x, y, caracter", [
@@ -74,9 +72,9 @@ class TestTablero:
         
     
     @pytest.mark.parametrize("barco, x, y", [
-        (barcos[0], 0, 0),
-        (barcos[1], 1, 1),
-        (barcos[2], 3, 3)
+        (Barco("Lancha", 2, "L", True), 0, 0),
+        (Barco("Submarino", 3, "S", True), 1, 1),
+        (Barco("Destructor", 2, "L", True), 3, 3)
     ])
     def test_introducir_barco_en_tablero(self, tablero, barco, x, y):
         """Comprueba que se puede coloar barcos en el tablero"""
@@ -91,29 +89,29 @@ class TestTablero:
                 y = y + 1
                 
     
-    def test_colocar_barco_aleatorio(self, tablero):
+    def test_colocar_barco_aleatorio(self, tablero, barcos):
         """Comprueba que se puede colocar barcos aleatoriamente"""
         for barco in barcos:
             assert tablero.colocar_barco_aleatorio(barco) == True
+        
+        assert tablero._barcos_colocados == len(barcos)
 
-# barcos = [
-#     Barco("Lancha", 2, "L", True), 
-#     Barco("Submarino", 3, "S", False), 
-#     Barco("Destructor", 3, "D", True), 
-#     Barco("Acorazado", 4, "A", True), 
-#     Barco("Portaaviones", 5, "P", False)
-#     ]  
+
             
     @pytest.mark.parametrize("barco, x, y, esperado", [
-        (barcos[0], 1, 2, True),    # Tamaño 2 horizontal
-        (barcos[1], 4, 5, True),    # Tamaño 3 vertical
-        (barcos[2], 8, 2, False),   # Tamaño 3 horizontal - Se sale del tablero por el eje x
-        (barcos[3], 0, 0, True),    # Tamaño 4 horizontal
-        (barcos[4], 9, 9, False)    # Tamaño 5 vertical - Se sale del tablero por el eje y
+        (Barco("Lancha", 2, "L", True), 1, 2, True),            # Tamaño 2 horizontal
+        (Barco("Submarino", 3, "S", False), 4, 5, True),        # Tamaño 3 vertical
+        (Barco("Destructor", 3, "D", True), 8, 2, False),       # Tamaño 3 horizontal - Se sale del tablero por el eje x
+        (Barco("Acorazado", 4, "A", True), 0, 0, True),         # Tamaño 4 horizontal
+        (Barco("Portaaviones", 5, "P", False), 9, 9, False)     # Tamaño 5 vertical - Se sale del tablero por el eje y
     ])
     def test_colocar_barco_manual(self, tablero_pvp, barco, x, y, esperado):
-        """Comprueba que se pueden introducir barcos manualmente"""
-        assert tablero_pvp.colocar_barco_manual(barco, x, y) == esperado
+        """Comprueba que se pueden introducir barcos manualmente y que aumente el estado de barcos_colocados"""
+        barcos_antes = tablero_pvp._barcos_colocados
+        resultado = tablero_pvp.colocar_barco_manual(barco, x, y)
+        assert resultado == esperado
+        incremento = 1 if esperado else 0
+        assert tablero_pvp._barcos_colocados == barcos_antes + incremento
     
     
     def test_ver_tablero_rival(self, tablero):
@@ -125,14 +123,35 @@ class TestTablero:
              
                 
     @pytest.mark.parametrize("barco, x, y, esperado", [
-        (barcos[0], 1, 2, True),    # Tamaño 2 horizontal
-        (barcos[1], 4, 5, False),   # Tamaño 3 vertical - Ya hay barco en posición
-        (barcos[2], 8, 2, False),   # Tamaño 3 horizontal - Se sale del tablero por el eje x
-        (barcos[3], 0, 0, False),   # Tamaño 4 - Ya hay barco en posición
-        (barcos[4], 9, 9, False)    # Tamaño 5 vertical - Se sale del tablero por el eje y
+        (Barco("Lancha", 2, "L", True), 1, 2, True),            # Tamaño 2 horizontal
+        (Barco("Submarino", 3, "S", False), 4, 5, False),       # Tamaño 3 vertical - Ya hay barco en posición
+        (Barco("Destructor", 3, "D", True), 8, 2, False),       # Tamaño 3 horizontal - Se sale del tablero por el eje x
+        (Barco("Acorazado", 4, "A", True), 0, 0, False),        # Tamaño 4 - Ya hay barco en posición
+        (Barco("Portaaviones", 5, "P", False), 9, 9, False)     # Tamaño 5 vertical - Se sale del tablero por el eje y
     ])           
     def test_puede_colocarse(self, tablero_pvp, barco, x, y, esperado):
         """Comprueba la validación para colocar barcos"""
-        tablero_pvp._introducir_barco_en_tablero(barcos[0], 4, 7)
-        tablero_pvp._introducir_barco_en_tablero(barcos[0], 0, 0)
+        tablero_pvp._introducir_barco_en_tablero(Barco("Lancha", 2, "L", True), 4, 7)
+        tablero_pvp._introducir_barco_en_tablero(Barco("Lancha", 2, "L", True), 0, 0)
         assert tablero_pvp._puede_colocarse(barco, x, y) == esperado
+        
+
+    def test_todos_colocados(self):
+        """Comprueba si se han colocado todos cada vez que se coloca un barco"""
+        barcos = [
+            Barco("Lancha", 2, "L", True),
+            Barco("Submarino", 3, "S", True),
+            Barco("Destructor", 3, "D", True),
+            Barco("Acorazado", 4, "A", True),
+            Barco("Portaaviones", 5, "P", True),
+        ]
+
+        tablero = Tablero(10, 10, barcos, "~", "X", "O")
+        y = 0
+
+        for barco in tablero.barcos:
+            assert tablero.todos_colocados() is False
+            tablero.colocar_barco_manual(barco, 0, y)
+            y += 1
+
+        assert tablero.todos_colocados() is True
