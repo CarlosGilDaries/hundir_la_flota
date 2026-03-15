@@ -156,10 +156,19 @@ class TestTablero:
 
         assert tablero.todos_colocados() is True
         
-        
-        # todo ver_tablero()
-        # todo get_casillas()
-        # todo get_una_casilla()
-        # todo recibir_disparo()
-        # todo coordenadas_validas)()
-        # todo todos_hundidos()
+
+    def test_recibir_disparo(self, tablero_pvp):
+        """Comprueba los diferentes resultados de un disparo"""
+        barco = Barco("Lancha", 2, "L", True)
+        tablero_pvp.colocar_barco_manual(barco, 0, 0)
+        assert tablero_pvp.recibir_disparo(0, 0) == [ResultadoDisparo.TOCADO, "X"]
+        assert tablero_pvp.recibir_disparo(1, 0) == [ResultadoDisparo.HUNDIDO, "X"]
+        assert tablero_pvp.recibir_disparo(0, 0) == [ResultadoDisparo.REPETIDO, "X"]
+        assert tablero_pvp.recibir_disparo(-5, 0) == [ResultadoDisparo.INVALIDO, ""]
+        assert tablero_pvp.recibir_disparo(2, 5) == [ResultadoDisparo.AGUA, "O"]
+    
+    # todo ver_tablero()
+    # todo get_casillas()
+    # todo get_una_casilla()
+    # todo coordenadas_validas)()
+    # todo todos_hundidos()
