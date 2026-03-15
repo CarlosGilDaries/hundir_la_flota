@@ -269,6 +269,27 @@ class TestTablero:
         assert casillas[5][5] is None
         assert casillas[3][7] is None
         assert casillas[8][0] is None
-    
-    # todo get_casillas()
-    # todo get_una_casilla()
+        
+        
+    def test_get_una_casilla(self):
+        """Comprueba que se devuelve el contenido concreto de una casilla"""
+        barcos = [
+            Barco("Lancha", 2, "L", True),
+            Barco("Submarino", 3, "S", True),
+        ]
+
+        tablero = Tablero(10, 10, barcos, "~", "X", "O")
+        y = 0
+
+        for barco in tablero.barcos:
+            tablero.colocar_barco_manual(barco, 0, y)
+            y += 1
+        
+        assert isinstance(tablero.get_una_casilla(0, 0), Barco)
+        assert isinstance(tablero.get_una_casilla(1, 0), Barco)
+        assert isinstance(tablero.get_una_casilla(0, 1), Barco)
+        assert isinstance(tablero.get_una_casilla(1, 1), Barco)
+        assert isinstance(tablero.get_una_casilla(2, 1), Barco)
+        assert tablero.get_una_casilla(5, 5) is None
+        assert tablero.get_una_casilla(8, 0) is None
+        assert tablero.get_una_casilla(3, 7) is None
