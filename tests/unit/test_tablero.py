@@ -244,6 +244,31 @@ class TestTablero:
         assert vista2[0][0] == "X"
         assert vista2[7][0] == "O"
         
+        
+    def test_get_todas_las_casillas(self):
+        """Comprueba que el método devuelve una lista de listas con objetos barco en su posición y None donde no hay barcos"""
+        barcos = [
+            Barco("Lancha", 2, "L", True),
+            Barco("Submarino", 3, "S", True),
+        ]
+
+        tablero = Tablero(10, 10, barcos, "~", "X", "O")
+        y = 0
+
+        for barco in tablero.barcos:
+            tablero.colocar_barco_manual(barco, 0, y)
+            y += 1
+            
+        casillas = tablero.get_todas_las_casillas()
+        
+        assert isinstance(casillas[0][0], Barco)
+        assert isinstance(casillas[0][1], Barco)
+        assert isinstance(casillas[1][0], Barco)
+        assert isinstance(casillas[1][1], Barco)
+        assert isinstance(casillas[1][2], Barco)
+        assert casillas[5][5] is None
+        assert casillas[3][7] is None
+        assert casillas[8][0] is None
     
     # todo get_casillas()
     # todo get_una_casilla()
