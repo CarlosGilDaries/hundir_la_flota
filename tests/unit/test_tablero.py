@@ -211,8 +211,39 @@ class TestTablero:
         assert tablero.todos_hundidos() == False
         tablero.recibir_disparo(2, 1)
         assert tablero.todos_hundidos() == True
+        
     
-    # todo ver_tablero()
+    def test_ver_tablero(self):
+        """Comprueba que se devuelve una lista con los caracteres precisos para cada casilla"""
+        barcos = [
+            Barco("Lancha", 2, "L", True),
+            Barco("Submarino", 3, "S", True),
+        ]
+
+        tablero = Tablero(10, 10, barcos, "~", "X", "O")
+        y = 0
+
+        for barco in tablero.barcos:
+            tablero.colocar_barco_manual(barco, 0, y)
+            y += 1
+            
+        vista = tablero.ver_tablero()
+        
+        assert vista[0][0] == "L"
+        assert vista[0][1] == "L"
+        assert vista[1][0] == "S"
+        assert vista[1][1] == "S"
+        assert vista[1][2] == "S"
+        assert vista[2][0] == "~"
+        assert vista[8][8] == "~"
+        
+        tablero.marcar_disparo(0, 0, "X")
+        tablero.marcar_disparo(0, 7, "O")
+        vista2 = tablero.ver_tablero()
+        
+        assert vista2[0][0] == "X"
+        assert vista2[7][0] == "O"
+        
+    
     # todo get_casillas()
     # todo get_una_casilla()
-    # todo todos_hundidos()
