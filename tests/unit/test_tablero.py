@@ -186,6 +186,32 @@ class TestTablero:
         """Comprueba si las coordenadas están dentro del tablero y son de tipo entero"""
         assert tablero_pvp._coordenadas_validas(x, y) == esperado
     
+    
+    def test_todos_hundidos(self):
+        """Comprueba si se han hundido todos los barcos tras cada disparo"""
+        barcos = [
+            Barco("Lancha", 2, "L", True),
+            Barco("Submarino", 3, "S", True),
+        ]
+
+        tablero = Tablero(10, 10, barcos, "~", "X", "O")
+        y = 0
+
+        for barco in tablero.barcos:
+            tablero.colocar_barco_manual(barco, 0, y)
+            y += 1
+
+        tablero.recibir_disparo(0, 0)
+        assert tablero.todos_hundidos() == False
+        tablero.recibir_disparo(1, 0)
+        assert tablero.todos_hundidos() == False
+        tablero.recibir_disparo(0, 1)
+        assert tablero.todos_hundidos() == False
+        tablero.recibir_disparo(1, 1)
+        assert tablero.todos_hundidos() == False
+        tablero.recibir_disparo(2, 1)
+        assert tablero.todos_hundidos() == True
+    
     # todo ver_tablero()
     # todo get_casillas()
     # todo get_una_casilla()
