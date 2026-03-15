@@ -3,9 +3,12 @@ from modelo.tablero import Tablero
 from modelo.barco import Barco
 from modelo.resultado import ResultadoDisparo
 
+caracteres_barcos = ["A", "D", "S", "L", "P"]
+caracteres_tablero = ["~", "X", "O"]
 
 @pytest.fixture
 def barcos_facil():
+    """Ficture que devuelve una lista de barcos para el nivel fácil"""
     return [
         Barco("Lancha", 2, "L", None), 
         Barco("Submarino", 3, "S", None), 
@@ -16,6 +19,7 @@ def barcos_facil():
 
 @pytest.fixture
 def barcos():
+    """Fixture que develve una lista de barcos"""
     return [
         Barco("Lancha", 2, "L", True),
         Barco("Submarino", 3, "S", False),
@@ -24,8 +28,6 @@ def barcos():
         Barco("Portaaviones", 5, "P", False),
     ]
 
-caracteres_barcos = ["A", "D", "S", "L", "P"]
-caracteres_tablero = ["~", "X", "O"]
 
 @pytest.fixture(params=[
     (8, 8, barcos_facil, "~", "X", "O"),
@@ -96,7 +98,6 @@ class TestTablero:
         
         assert tablero._barcos_colocados == len(barcos)
 
-
             
     @pytest.mark.parametrize("barco, x, y, esperado", [
         (Barco("Lancha", 2, "L", True), 1, 2, True),            # Tamaño 2 horizontal
@@ -164,11 +165,28 @@ class TestTablero:
         assert tablero_pvp.recibir_disparo(0, 0) == [ResultadoDisparo.TOCADO, "X"]
         assert tablero_pvp.recibir_disparo(1, 0) == [ResultadoDisparo.HUNDIDO, "X"]
         assert tablero_pvp.recibir_disparo(0, 0) == [ResultadoDisparo.REPETIDO, "X"]
+        assert tablero_pvp.recibir_disparo(1, 0) == [ResultadoDisparo.REPETIDO, "X"]
         assert tablero_pvp.recibir_disparo(-5, 0) == [ResultadoDisparo.INVALIDO, ""]
+        assert tablero_pvp.recibir_disparo(7, 11) == [ResultadoDisparo.INVALIDO, ""]
         assert tablero_pvp.recibir_disparo(2, 5) == [ResultadoDisparo.AGUA, "O"]
+        assert tablero_pvp.recibir_disparo(4, 7) == [ResultadoDisparo.AGUA, "O"]
+    
+    
+    @pytest.mark.parametrize("x, y, esperado", [
+        (1, 1, True),
+        ("1", "1", False),
+        (2, 2, True),
+        (2, 10, False),
+        (-3, 3, False),
+        (8, 8, True),
+        ("8", 8, False),
+        (8, "8", False)
+    ])
+    def test_coordenadas_validas(self, tablero_pvp, x, y, esperado):
+        """Comprueba si las coordenadas están dentro del tablero y son de tipo entero"""
+        assert tablero_pvp._coordenadas_validas(x, y) == esperado
     
     # todo ver_tablero()
     # todo get_casillas()
     # todo get_una_casilla()
-    # todo coordenadas_validas)()
     # todo todos_hundidos()

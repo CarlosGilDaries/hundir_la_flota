@@ -241,7 +241,7 @@ class Tablero:
 
     def _coordenadas_validas(self, x: int, y: int) -> bool:
         """
-        Valida si las coordenadas están dentro del tablero.
+        Valida si las coordenadas están dentro del tablero y son de tipo entero.
 
         Args:
             x (int): Coordenada X.
