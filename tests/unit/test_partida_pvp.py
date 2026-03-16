@@ -3,7 +3,17 @@ from modelo.resultado import ResultadoDisparo
 from modelo.tablero import Tablero
 from modelo.barco import Barco
 from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida
-from tests.unit.test_partida_pve import barcos, barcos_horizontales, contar_celdas_barco, total_caracteres_barcos
+from tests.unit.test_partida_pve import contar_celdas_barco, total_caracteres_barcos
+
+@pytest.fixture
+def barcos():
+    """Proporciona una lista de barcos de prueba con distintos tamaños."""
+    return [
+        Barco("Prueba", 1, "P"),
+        Barco("Lancha", 2, "L"),
+        Barco("Submarino", 3, "S")
+    ]
+
 
 @pytest.fixture
 def partida_pvp(barcos):
@@ -130,9 +140,11 @@ class TestPartidaPVP:
             partida_pvp.disparar(1, 0, 0)       # Turno jugador 1 pero estado == EstadoPartida.COLOCACION
             
         
-    def test_estado(self, partida_pvp, partida_con_barcos_colocados_turno_jugador_1):
+    def test_estado(self, partida_pvp, partida_con_un_barco_turno_jugador_1):
         assert partida_pvp.estado() == EstadoPartida.COLOCACION
-        assert partida_con_barcos_colocados_turno_jugador_1.estado() == EstadoPartida.JUGANDO
+        assert partida_con_un_barco_turno_jugador_1.estado() == EstadoPartida.JUGANDO
+        partida_con_un_barco_turno_jugador_1.disparar(1, 0, 0)
+        assert partida_con_un_barco_turno_jugador_1.estado() == EstadoPartida.FINALIZADA
         
     
     def test_turno_actual(self, partida_con_barcos_colocados_turno_jugador_1):
