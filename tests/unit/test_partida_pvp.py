@@ -14,10 +14,20 @@ def partida_pvp(barcos):
 
 
 @pytest.fixture
-def tableros_barcos_colocados_manualmente(barcos_horizontales):
+def tableros_barcos_colocados_manualmente():
     """Crea dos tableros con barcos colocados manualmente en posiciones conocidas."""
-    tablero1 = Tablero(6, 6, barcos_horizontales, "~", "X", "O")
-    tablero2 = Tablero(6, 6, barcos_horizontales, "~", "X", "O")
+    tablero1 = Tablero(6, 6, [
+        Barco("Prueba", 1, "P", True),
+        Barco("Lancha", 2, "L", True),
+        Barco("Submarino", 3, "S", True)
+    ], "~", "X", "O")
+
+    tablero2 = Tablero(6, 6, [
+        Barco("Prueba", 1, "P", True),
+        Barco("Lancha", 2, "L", True),
+        Barco("Submarino", 3, "S", True)
+    ], "~", "X", "O")
+    
     y = 0
     for barco in tablero1.barcos:
         tablero1.colocar_barco_manual(barco, 0, y)
@@ -34,9 +44,9 @@ def tableros_barcos_colocados_manualmente(barcos_horizontales):
 @pytest.fixture
 def tableros_con_un_barco_pequeño():
     """Crea dos tableros con un barco de tamaño 1 colocado manualmente en posición conocida."""
-    lista_barcos = [Barco("Test", 1, "T", True)]
-    tablero1 = Tablero(6, 6, lista_barcos, "~", "X", "O")
-    tablero2 = Tablero(6, 6, lista_barcos, "~", "X", "O")
+    tablero1 = Tablero(6, 6, [Barco("Test", 1, "T", True)], "~", "X", "O")
+
+    tablero2 = Tablero(6, 6, [Barco("Test", 1, "T", True)], "~", "X", "O")
 
     tablero1.colocar_barco_manual(tablero1.barcos[0], 0, 0)
     tablero2.colocar_barco_manual(tablero2.barcos[0], 0, 0)
@@ -73,12 +83,12 @@ class TestPartidaPVP:
         assert len(partida_pvp._jugadores_listos) == 0
         
         
-    @pytest.mark.parametrize("jugador1, x, y, esperado", [
+    @pytest.mark.parametrize("jugador, x, y, esperado", [
         (1, 0, 1, ResultadoDisparo.TOCADO),
         (1, 0, 2, ResultadoDisparo.TOCADO),
     ])
-    def test_disparo_tocado(self, partida_con_barcos_colocados_turno_jugador_1, jugador1, x, y, esperado):
-        assert partida_con_barcos_colocados_turno_jugador_1.disparar(jugador1, x, y) == esperado
+    def test_disparo_tocado(self, partida_con_barcos_colocados_turno_jugador_1, jugador, x, y, esperado):
+        assert partida_con_barcos_colocados_turno_jugador_1.disparar(jugador, x, y) == esperado
         
     
     def test_disparo_hundido(self, partida_con_barcos_colocados_turno_jugador_1):
@@ -98,11 +108,11 @@ class TestPartidaPVP:
     
     
     def test_disparar_cambia_el_turno(self, partida_con_barcos_colocados_turno_jugador_1):
-        assert partida_con_barcos_colocados_turno_jugador_1._turno == 1
+        assert partida_con_barcos_colocados_turno_jugador_1.turno_actual() == 1
         partida_con_barcos_colocados_turno_jugador_1.disparar(1, 0, 0)
-        assert partida_con_barcos_colocados_turno_jugador_1._turno == 2
+        assert partida_con_barcos_colocados_turno_jugador_1.turno_actual() == 2
         partida_con_barcos_colocados_turno_jugador_1.disparar(2, 0, 0)
-        assert partida_con_barcos_colocados_turno_jugador_1._turno == 1
+        assert partida_con_barcos_colocados_turno_jugador_1.turno_actual() == 1
     
     
     def test_disparar_fuera_de_turno(self, partida_con_barcos_colocados_turno_jugador_1):
@@ -154,16 +164,15 @@ class TestPartidaPVP:
     def test_jugador_1_ganador(self, partida_con_un_barco_turno_jugador_1):
         assert partida_con_un_barco_turno_jugador_1.jugador_ganador() is None
         partida_con_un_barco_turno_jugador_1.disparar(1, 0, 0)
-        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() != 2
         assert partida_con_un_barco_turno_jugador_1.jugador_ganador() == 1
         
     
     def test_jugador_2_ganador(self, partida_con_un_barco_turno_jugador_1):
         assert partida_con_un_barco_turno_jugador_1.jugador_ganador() is None
         partida_con_un_barco_turno_jugador_1.disparar(1, 1, 0)
-        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() != 1
+        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() is None
         partida_con_un_barco_turno_jugador_1.disparar(2, 0, 0)
-        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() == 1
+        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() == 2
     
 # TODO Comprobar que el tablero defensor se marca con el disparo del atacante
 # TODO obtener_tablero_rival
