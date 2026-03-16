@@ -201,6 +201,18 @@ class TestPartidaPVP:
         assert contar_celdas_barco(tablero_rival_jugador_2) == 0
     
     
+    def test_comprobar_que_tablero_oponente_se_marca_al_disparar(self, partida_con_barcos_colocados_turno_jugador_1):
+        """Comprueba que el método privado _oponente obtiene correctamente el oponente del jugador en turno para que el método disparar marque el tablero rival con el resultado del disparo"""
+        tablero_rival_jugador_1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(1)
+        assert tablero_rival_jugador_1[0][5] == "~"
+        partida_con_barcos_colocados_turno_jugador_1.disparar(1, 5, 0)
+        tablero_rival_jugador_1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(1)
+        assert tablero_rival_jugador_1[0][5] == "O"
+        
+        tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(2)
+        assert tablero_rival_jugador_2[0][0] == "~"
+        partida_con_barcos_colocados_turno_jugador_1.disparar(2, 0, 0)
+        tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(2)
+        assert tablero_rival_jugador_2[0][0] == "X"
     
-# TODO Comprobar que el tablero defensor se marca con el disparo del atacante
 # TODO colocar_barco
