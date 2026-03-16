@@ -43,6 +43,12 @@ class App:
                     self._iniciar_cliente_pvp()
                     
         except SalirDelPrograma:
+            pass
+        
+        except KeyboardInterrupt:
+            pass
+        
+        finally:
             self._interfaz.fin_programa()
             
             
