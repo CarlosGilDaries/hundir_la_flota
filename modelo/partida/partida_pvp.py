@@ -53,8 +53,8 @@ class PartidaPVP(Partida):
         Returns:
             ResultadoDisparo: Resultado del disparo.
         """
-        if jugador != self._turno:
-            raise ValueError("No es tu turno")
+        if jugador != self._turno or self.estado() != EstadoPartida.JUGANDO:
+            raise ValueError("No es tu turno de disparar")
 
         defensor = self._oponente(jugador)
 

@@ -91,3 +91,14 @@ class TestPartidaPVP:
         
         with pytest.raises(ValueError):
             partida_con_barcos_colocados_turno_jugador_1.disparar(1, 0, 0)  # Jugador 1 intenta disparar en turno de jugador 2
+            
+        
+    def test_estado(self, partida_pvp, partida_con_barcos_colocados_turno_jugador_1):
+        assert partida_pvp.estado() == EstadoPartida.COLOCACION
+        assert partida_con_barcos_colocados_turno_jugador_1.estado() == EstadoPartida.JUGANDO
+        
+    
+    def test_turno_actual(self, partida_con_barcos_colocados_turno_jugador_1):
+        assert partida_con_barcos_colocados_turno_jugador_1.turno_actual() == 1
+        partida_con_barcos_colocados_turno_jugador_1.disparar(1, 0, 0)
+        assert partida_con_barcos_colocados_turno_jugador_1.turno_actual() == 2
