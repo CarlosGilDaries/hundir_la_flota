@@ -32,8 +32,30 @@ def tableros_barcos_colocados_manualmente(barcos_horizontales):
 
 
 @pytest.fixture
+def tableros_con_un_barco_pequeño():
+    """Crea dos tableros con un barco de tamaño 1 colocado manualmente en posición conocida."""
+    lista_barcos = [Barco("Test", 1, "T", True)]
+    tablero1 = Tablero(6, 6, lista_barcos, "~", "X", "O")
+    tablero2 = Tablero(6, 6, lista_barcos, "~", "X", "O")
+
+    tablero1.colocar_barco_manual(tablero1.barcos[0], 0, 0)
+    tablero2.colocar_barco_manual(tablero2.barcos[0], 0, 0)
+
+    return [tablero1, tablero2]
+
+
+@pytest.fixture
 def partida_con_barcos_colocados_turno_jugador_1(tableros_barcos_colocados_manualmente):
     tablero1, tablero2 = tableros_barcos_colocados_manualmente
+    partida = PartidaPVP(tablero1, tablero2)
+    partida._estado = EstadoPartida.JUGANDO
+    
+    return partida
+
+
+@pytest.fixture
+def partida_con_un_barco_turno_jugador_1(tableros_con_un_barco_pequeño):
+    tablero1, tablero2 = tableros_con_un_barco_pequeño
     partida = PartidaPVP(tablero1, tablero2)
     partida._estado = EstadoPartida.JUGANDO
     
@@ -107,3 +129,9 @@ class TestPartidaPVP:
         assert partida_con_barcos_colocados_turno_jugador_1.turno_actual() == 1
         partida_con_barcos_colocados_turno_jugador_1.disparar(1, 0, 0)
         assert partida_con_barcos_colocados_turno_jugador_1.turno_actual() == 2
+        
+    
+    def test_todos_hundidos_finaliza_partida(self, partida_con_un_barco_turno_jugador_1):
+        assert partida_con_un_barco_turno_jugador_1.estado() != EstadoPartida.FINALIZADA
+        partida_con_un_barco_turno_jugador_1.disparar(1, 0, 0)
+        assert partida_con_un_barco_turno_jugador_1.estado() == EstadoPartida.FINALIZADA
