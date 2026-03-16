@@ -4,6 +4,7 @@ from modelo.tablero import Tablero
 from modelo.barco import Barco
 from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida
 from tests.unit.test_partida_pve import contar_celdas_barco, total_caracteres_barcos
+from unittest.mock import patch
 
 @pytest.fixture
 def barco_pruebas_tamanyo_3():
@@ -16,6 +17,24 @@ def partida_pvp():
         Barco("Prueba", 1, "P"),
         Barco("Lancha", 2, "L"),
         Barco("Submarino", 3, "S")
+    ]
+    
+    barcos_j2 = [
+        Barco("Prueba", 1, "P"),
+        Barco("Lancha", 2, "L"),
+        Barco("Submarino", 3, "S")
+    ]
+    
+    tablero1 = Tablero(6, 6, barcos_j1, "~", "X", "O")
+    tablero2 = Tablero(6, 6, barcos_j2, "~", "X", "O")
+    
+    return PartidaPVP(tablero1, tablero2)
+
+
+@pytest.fixture
+def partida_pvp_con_un_barco_tamanyo_1_por_tablero():
+    barcos_j1 = [
+        Barco("Prueba", 1, "P"),
     ]
     
     barcos_j2 = [
@@ -79,7 +98,7 @@ def partida_con_barcos_colocados_turno_jugador_1(tableros_barcos_colocados_manua
 
 
 @pytest.fixture
-def partida_con_un_barco_turno_jugador_1(tableros_con_un_barco_pequeño):
+def partida_con_un_barco_colocado_turno_jugador_1(tableros_con_un_barco_pequeño):
     tablero1, tablero2 = tableros_con_un_barco_pequeño
     partida = PartidaPVP(tablero1, tablero2)
     partida._estado = EstadoPartida.JUGANDO
@@ -145,11 +164,11 @@ class TestPartidaPVP:
             partida_pvp.disparar(1, 0, 0)       # Turno jugador 1 pero estado == EstadoPartida.COLOCACION
             
         
-    def test_estado(self, partida_pvp, partida_con_un_barco_turno_jugador_1):
+    def test_estado(self, partida_pvp, partida_con_un_barco_colocado_turno_jugador_1):
         assert partida_pvp.estado() == EstadoPartida.COLOCACION
-        assert partida_con_un_barco_turno_jugador_1.estado() == EstadoPartida.JUGANDO
-        partida_con_un_barco_turno_jugador_1.disparar(1, 0, 0)
-        assert partida_con_un_barco_turno_jugador_1.estado() == EstadoPartida.FINALIZADA
+        assert partida_con_un_barco_colocado_turno_jugador_1.estado() == EstadoPartida.JUGANDO
+        partida_con_un_barco_colocado_turno_jugador_1.disparar(1, 0, 0)
+        assert partida_con_un_barco_colocado_turno_jugador_1.estado() == EstadoPartida.FINALIZADA
         
     
     def test_turno_actual(self, partida_con_barcos_colocados_turno_jugador_1):
@@ -158,50 +177,54 @@ class TestPartidaPVP:
         assert partida_con_barcos_colocados_turno_jugador_1.turno_actual() == 2
         
     
-    def test_todos_hundidos_finaliza_partida(self, partida_con_un_barco_turno_jugador_1):
-        assert partida_con_un_barco_turno_jugador_1.estado() != EstadoPartida.FINALIZADA
-        partida_con_un_barco_turno_jugador_1.disparar(1, 0, 0)
-        assert partida_con_un_barco_turno_jugador_1.estado() == EstadoPartida.FINALIZADA
+    def test_todos_hundidos_finaliza_partida(self, partida_con_un_barco_colocado_turno_jugador_1):
+        assert partida_con_un_barco_colocado_turno_jugador_1.estado() != EstadoPartida.FINALIZADA
+        partida_con_un_barco_colocado_turno_jugador_1.disparar(1, 0, 0)
+        assert partida_con_un_barco_colocado_turno_jugador_1.estado() == EstadoPartida.FINALIZADA
         
     
-    def test_hay_victoria_jugador_1(self, partida_con_un_barco_turno_jugador_1):
-        assert partida_con_un_barco_turno_jugador_1.hay_victoria() is False
-        partida_con_un_barco_turno_jugador_1.disparar(1, 0, 0)
-        assert partida_con_un_barco_turno_jugador_1.hay_victoria() is True
+    def test_hay_victoria_jugador_1(self, partida_con_un_barco_colocado_turno_jugador_1):
+        assert partida_con_un_barco_colocado_turno_jugador_1.hay_victoria() is False
+        partida_con_un_barco_colocado_turno_jugador_1.disparar(1, 0, 0)
+        assert partida_con_un_barco_colocado_turno_jugador_1.hay_victoria() is True
         
     
-    def test_hay_victoria_jugador_2(self, partida_con_un_barco_turno_jugador_1):
-        assert partida_con_un_barco_turno_jugador_1.hay_victoria() is False
-        partida_con_un_barco_turno_jugador_1.disparar(1, 1, 0)
-        assert partida_con_un_barco_turno_jugador_1.hay_victoria() is False
-        partida_con_un_barco_turno_jugador_1.disparar(2, 0, 0)
-        assert partida_con_un_barco_turno_jugador_1.hay_victoria() is True
+    def test_hay_victoria_jugador_2(self, partida_con_un_barco_colocado_turno_jugador_1):
+        assert partida_con_un_barco_colocado_turno_jugador_1.hay_victoria() is False
+        partida_con_un_barco_colocado_turno_jugador_1.disparar(1, 1, 0)
+        assert partida_con_un_barco_colocado_turno_jugador_1.hay_victoria() is False
+        partida_con_un_barco_colocado_turno_jugador_1.disparar(2, 0, 0)
+        assert partida_con_un_barco_colocado_turno_jugador_1.hay_victoria() is True
         
         
-    def test_jugador_1_ganador(self, partida_con_un_barco_turno_jugador_1):
-        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() is None
-        partida_con_un_barco_turno_jugador_1.disparar(1, 0, 0)
-        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() == 1
+    def test_jugador_1_ganador(self, partida_con_un_barco_colocado_turno_jugador_1):
+        assert partida_con_un_barco_colocado_turno_jugador_1.jugador_ganador() is None
+        partida_con_un_barco_colocado_turno_jugador_1.disparar(1, 0, 0)
+        assert partida_con_un_barco_colocado_turno_jugador_1.jugador_ganador() == 1
         
     
-    def test_jugador_2_ganador(self, partida_con_un_barco_turno_jugador_1):
-        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() is None
-        partida_con_un_barco_turno_jugador_1.disparar(1, 1, 0)
-        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() is None
-        partida_con_un_barco_turno_jugador_1.disparar(2, 0, 0)
-        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() == 2
+    def test_jugador_2_ganador(self, partida_con_un_barco_colocado_turno_jugador_1):
+        assert partida_con_un_barco_colocado_turno_jugador_1.jugador_ganador() is None
+        
+        partida_con_un_barco_colocado_turno_jugador_1.disparar(1, 1, 0)
+        assert partida_con_un_barco_colocado_turno_jugador_1.jugador_ganador() is None
+        
+        partida_con_un_barco_colocado_turno_jugador_1.disparar(2, 0, 0)
+        assert partida_con_un_barco_colocado_turno_jugador_1.jugador_ganador() == 2
         
     
     def test_obtener_tablero_propio_devuelve_barcos(self, partida_con_barcos_colocados_turno_jugador_1):
         tablero_j1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_propio(1)
         tablero_j2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_propio(2)
+        
         assert total_caracteres_barcos(partida_con_barcos_colocados_turno_jugador_1._tableros[1].barcos) == contar_celdas_barco(tablero_j1) == 6 
         assert total_caracteres_barcos(partida_con_barcos_colocados_turno_jugador_1._tableros[2].barcos) == contar_celdas_barco(tablero_j2) == 7
         
     
     def test_obtener_tablero_rival_no_devuelve_barcos(self, partida_con_barcos_colocados_turno_jugador_1):
         tablero_rival_jugador_1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(1)     # Obtiene el tablero rival del jugador 1 (tablero j2)
-        tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(1)     # Obtiene el tablero rival del jugador 2 (tablero j1)
+        tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(2)     # Obtiene el tablero rival del jugador 2 (tablero j1)
+        
         assert contar_celdas_barco(tablero_rival_jugador_1) == 0
         assert contar_celdas_barco(tablero_rival_jugador_2) == 0
     
@@ -210,24 +233,26 @@ class TestPartidaPVP:
         """Comprueba que el método privado _oponente obtiene correctamente el oponente del jugador en turno para que el método disparar marque el tablero rival con el resultado del disparo"""
         tablero_rival_jugador_1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(1)
         assert tablero_rival_jugador_1[0][5] == "~"
+        
         partida_con_barcos_colocados_turno_jugador_1.disparar(1, 5, 0)
-        tablero_rival_jugador_1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(1)
+        tablero_rival_jugador_1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(1)     
         assert tablero_rival_jugador_1[0][5] == "O"
         
-        tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(2)
-        assert tablero_rival_jugador_2[0][0] == "~"
+        tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(2)      
+        assert tablero_rival_jugador_2[0][0] == "~"     
+        
         partida_con_barcos_colocados_turno_jugador_1.disparar(2, 0, 0)
-        tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(2)
+        tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(2)      
         assert tablero_rival_jugador_2[0][0] == "X"
 
 
     def test_colocar_barco(self, partida_pvp):
-        barcos_j1 = partida_pvp._tableros[1].barcos
+        barcos_j1 = partida_pvp._tableros[1].barcos      
         assert partida_pvp.colocar_barco(barcos_j1[1], 0, 0, True, 1) is True
 
 
     def test_colocar_barco_donde_ya_hay_barco(self, partida_pvp):
-        barcos_j1 = partida_pvp._tableros[1].barcos
+        barcos_j1 = partida_pvp._tableros[1].barcos       
         assert partida_pvp.colocar_barco(barcos_j1[1], 0, 0, True, 1) is True
         assert partida_pvp.colocar_barco(barcos_j1[2], 0, 0, True, 1) is False
         
@@ -260,5 +285,33 @@ class TestPartidaPVP:
         partida_pvp.colocar_barco(barco_pruebas_tamanyo_3, 0, 0, False, 1)
         tablero_j1 = partida_pvp.obtener_tablero_propio(1)
         assert tablero_j1[y][x] == esperado
+        
     
-# TODO colocar_barco
+    def test_todos_colocados_introduce_jugador_en_jugadores_listos(self, partida_pvp_con_un_barco_tamanyo_1_por_tablero):
+        assert len(partida_pvp_con_un_barco_tamanyo_1_por_tablero._jugadores_listos) == 0
+
+        barcos_j2 = partida_pvp_con_un_barco_tamanyo_1_por_tablero._tableros[2].barcos
+        partida_pvp_con_un_barco_tamanyo_1_por_tablero.colocar_barco(barcos_j2[0], 0, 0, False, 2)
+        assert len(partida_pvp_con_un_barco_tamanyo_1_por_tablero._jugadores_listos) == 1
+        assert 2 in partida_pvp_con_un_barco_tamanyo_1_por_tablero._jugadores_listos
+    
+    
+    def test_2_jugadores_listos_cambia_estado_a_jugando(self, partida_pvp_con_un_barco_tamanyo_1_por_tablero):
+        assert partida_pvp_con_un_barco_tamanyo_1_por_tablero.estado() != EstadoPartida.JUGANDO
+        
+        barcos_j2 = partida_pvp_con_un_barco_tamanyo_1_por_tablero._tableros[2].barcos
+        barcos_j1 = partida_pvp_con_un_barco_tamanyo_1_por_tablero._tableros[1].barcos
+        partida_pvp_con_un_barco_tamanyo_1_por_tablero.colocar_barco(barcos_j2[0], 0, 0, False, 2)
+        partida_pvp_con_un_barco_tamanyo_1_por_tablero.colocar_barco(barcos_j1[0], 0, 0, False, 1)
+        assert len(partida_pvp_con_un_barco_tamanyo_1_por_tablero._jugadores_listos) == 2
+        assert partida_pvp_con_un_barco_tamanyo_1_por_tablero.estado() == EstadoPartida.JUGANDO
+        
+    
+    def test_2_jugadores_listos_randomiza_turnos(self, partida_pvp_con_un_barco_tamanyo_1_por_tablero):
+        barcos_j2 = partida_pvp_con_un_barco_tamanyo_1_por_tablero._tableros[2].barcos
+        barcos_j1 = partida_pvp_con_un_barco_tamanyo_1_por_tablero._tableros[1].barcos
+
+        partida_pvp_con_un_barco_tamanyo_1_por_tablero.colocar_barco(barcos_j2[0], 0, 0, False, 2)
+        with patch("modelo.partida.partida_pvp.random.randint", return_value=2):
+            partida_pvp_con_un_barco_tamanyo_1_por_tablero.colocar_barco(barcos_j1[0], 0, 0, False, 1)
+        assert partida_pvp_con_un_barco_tamanyo_1_por_tablero.turno_actual() == 2
