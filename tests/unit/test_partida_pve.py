@@ -82,11 +82,8 @@ class TestPartidaPVE:
         assert partida_con_barcos_colocados.disparar(x, y) == esperado
         
         
-    @pytest.mark.parametrize("x, y, esperado", [
-        (0, 0, ResultadoDisparo.HUNDIDO),
-    ])
-    def test_disparo_hundido(self, partida_con_barcos_colocados, x, y, esperado):
-        assert partida_con_barcos_colocados.disparar(x, y) == esperado
+    def test_disparo_hundido(self, partida_con_barcos_colocados):
+        assert partida_con_barcos_colocados.disparar(0, 0) == ResultadoDisparo.HUNDIDO
         
         
     @pytest.mark.parametrize("x, y, esperado", [
@@ -128,3 +125,29 @@ class TestPartidaPVE:
         partida_pve.disparar(-2, 0)
         partida_pve.disparar(5, 12)
         assert partida_pve._disparos_realizados == 0
+        
+    
+    def test_obtener_tablero_propio_devuelve_barcos(self, partida_pve, barcos):
+        contador_caracteres_barco_en_tablero = 0
+        tablero = partida_pve.obtener_tablero_propio()
+        for fila in tablero:
+            for celda in fila:
+                if celda not in ["~", "X", "O"]:
+                    contador_caracteres_barco_en_tablero += 1
+        
+        cantidad_caracteres_barcos = 0
+        for barco in barcos:
+            cantidad_caracteres_barcos += barco.tamanyo
+            
+        assert contador_caracteres_barco_en_tablero == cantidad_caracteres_barcos
+        
+    
+    def test_obtener_tablero_rival_no_devuelve_barcos(self, partida_pve):
+        contador_caracteres_barco_en_tablero = 0
+        tablero = partida_pve.obtener_tablero_rival()
+        for fila in tablero:
+            for celda in fila:
+                if celda not in ["~", "X", "O"]:
+                    contador_caracteres_barco_en_tablero += 1
+        
+        assert contador_caracteres_barco_en_tablero == 0
