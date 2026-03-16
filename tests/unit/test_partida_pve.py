@@ -6,6 +6,7 @@ from modelo.partida.partida_pve import PartidaPVE
 
 @pytest.fixture
 def barcos():
+    """Proporciona una lista de barcos de prueba con distintos tamaños."""
     return [
         Barco("Prueba", 1, "P"),
         Barco("Lancha", 2, "L"),
@@ -15,6 +16,7 @@ def barcos():
 
 @pytest.fixture
 def barcos_horizontales():
+    """Proporciona una lista de barcos configurados con orientación horizontal."""
     return [
         Barco("Prueba", 1, "P", True),
         Barco("Lancha", 2, "L", True),
@@ -24,11 +26,13 @@ def barcos_horizontales():
 
 @pytest.fixture
 def tablero(barcos):
+    """Crea un tablero vacío de pruebas con los barcos disponibles."""
     return Tablero(6, 6, barcos, "~", "X", "O")
 
 
 @pytest.fixture
 def tablero_barcos_colocados_manualmente(barcos_horizontales):
+    """Crea un tablero con barcos colocados manualmente en posiciones conocidas."""
     tablero = Tablero(6, 6, barcos_horizontales, "~", "X", "O")
     y = 0
     for barco in tablero.barcos:
@@ -40,34 +44,40 @@ def tablero_barcos_colocados_manualmente(barcos_horizontales):
 
 @pytest.fixture
 def partida_pve(tablero):
+    """Crea una partida PVE estándar con barcos colocados automáticamente."""
     return PartidaPVE(tablero, 10)
 
 
 @pytest.fixture
 def partida_con_pocos_disparos(tablero):
+    """Crea una partida PVE con un número muy limitado de disparos."""
     return PartidaPVE(tablero, 2)
 
 
 @pytest.fixture
 def partida_con_barcos_colocados(tablero_barcos_colocados_manualmente):
+    """Crea una partida PVE con barcos ya colocados manualmente para pruebas deterministas."""
     return PartidaPVE(tablero_barcos_colocados_manualmente, 10, True)
 
 
 @pytest.fixture
 def partida_sin_barcos_colocados(tablero):
+    """Crea una partida PVE con un tablero vacío sin colocar barcos automáticamente."""
     return PartidaPVE(tablero, 10, True)
 
 
 def contar_celdas_barco(tablero):
-        contador = 0
-        for fila in tablero:
-            for celda in fila:
-                if celda not in ["~", "X", "O"]:
-                    contador += 1
-        return contador
+    """Cuenta cuántas celdas del tablero contienen partes de barcos."""
+    contador = 0
+    for fila in tablero:
+        for celda in fila:
+            if celda not in ["~", "X", "O"]:
+                contador += 1
+    return contador
     
     
 def total_caracteres_barcos(lista_barcos):
+    """Calcula el número total de celdas que deberían ocupar todos los barcos."""
     return sum(barco.tamanyo for barco in lista_barcos)
 
 
@@ -75,7 +85,7 @@ class TestPartidaPVE:
     """Clase encargada de testear la lógica de una PartidaPVE"""
   
     def test_constructor(self, partida_pve, tablero):
-        """Comprueba que se incializan correctamente los atributos y se ejecuta el método privado de colocar barcos atuomáticamente"""
+        """Verifica que el constructor inicializa atributos y coloca automáticamente los barcos."""
         cantidad_caracteres_barcos = total_caracteres_barcos(tablero.barcos)
         
         assert partida_pve.tablero_maquina == tablero
@@ -89,10 +99,12 @@ class TestPartidaPVE:
         (0, 2, ResultadoDisparo.TOCADO),
     ])
     def test_disparo_tocado(self, partida_con_barcos_colocados, x, y, esperado):
+        """Comprueba que disparar a una celda con barco devuelve resultado TOCADO."""
         assert partida_con_barcos_colocados.disparar(x, y) == esperado
         
         
     def test_disparo_hundido(self, partida_con_barcos_colocados):
+        """Comprueba que disparar a un barco de tamaño 1 devuelve resultado HUNDIDO."""
         assert partida_con_barcos_colocados.disparar(0, 0) == ResultadoDisparo.HUNDIDO
         
         
@@ -101,6 +113,7 @@ class TestPartidaPVE:
         (4, 4, ResultadoDisparo.AGUA),
     ])
     def test_disparo_agua(self, partida_con_barcos_colocados, x, y, esperado):
+        """Verifica que disparar a una celda vacía devuelve resultado AGUA."""
         assert partida_con_barcos_colocados.disparar(x, y) == esperado
         
     
@@ -109,15 +122,18 @@ class TestPartidaPVE:
         (8, 4, ResultadoDisparo.INVALIDO),
     ])
     def test_disparo_invalido(self, partida_con_barcos_colocados, x, y, esperado):
+        """Comprueba que disparar fuera de los límites del tablero devuelve INVALIDO."""
         assert partida_con_barcos_colocados.disparar(x, y) == esperado
         
         
     def test_disparo_repetido(self, partida_con_barcos_colocados):
+        """Verifica que disparar dos veces a la misma celda devuelve REPETIDO."""
         partida_con_barcos_colocados.disparar(0, 1)
         assert partida_con_barcos_colocados.disparar(0, 1) == ResultadoDisparo.REPETIDO
         
     
     def test_disparar_aumenta_disparos_realizados(self, partida_pve):
+        """Comprueba que los disparos válidos incrementan el contador de disparos realizados."""
         partida_pve.disparar(0, 0)
         assert partida_pve._disparos_realizados == 1
         partida_pve.disparar(0, 2)
@@ -125,6 +141,7 @@ class TestPartidaPVE:
         
     
     def test_disparo_repetido_no_aumenta_disparos_realizados(self, partida_pve):
+        """Verifica que repetir un disparo no incrementa el contador de disparos."""
         partida_pve.disparar(0, 0)
         partida_pve.disparar(0, 0)
         partida_pve.disparar(0, 0)
@@ -132,29 +149,34 @@ class TestPartidaPVE:
         
     
     def test_disparo_invalido_no_aumenta_disparos_realizados(self, partida_pve):
+        """Comprueba que los disparos inválidos no incrementan el contador de disparos."""
         partida_pve.disparar(-2, 0)
         partida_pve.disparar(5, 12)
         assert partida_pve._disparos_realizados == 0
         
     
     def test_obtener_tablero_propio_devuelve_barcos(self, partida_pve, barcos):
+        """Verifica que el tablero propio muestra las posiciones de los barcos."""
         cantidad_caracteres_barco_en_tablero = total_caracteres_barcos(barcos)
         tablero = partida_pve.obtener_tablero_propio()           
         assert contar_celdas_barco(tablero) == cantidad_caracteres_barco_en_tablero
         
     
     def test_obtener_tablero_rival_no_devuelve_barcos(self, partida_pve):
+        """Comprueba que el tablero visible al jugador no revela barcos enemigos."""
         tablero = partida_pve.obtener_tablero_rival()      
         assert contar_celdas_barco(tablero) == 0
         
     
     def test_colocar_barco(self, partida_sin_barcos_colocados, barcos):
+        """Verifica que los barcos pueden colocarse automáticamente en el tablero."""
         assert partida_sin_barcos_colocados.colocar_barco(barcos[0]) is True
         assert partida_sin_barcos_colocados.colocar_barco(barcos[1]) is True
         assert partida_sin_barcos_colocados.colocar_barco(barcos[2]) is True
         
     
     def test_hay_victoria(self, partida_con_barcos_colocados):
+        """Comprueba que la victoria se detecta únicamente cuando todos los barcos han sido hundidos."""
         disparos = [(0,0),(0,1),(1,1),(0,2),(1,2)]
 
         for x,y in disparos:
@@ -166,6 +188,7 @@ class TestPartidaPVE:
         
     
     def test_quedan_disparos(self, partida_con_pocos_disparos):
+        """Verifica que el sistema detecta correctamente cuándo se agotan los disparos."""
         assert partida_con_pocos_disparos.quedan_disparos() is True
         partida_con_pocos_disparos.disparar(0, 0)
         assert partida_con_pocos_disparos.quedan_disparos() is True
@@ -174,6 +197,7 @@ class TestPartidaPVE:
         
     
     def test_disparos_restantes(self, partida_pve):
+        """Comprueba que el número de disparos restantes se actualiza tras cada disparo válido."""
         assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos
         partida_pve.disparar(0, 0)
         assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
@@ -182,6 +206,7 @@ class TestPartidaPVE:
         
     
     def test_obtener_dimensiones_tablero(self, barcos):
+        """Verifica que la partida devuelve correctamente las dimensiones del tablero."""
         ancho = 10
         alto = 10
         tablero = Tablero(ancho, alto, barcos, "~", "X", "O")
