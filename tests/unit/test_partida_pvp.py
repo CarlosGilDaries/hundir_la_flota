@@ -73,3 +73,21 @@ class TestPartidaPVP:
     def test_disparo_invalido(self, partida_con_barcos_colocados_turno_jugador_1):
         assert partida_con_barcos_colocados_turno_jugador_1.disparar(1, -10, 0) == ResultadoDisparo.INVALIDO
         assert partida_con_barcos_colocados_turno_jugador_1.disparar(2, 0, 12) == ResultadoDisparo.INVALIDO
+    
+    
+    def test_disparar_cambia_el_turno(self, partida_con_barcos_colocados_turno_jugador_1):
+        assert partida_con_barcos_colocados_turno_jugador_1._turno == 1
+        partida_con_barcos_colocados_turno_jugador_1.disparar(1, 0, 0)
+        assert partida_con_barcos_colocados_turno_jugador_1._turno == 2
+        partida_con_barcos_colocados_turno_jugador_1.disparar(2, 0, 0)
+        assert partida_con_barcos_colocados_turno_jugador_1._turno == 1
+    
+    
+    def test_disparar_fuera_de_turno(self, partida_con_barcos_colocados_turno_jugador_1):
+        with pytest.raises(ValueError):
+            partida_con_barcos_colocados_turno_jugador_1.disparar(2, 0, 0)  # Jugador 2 intenta disparar en turno de jugador 1
+            
+        partida_con_barcos_colocados_turno_jugador_1.disparar(1, 0, 0)      # Jugador 1 dispara y cambia turno
+        
+        with pytest.raises(ValueError):
+            partida_con_barcos_colocados_turno_jugador_1.disparar(1, 0, 0)  # Jugador 1 intenta disparar en turno de jugador 2
