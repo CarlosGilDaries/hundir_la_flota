@@ -28,8 +28,8 @@ def tablero(barcos):
 
 
 @pytest.fixture
-def tablero_barcos_colocados_manualmente(barcos):
-    tablero = Tablero(6, 6, barcos, "~", "X", "O")
+def tablero_barcos_colocados_manualmente(barcos_horizontales):
+    tablero = Tablero(6, 6, barcos_horizontales, "~", "X", "O")
     y = 0
     for barco in tablero.barcos:
         tablero.colocar_barco_manual(barco, 0, y)
@@ -46,6 +46,11 @@ def partida_pve(tablero):
 @pytest.fixture
 def partida_con_barcos_colocados(tablero_barcos_colocados_manualmente):
     return PartidaPVE(tablero_barcos_colocados_manualmente, 10, True)
+
+
+@pytest.fixture
+def partida_sin_barcos_colocados(tablero):
+    return PartidaPVE(tablero, 10, True)
 
 
 class TestPartidaPVE:
@@ -151,3 +156,24 @@ class TestPartidaPVE:
                     contador_caracteres_barco_en_tablero += 1
         
         assert contador_caracteres_barco_en_tablero == 0
+        
+    
+    def test_colocar_barco(self, partida_sin_barcos_colocados, barcos):
+        assert partida_sin_barcos_colocados.colocar_barco(barcos[0]) == True
+        assert partida_sin_barcos_colocados.colocar_barco(barcos[1]) == True
+        assert partida_sin_barcos_colocados.colocar_barco(barcos[2]) == True
+        
+    
+    def test_hay_victoria(self, partida_con_barcos_colocados):
+        partida_con_barcos_colocados.disparar(0, 0)
+        assert partida_con_barcos_colocados.hay_victoria() == False
+        partida_con_barcos_colocados.disparar(0, 1)
+        assert partida_con_barcos_colocados.hay_victoria() == False
+        partida_con_barcos_colocados.disparar(1, 1)
+        assert partida_con_barcos_colocados.hay_victoria() == False
+        partida_con_barcos_colocados.disparar(0, 2)
+        assert partida_con_barcos_colocados.hay_victoria() == False
+        partida_con_barcos_colocados.disparar(1, 2)
+        assert partida_con_barcos_colocados.hay_victoria() == False
+        partida_con_barcos_colocados.disparar(2, 2)
+        assert partida_con_barcos_colocados.hay_victoria() == True
