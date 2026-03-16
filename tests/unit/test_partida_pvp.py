@@ -6,19 +6,24 @@ from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida
 from tests.unit.test_partida_pve import contar_celdas_barco, total_caracteres_barcos
 
 @pytest.fixture
-def barcos():
-    """Proporciona una lista de barcos de prueba con distintos tamaños."""
-    return [
+def barco_pruebas_tamanyo_3():
+    return Barco("Test", 3, "T")
+
+
+@pytest.fixture
+def partida_pvp():
+    barcos_j1 = [
         Barco("Prueba", 1, "P"),
         Barco("Lancha", 2, "L"),
         Barco("Submarino", 3, "S")
     ]
-
-
-@pytest.fixture
-def partida_pvp(barcos):
-    tablero1 = Tablero(6, 6, barcos, "~", "X", "O")
-    tablero2 = Tablero(6, 6, barcos, "~", "X", "O")
+    
+    barcos_j2 = [
+        Barco("Prueba", 1, "P"),
+    ]
+    
+    tablero1 = Tablero(6, 6, barcos_j1, "~", "X", "O")
+    tablero2 = Tablero(6, 6, barcos_j2, "~", "X", "O")
     
     return PartidaPVP(tablero1, tablero2)
 
@@ -214,5 +219,46 @@ class TestPartidaPVP:
         partida_con_barcos_colocados_turno_jugador_1.disparar(2, 0, 0)
         tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(2)
         assert tablero_rival_jugador_2[0][0] == "X"
+
+
+    def test_colocar_barco(self, partida_pvp):
+        barcos_j1 = partida_pvp._tableros[1].barcos
+        assert partida_pvp.colocar_barco(barcos_j1[1], 0, 0, True, 1) is True
+
+
+    def test_colocar_barco_donde_ya_hay_barco(self, partida_pvp):
+        barcos_j1 = partida_pvp._tableros[1].barcos
+        assert partida_pvp.colocar_barco(barcos_j1[1], 0, 0, True, 1) is True
+        assert partida_pvp.colocar_barco(barcos_j1[2], 0, 0, True, 1) is False
+        
+    
+    def test_colocar_barco_fuera_del_tablero(self, partida_pvp):
+        barcos_j1 = partida_pvp._tableros[1].barcos
+        assert partida_pvp.colocar_barco(barcos_j1[2], 10, 10, True, 1) is False
+        assert partida_pvp.colocar_barco(barcos_j1[2], 6, 6, True, 1) is False
+
+
+    @pytest.mark.parametrize("x, y, esperado", [
+        (0, 0, "T"),
+        (1, 0, "T"),
+        (2, 0, "T"),
+        (3, 0, "~")
+    ])
+    def test_colocar_barco_horizontal(self, partida_pvp, barco_pruebas_tamanyo_3, x, y, esperado):
+        partida_pvp.colocar_barco(barco_pruebas_tamanyo_3, 0, 0, True, 1)
+        tablero_j1 = partida_pvp.obtener_tablero_propio(1)
+        assert tablero_j1[y][x] == esperado
+        
+    
+    @pytest.mark.parametrize("x, y, esperado", [
+        (0, 0, "T"),
+        (0, 1, "T"),
+        (0, 2, "T"),
+        (0, 3, "~")
+    ])
+    def test_colocar_barco_vertical(self, partida_pvp, barco_pruebas_tamanyo_3, x, y, esperado):
+        partida_pvp.colocar_barco(barco_pruebas_tamanyo_3, 0, 0, False, 1)
+        tablero_j1 = partida_pvp.obtener_tablero_propio(1)
+        assert tablero_j1[y][x] == esperado
     
 # TODO colocar_barco
