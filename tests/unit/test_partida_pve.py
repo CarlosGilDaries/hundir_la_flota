@@ -14,6 +14,15 @@ def barcos():
 
 
 @pytest.fixture
+def barcos_horizontales():
+    return [
+        Barco("Prueba", 1, "P", True),
+        Barco("Lancha", 2, "L", True),
+        Barco("Submarino", 3, "S", True)
+    ]
+
+
+@pytest.fixture
 def tablero(barcos):
     return Tablero(6, 6, barcos, "~", "X", "O")
 
@@ -32,6 +41,11 @@ def tablero_barcos_colocados_manualmente(barcos):
 @pytest.fixture
 def partida_pve(tablero):
     return PartidaPVE(tablero, 10)
+
+
+@pytest.fixture
+def partida_con_barcos_colocados(tablero_barcos_colocados_manualmente):
+    return PartidaPVE(tablero_barcos_colocados_manualmente, 10, True)
 
 
 class TestPartidaPVE:
@@ -60,10 +74,32 @@ class TestPartidaPVE:
         assert contador_prueba == 1
         
     
-    # @pytest.mark.parametrize("x, y, esperado", [
-    #     (0, 0, ResultadoDisparo.TOCADO),
-    #     (1, 0, ResultadoDisparo.TOCADO),
-    #     (2, 2, ResultadoDisparo.TOCADO),
-    # ])
-    # def test_disparo_tocado(self, partida_con_tablero_pequenyo, x, y, esperado):
-    #     assert partida_con_tablero_pequenyo.disparar(x, y) == esperado
+    @pytest.mark.parametrize("x, y, esperado", [
+        (0, 1, ResultadoDisparo.TOCADO),
+        (0, 2, ResultadoDisparo.TOCADO),
+    ])
+    def test_disparo_tocado(self, partida_con_barcos_colocados, x, y, esperado):
+        assert partida_con_barcos_colocados.disparar(x, y) == esperado
+        
+        
+    @pytest.mark.parametrize("x, y, esperado", [
+        (0, 0, ResultadoDisparo.HUNDIDO),
+    ])
+    def test_disparo_hundido(self, partida_con_barcos_colocados, x, y, esperado):
+        assert partida_con_barcos_colocados.disparar(x, y) == esperado
+        
+        
+    @pytest.mark.parametrize("x, y, esperado", [
+        (5, 5, ResultadoDisparo.AGUA),
+        (4, 4, ResultadoDisparo.AGUA),
+    ])
+    def test_disparo_agua(self, partida_con_barcos_colocados, x, y, esperado):
+        assert partida_con_barcos_colocados.disparar(x, y) == esperado
+        
+    
+    @pytest.mark.parametrize("x, y, esperado", [
+        (-2, 5, ResultadoDisparo.INVALIDO),
+        (8, 4, ResultadoDisparo.INVALIDO),
+    ])
+    def test_disparo_agua(self, partida_con_barcos_colocados, x, y, esperado):
+        assert partida_con_barcos_colocados.disparar(x, y) == esperado
