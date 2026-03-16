@@ -192,3 +192,9 @@ class TestPartidaPVE:
         assert partida_con_pocos_disparos.quedan_disparos() == False
         
     
+    def disparos_restantes(self, partida_pve):
+        assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos
+        partida_pve.disparar(0, 0)
+        assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
+        partida_pve.disparar(0, 1)
+        assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
