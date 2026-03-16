@@ -198,3 +198,12 @@ class TestPartidaPVE:
         assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
         partida_pve.disparar(0, 1)
         assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
+        
+    
+    def test_obtener_dimensiones_tablero(self, barcos):
+        ancho = 10
+        alto = 10
+        tablero = Tablero(ancho, alto, barcos, "~", "X", "O")
+        partida = PartidaPVE(tablero, 10)
+        
+        assert partida.obtener_dimensiones_tablero() == (ancho, alto)
