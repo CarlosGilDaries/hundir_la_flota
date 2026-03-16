@@ -44,6 +44,11 @@ def partida_pve(tablero):
 
 
 @pytest.fixture
+def partida_con_pocos_disparos(tablero):
+    return PartidaPVE(tablero, 2)
+
+
+@pytest.fixture
 def partida_con_barcos_colocados(tablero_barcos_colocados_manualmente):
     return PartidaPVE(tablero_barcos_colocados_manualmente, 10, True)
 
@@ -177,3 +182,13 @@ class TestPartidaPVE:
         assert partida_con_barcos_colocados.hay_victoria() == False
         partida_con_barcos_colocados.disparar(2, 2)
         assert partida_con_barcos_colocados.hay_victoria() == True
+        
+    
+    def test_quedan_disparos(self, partida_con_pocos_disparos):
+        assert partida_con_pocos_disparos.quedan_disparos() == True
+        partida_con_pocos_disparos.disparar(0, 0)
+        assert partida_con_pocos_disparos.quedan_disparos() == True
+        partida_con_pocos_disparos.disparar(0, 1)
+        assert partida_con_pocos_disparos.quedan_disparos() == False
+        
+    
