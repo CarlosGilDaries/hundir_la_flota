@@ -137,19 +137,35 @@ class TestPartidaPVP:
         assert partida_con_un_barco_turno_jugador_1.estado() == EstadoPartida.FINALIZADA
         
     
-    def test_hay_victoria(self, partida_con_un_barco_turno_jugador_1):
+    def test_hay_victoria_jugador_1(self, partida_con_un_barco_turno_jugador_1):
         assert partida_con_un_barco_turno_jugador_1.hay_victoria() is False
         partida_con_un_barco_turno_jugador_1.disparar(1, 0, 0)
         assert partida_con_un_barco_turno_jugador_1.hay_victoria() is True
         
-    def test_jugador_ganador(self, partida_con_un_barco_turno_jugador_1):
+    
+    def test_hay_victoria_jugador_2(self, partida_con_un_barco_turno_jugador_1):
+        assert partida_con_un_barco_turno_jugador_1.hay_victoria() is False
+        partida_con_un_barco_turno_jugador_1.disparar(1, 1, 0)
+        assert partida_con_un_barco_turno_jugador_1.hay_victoria() is False
+        partida_con_un_barco_turno_jugador_1.disparar(2, 0, 0)
+        assert partida_con_un_barco_turno_jugador_1.hay_victoria() is True
+        
+        
+    def test_jugador_1_ganador(self, partida_con_un_barco_turno_jugador_1):
         assert partida_con_un_barco_turno_jugador_1.jugador_ganador() is None
         partida_con_un_barco_turno_jugador_1.disparar(1, 0, 0)
         assert partida_con_un_barco_turno_jugador_1.jugador_ganador() != 2
+        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() == 1
+        
+    
+    def test_jugador_2_ganador(self, partida_con_un_barco_turno_jugador_1):
+        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() is None
+        partida_con_un_barco_turno_jugador_1.disparar(1, 1, 0)
+        assert partida_con_un_barco_turno_jugador_1.jugador_ganador() != 1
+        partida_con_un_barco_turno_jugador_1.disparar(2, 0, 0)
         assert partida_con_un_barco_turno_jugador_1.jugador_ganador() == 1
     
 # TODO Comprobar que el tablero defensor se marca con el disparo del atacante
 # TODO obtener_tablero_rival
 # TODO obtener_tablero_propio
 # TODO colocar_barco
-# TODO jugador_ganador
