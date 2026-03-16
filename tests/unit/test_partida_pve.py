@@ -58,30 +58,30 @@ def partida_sin_barcos_colocados(tablero):
     return PartidaPVE(tablero, 10, True)
 
 
+def contar_celdas_barco(tablero):
+        contador = 0
+        for fila in tablero:
+            for celda in fila:
+                if celda not in ["~", "X", "O"]:
+                    contador += 1
+        return contador
+    
+    
+def total_caracteres_barcos(lista_barcos):
+    return sum(barco.tamanyo for barco in lista_barcos)
+
+
 class TestPartidaPVE:
     """Clase encargada de testear la lógica de una PartidaPVE"""
-    
+  
     def test_constructor(self, partida_pve, tablero):
         """Comprueba que se incializan correctamente los atributos y se ejecuta el método privado de colocar barcos atuomáticamente"""
+        cantidad_caracteres_barcos = total_caracteres_barcos(tablero.barcos)
+        
         assert partida_pve.tablero_maquina == tablero
         assert partida_pve._disparos_maximos == 10
-        assert partida_pve._disparos_realizados == 0
-        
-        contador_prueba = 0
-        contador_lancha = 0
-        contador_submarino = 0
-        for fila in partida_pve.obtener_tablero_propio():
-            for celda in fila:
-                if celda == "L":
-                    contador_lancha += 1
-                elif celda == "S":
-                    contador_submarino += 1
-                elif celda == "P":
-                    contador_prueba +=1
-                    
-        assert contador_lancha == 2
-        assert contador_submarino == 3
-        assert contador_prueba == 1
+        assert partida_pve._disparos_realizados == 0             
+        assert contar_celdas_barco(partida_pve.obtener_tablero_propio()) == cantidad_caracteres_barcos
         
     
     @pytest.mark.parametrize("x, y, esperado", [
@@ -108,7 +108,7 @@ class TestPartidaPVE:
         (-2, 5, ResultadoDisparo.INVALIDO),
         (8, 4, ResultadoDisparo.INVALIDO),
     ])
-    def test_disparo_agua(self, partida_con_barcos_colocados, x, y, esperado):
+    def test_disparo_invalido(self, partida_con_barcos_colocados, x, y, esperado):
         assert partida_con_barcos_colocados.disparar(x, y) == esperado
         
         
@@ -138,29 +138,14 @@ class TestPartidaPVE:
         
     
     def test_obtener_tablero_propio_devuelve_barcos(self, partida_pve, barcos):
-        contador_caracteres_barco_en_tablero = 0
-        tablero = partida_pve.obtener_tablero_propio()
-        for fila in tablero:
-            for celda in fila:
-                if celda not in ["~", "X", "O"]:
-                    contador_caracteres_barco_en_tablero += 1
-        
-        cantidad_caracteres_barcos = 0
-        for barco in barcos:
-            cantidad_caracteres_barcos += barco.tamanyo
-            
-        assert contador_caracteres_barco_en_tablero == cantidad_caracteres_barcos
+        cantidad_caracteres_barco_en_tablero = total_caracteres_barcos(barcos)
+        tablero = partida_pve.obtener_tablero_propio()           
+        assert contar_celdas_barco(tablero) == cantidad_caracteres_barco_en_tablero
         
     
     def test_obtener_tablero_rival_no_devuelve_barcos(self, partida_pve):
-        contador_caracteres_barco_en_tablero = 0
-        tablero = partida_pve.obtener_tablero_rival()
-        for fila in tablero:
-            for celda in fila:
-                if celda not in ["~", "X", "O"]:
-                    contador_caracteres_barco_en_tablero += 1
-        
-        assert contador_caracteres_barco_en_tablero == 0
+        tablero = partida_pve.obtener_tablero_rival()      
+        assert contar_celdas_barco(tablero) == 0
         
     
     def test_colocar_barco(self, partida_sin_barcos_colocados, barcos):
@@ -170,17 +155,13 @@ class TestPartidaPVE:
         
     
     def test_hay_victoria(self, partida_con_barcos_colocados):
-        partida_con_barcos_colocados.disparar(0, 0)
-        assert partida_con_barcos_colocados.hay_victoria() == False
-        partida_con_barcos_colocados.disparar(0, 1)
-        assert partida_con_barcos_colocados.hay_victoria() == False
-        partida_con_barcos_colocados.disparar(1, 1)
-        assert partida_con_barcos_colocados.hay_victoria() == False
-        partida_con_barcos_colocados.disparar(0, 2)
-        assert partida_con_barcos_colocados.hay_victoria() == False
-        partida_con_barcos_colocados.disparar(1, 2)
-        assert partida_con_barcos_colocados.hay_victoria() == False
-        partida_con_barcos_colocados.disparar(2, 2)
+        disparos = [(0,0),(0,1),(1,1),(0,2),(1,2)]
+
+        for x,y in disparos:
+            partida_con_barcos_colocados.disparar(x,y)
+            assert partida_con_barcos_colocados.hay_victoria() == False
+
+        partida_con_barcos_colocados.disparar(2,2)
         assert partida_con_barcos_colocados.hay_victoria() == True
         
     
@@ -192,7 +173,7 @@ class TestPartidaPVE:
         assert partida_con_pocos_disparos.quedan_disparos() == False
         
     
-    def disparos_restantes(self, partida_pve):
+    def test_disparos_restantes(self, partida_pve):
         assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos
         partida_pve.disparar(0, 0)
         assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
