@@ -52,7 +52,7 @@ class TestPartidaPVE:
     """Clase encargada de testear la lógica de una PartidaPVE"""
     
     def test_constructor(self, partida_pve, tablero):
-        """Comprueba que se incializan correctamente los atributos y se ejecuta el método de colocar barcos atuomáticamente"""
+        """Comprueba que se incializan correctamente los atributos y se ejecuta el método privado de colocar barcos atuomáticamente"""
         assert partida_pve.tablero_maquina == tablero
         assert partida_pve._disparos_maximos == 10
         assert partida_pve._disparos_realizados == 0
@@ -103,3 +103,28 @@ class TestPartidaPVE:
     ])
     def test_disparo_agua(self, partida_con_barcos_colocados, x, y, esperado):
         assert partida_con_barcos_colocados.disparar(x, y) == esperado
+        
+        
+    def test_disparo_repetido(self, partida_con_barcos_colocados):
+        partida_con_barcos_colocados.disparar(0, 1)
+        assert partida_con_barcos_colocados.disparar(0, 1) == ResultadoDisparo.REPETIDO
+        
+    
+    def test_disparar_aumenta_disparos_realizados(self, partida_pve):
+        partida_pve.disparar(0, 0)
+        assert partida_pve._disparos_realizados == 1
+        partida_pve.disparar(0, 2)
+        assert partida_pve._disparos_realizados == 2
+        
+    
+    def test_disparo_repetido_no_aumenta_disparos_realizados(self, partida_pve):
+        partida_pve.disparar(0, 0)
+        partida_pve.disparar(0, 0)
+        partida_pve.disparar(0, 0)
+        assert partida_pve._disparos_realizados == 1
+        
+    
+    def test_disparo_invalido_no_aumenta_disparos_realizados(self, partida_pve):
+        partida_pve.disparar(-2, 0)
+        partida_pve.disparar(5, 12)
+        assert partida_pve._disparos_realizados == 0
