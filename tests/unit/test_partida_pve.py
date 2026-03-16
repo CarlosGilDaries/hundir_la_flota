@@ -149,9 +149,9 @@ class TestPartidaPVE:
         
     
     def test_colocar_barco(self, partida_sin_barcos_colocados, barcos):
-        assert partida_sin_barcos_colocados.colocar_barco(barcos[0]) == True
-        assert partida_sin_barcos_colocados.colocar_barco(barcos[1]) == True
-        assert partida_sin_barcos_colocados.colocar_barco(barcos[2]) == True
+        assert partida_sin_barcos_colocados.colocar_barco(barcos[0]) is True
+        assert partida_sin_barcos_colocados.colocar_barco(barcos[1]) is True
+        assert partida_sin_barcos_colocados.colocar_barco(barcos[2]) is True
         
     
     def test_hay_victoria(self, partida_con_barcos_colocados):
@@ -159,18 +159,18 @@ class TestPartidaPVE:
 
         for x,y in disparos:
             partida_con_barcos_colocados.disparar(x,y)
-            assert partida_con_barcos_colocados.hay_victoria() == False
+            assert partida_con_barcos_colocados.hay_victoria() is False
 
         partida_con_barcos_colocados.disparar(2,2)
-        assert partida_con_barcos_colocados.hay_victoria() == True
+        assert partida_con_barcos_colocados.hay_victoria() is True
         
     
     def test_quedan_disparos(self, partida_con_pocos_disparos):
-        assert partida_con_pocos_disparos.quedan_disparos() == True
+        assert partida_con_pocos_disparos.quedan_disparos() is True
         partida_con_pocos_disparos.disparar(0, 0)
-        assert partida_con_pocos_disparos.quedan_disparos() == True
+        assert partida_con_pocos_disparos.quedan_disparos() is True
         partida_con_pocos_disparos.disparar(0, 1)
-        assert partida_con_pocos_disparos.quedan_disparos() == False
+        assert partida_con_pocos_disparos.quedan_disparos() is False
         
     
     def test_disparos_restantes(self, partida_pve):
