@@ -34,7 +34,7 @@ def tableros_barcos_colocados_manualmente():
 
     tablero2 = Tablero(6, 6, [
         Barco("Prueba", 1, "P", True),
-        Barco("Lancha", 2, "L", True),
+        Barco("Destructor", 3, "L", True),
         Barco("Submarino", 3, "S", True)
     ], "~", "X", "O")
     
@@ -185,8 +185,22 @@ class TestPartidaPVP:
         assert partida_con_un_barco_turno_jugador_1.jugador_ganador() is None
         partida_con_un_barco_turno_jugador_1.disparar(2, 0, 0)
         assert partida_con_un_barco_turno_jugador_1.jugador_ganador() == 2
+        
+    
+    def test_obtener_tablero_propio_devuelve_barcos(self, partida_con_barcos_colocados_turno_jugador_1):
+        tablero_j1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_propio(1)
+        tablero_j2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_propio(2)
+        assert total_caracteres_barcos(partida_con_barcos_colocados_turno_jugador_1._tableros[1].barcos) == contar_celdas_barco(tablero_j1) == 6 
+        assert total_caracteres_barcos(partida_con_barcos_colocados_turno_jugador_1._tableros[2].barcos) == contar_celdas_barco(tablero_j2) == 7
+        
+    
+    def test_obtener_tablero_rival_no_devuelve_barcos(self, partida_con_barcos_colocados_turno_jugador_1):
+        tablero_rival_jugador_1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(1)     # Obtiene el tablero rival del jugador 1 (tablero j2)
+        tablero_rival_jugador_2 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_rival(1)     # Obtiene el tablero rival del jugador 2 (tablero j1)
+        assert contar_celdas_barco(tablero_rival_jugador_1) == 0
+        assert contar_celdas_barco(tablero_rival_jugador_2) == 0
+    
+    
     
 # TODO Comprobar que el tablero defensor se marca con el disparo del atacante
-# TODO obtener_tablero_rival
-# TODO obtener_tablero_propio
 # TODO colocar_barco
