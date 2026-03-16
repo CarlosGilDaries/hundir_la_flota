@@ -2,25 +2,28 @@ from modelo.partida.partida import Partida
 from modelo.resultado import ResultadoDisparo
 from modelo.tablero import Tablero
 from modelo.barco import Barco
+from typing import Optional
 
 class PartidaPVE(Partida):
     """
     Implementación de una partida contra la máquina (PVE).
     """
 
-    def __init__(self, tablero_maquina: Tablero, disparos_maximos: int) -> None:
+    def __init__(self, tablero_maquina: Tablero, disparos_maximos: int, barcos_colocados:Optional[bool] = None) -> None:
         """
         Inicializa una nueva partida PVE.
 
         Args:
             tablero_maquina (Tablero): Tablero donde se colocan los barcos de la máquina.
             disparos_maximos (int): Número máximo de disparos permitidos.
+            bacos_colocados (bool): Bandera opcional para introducir barcos manualmente, sólo para testing.
         """
         self.tablero_maquina = tablero_maquina
         self._disparos_maximos = disparos_maximos
-        self._disparos_realizados = 0  
+        self._disparos_realizados = 0
         
-        self._colocar_barcos_automaticamente()
+        if not barcos_colocados:
+            self._colocar_barcos_automaticamente()
 
     
     def disparar(self, x: int, y: int) -> ResultadoDisparo:
