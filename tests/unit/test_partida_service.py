@@ -29,6 +29,30 @@ def partida_service():
     return PartidaService(config, caracteres)
 
 
+@pytest.fixture
+def partida_service_con_barcos_colocados():
+    """Devuelve una instancia de PartidaService con un barco tamaño 2 en posición conocida"""
+    config = {
+        "ancho": 10,
+        "alto": 10,
+        "barcos": [
+            ("Lancha", 2, "L"),
+        ]
+    }
+    caracteres = {
+        "CARACTER_VACIO": "~",
+        "CARACTER_TOCADO": "X",
+        "CARACTER_AGUA": "O"
+    }
+    partida = PartidaService(config, caracteres)
+
+    for jugador in [1, 2]:
+        for barco in partida.barcos_pendientes(jugador):
+            partida.colocar_barco(jugador, 1, 0, 0, True)
+            
+    return partida
+
+
 class TestPartidaService:
     """Tests del constructor de PartidaService."""
 
@@ -88,6 +112,18 @@ class TestPartidaService:
     # ESTADOS / TURNOS
     # ============================================================================
     
+    def test_barcos_pendientes(self, partida_service, partida_service_con_barcos_colocados):
+        """Comprueba que barcos_pendientes() devuelve una lista correcta de barcos pendientes de colocar"""
+        assert len(partida_service.barcos_pendientes(1)) == 5
+        assert len(partida_service.barcos_pendientes(2)) == 5
+        assert len(partida_service_con_barcos_colocados.barcos_pendientes(1)) == 0
+        assert len(partida_service_con_barcos_colocados.barcos_pendientes(2)) == 0
+        
+    
+    def test_estado(self, partida_service, partida_service_con_barcos_colocados):
+        """Comprueba que estado() devuelve el estado de la partida correctamente"""
+        assert partida_service.estado() == EstadoPartida.COLOCACION
+        assert partida_service_con_barcos_colocados.estado() == EstadoPartida.JUGANDO
     
     
     # ============================================================================
@@ -118,6 +154,15 @@ class TestPartidaService:
             partida_service.colocar_barco(jugador, indice, x, y, horizontal)
             
     
+    # ============================================================================
+    # BARCOS PENDIENTES
+    # ============================================================================
+    
+    def test_barcos_pendientes(self, partida_service):
+        """Verifica que se devuelve la lista de barcos pendientes"""
+        assert len(partida_service.barcos_pendientes(1)) == len(partida_service.config["barcos"])
+    
+    
     def test_colocar_barco_lo_elimina_de_pendientes(self, partida_service):
         """Verifica que se elimina el barco de la lista de pendientes al colocarlo"""
         cantidad_inicial_barcos_j1 = len(partida_service.barcos_pendientes(1))
@@ -125,5 +170,6 @@ class TestPartidaService:
         
         partida_service.colocar_barco(1, 1, 0, 0, True)
         partida_service.colocar_barco(2, 1, 0, 0, True)
+        
         assert cantidad_inicial_barcos_j1 > len(partida_service.barcos_pendientes(1))
         assert cantidad_inicial_barcos_j2 > len(partida_service.barcos_pendientes(2))
