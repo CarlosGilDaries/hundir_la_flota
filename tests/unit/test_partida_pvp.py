@@ -6,6 +6,10 @@ from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida
 from tests.helpers import contar_celdas_barco, total_caracteres_barcos
 from unittest.mock import patch
 
+# =============================================================================
+# FIXTURES
+# =============================================================================
+
 @pytest.fixture
 def barco_pruebas_tamanyo_3():
     """Devuelve un barco de tamaño 3 para pruebas de colocación."""

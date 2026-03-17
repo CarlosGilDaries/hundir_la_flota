@@ -5,6 +5,10 @@ from modelo.barco import Barco
 from modelo.partida.partida_pve import PartidaPVE
 from tests.helpers import contar_celdas_barco, total_caracteres_barcos
 
+# =============================================================================
+# FIXTURES
+# =============================================================================
+
 @pytest.fixture
 def barcos():
     """Proporciona una lista de barcos de prueba con distintos tamaños."""

@@ -5,6 +5,10 @@ from modelo.barco import Barco
 from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida
 from servicios.partida_service import PartidaService
 
+# =============================================================================
+# FIXTURES
+# =============================================================================
+
 @pytest.fixture
 def partida_service():
     """Devuelve una instancia de PartidaService""" 

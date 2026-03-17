@@ -3,6 +3,9 @@ from modelo.tablero import Tablero
 from modelo.barco import Barco
 from modelo.resultado import ResultadoDisparo
 
+# =============================================================================
+# FIXTURES
+# =============================================================================
 
 @pytest.fixture
 def barcos():
