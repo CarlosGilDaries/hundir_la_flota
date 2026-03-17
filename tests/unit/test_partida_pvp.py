@@ -113,6 +113,9 @@ def partida_con_un_barco_colocado_turno_jugador_1(tableros_con_un_barco_pequeño
 class TestPartidaPVP:
     """Clase encargada de testear la lógica de una PartidaPVP"""
     
+    # ============================================================================
+    # CONSTRUCTOR
+    # ============================================================================
     def test_constructor(self, partida_pvp):
         """Comprueba que el constructor inicializa correctamente los atributos de la partida."""
         assert isinstance(partida_pvp._tableros, dict)
@@ -122,7 +125,11 @@ class TestPartidaPVP:
         assert isinstance(partida_pvp._jugadores_listos, set)
         assert len(partida_pvp._jugadores_listos) == 0
         
-        
+    
+    # ============================================================================
+    # DISPAROS
+    # ============================================================================
+    
     @pytest.mark.parametrize("jugador, x, y, esperado", [
         (1, 0, 1, ResultadoDisparo.TOCADO),
         (1, 0, 2, ResultadoDisparo.TOCADO),
@@ -151,6 +158,10 @@ class TestPartidaPVP:
         assert partida_con_barcos_colocados_turno_jugador_1.disparar(2, 0, 12) == ResultadoDisparo.INVALIDO
     
     
+    # ============================================================================
+    # DISPARO / TURNO / ESTADO
+    # ============================================================================
+    
     def test_disparar_cambia_el_turno(self, partida_con_barcos_colocados_turno_jugador_1):
         """Verifica que después de un disparo válido el turno cambia al jugador rival."""
         assert partida_con_barcos_colocados_turno_jugador_1.turno_actual() == 1
@@ -176,7 +187,11 @@ class TestPartidaPVP:
         with pytest.raises(ValueError):
             partida_pvp.disparar(1, 0, 0)       # Turno jugador 1 pero estado == EstadoPartida.COLOCACION
             
-        
+    
+    # ============================================================================
+    # ESTADOS / TURNOS
+    # ============================================================================
+    
     def test_estado(self, partida_pvp, partida_con_un_barco_colocado_turno_jugador_1):
         """Comprueba que el método estado devuelve correctamente el estado actual de la partida."""
         assert partida_pvp.estado() == EstadoPartida.COLOCACION
@@ -211,6 +226,10 @@ class TestPartidaPVP:
         assert partida_con_un_barco_colocado_turno_jugador_1.jugador_ganador() == 1
         
     
+    # ============================================================================
+    # MOSTRAR TABLEROS
+    # ============================================================================
+    
     def test_obtener_tablero_propio_devuelve_barcos(self, partida_con_barcos_colocados_turno_jugador_1):
         """Verifica que obtener_tablero_propio muestra los barcos del jugador."""
         tablero_j1 = partida_con_barcos_colocados_turno_jugador_1.obtener_tablero_propio(1)
@@ -229,6 +248,10 @@ class TestPartidaPVP:
         assert contar_celdas_barco(tablero_rival_jugador_2) == 0
 
 
+    # ============================================================================
+    # COLOCACIÓN BARCOS
+    # ============================================================================
+    
     def test_colocar_barco(self, partida_pvp):
         """Verifica que colocar_barco coloca correctamente un barco en el tablero."""
         barcos_j1 = partida_pvp._tableros[1].barcos      
@@ -275,6 +298,10 @@ class TestPartidaPVP:
         assert tablero_j1[y][x] == esperado
         
     
+    # ============================================================================
+    # COLOCACIÓN / ESTADOS / TURNOS
+    # ============================================================================
+    
     def test_todos_colocados_introduce_jugador_en_jugadores_listos(self, partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar):
         """Verifica que un jugador se añade a jugadores_listos cuando coloca todos sus barcos."""
         assert len(partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar._jugadores_listos) == 0
@@ -285,7 +312,7 @@ class TestPartidaPVP:
         assert 2 in partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar._jugadores_listos
     
     
-    def test_2_jugadores_listos_cambia_estado_a_jugando(self, partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar):
+    def test_jugadores_listos_cambia_estado_a_jugando(self, partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar):
         """Comprueba que el estado pasa a JUGANDO cuando ambos jugadores colocan sus barcos."""
         assert partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar.estado() != EstadoPartida.JUGANDO
         
@@ -297,7 +324,7 @@ class TestPartidaPVP:
         assert partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar.estado() == EstadoPartida.JUGANDO
         
     
-    def test_2_jugadores_listos_randomiza_turnos(self, partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar):
+    def test_jugadores_listos_randomiza_turnos(self, partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar):
         """Verifica que el primer turno se decide aleatoriamente cuando ambos jugadores están listos."""
         barcos_j2 = partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar._tableros[2].barcos
         barcos_j1 = partida_pvp_con_un_barco_tamanyo_1_por_tablero_sin_colocar._tableros[1].barcos

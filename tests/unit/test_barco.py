@@ -17,6 +17,11 @@ def barco(request):
 class TestBarco:
     """Tests de comportamiento de la clase Barco."""
 
+
+    # ============================================================================
+    # CONSTRUCTOR
+    # ============================================================================
+    
     def test_constructor_atributos(self, barco):
         """Verifica que los atributos básicos se inicializan correctamente."""
         assert barco.nombre in ["Lancha", "Submarino", "Acorazado", "Portaaviones"]
@@ -24,6 +29,10 @@ class TestBarco:
         assert isinstance(barco.caracter, str)
 
 
+    # ============================================================================
+    # ORIENTACIÓN
+    # ============================================================================
+    
     def test_constructor_horizontal(self, barco):
         """Comprueba que la orientación inicial es un booleano."""
         assert isinstance(barco.get_horizontal(), bool)
@@ -42,6 +51,10 @@ class TestBarco:
         assert isinstance(barco.get_horizontal(), bool)
 
 
+    # ============================================================================
+    # POSICIÓN MÁXIMA
+    # ============================================================================
+    
     @pytest.mark.parametrize("dimension", [8, 10, 12])
     def test_calcular_maximo(self, barco, dimension):
         """Comprueba el cálculo de la posición máxima del barco."""
@@ -49,6 +62,10 @@ class TestBarco:
         assert barco.calcular_maximo(dimension) == esperado
 
 
+    # ============================================================================
+    # IMPACTOS
+    # ============================================================================
+    
     def test_recibir_impacto(self, barco):
         """Verifica que la vida restante disminuye al recibir un impacto."""
         vida_inicial = barco._vida_restante

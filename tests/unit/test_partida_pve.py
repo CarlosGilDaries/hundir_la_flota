@@ -83,7 +83,10 @@ def total_caracteres_barcos(lista_barcos):
 
 class TestPartidaPVE:
     """Clase encargada de testear la lógica de una PartidaPVE"""
-  
+    
+    # ============================================================================
+    # CONSTRUCTOR
+    # ============================================================================
     def test_constructor(self, partida_pve, tablero):
         """Verifica que el constructor inicializa atributos y coloca automáticamente los barcos."""
         cantidad_caracteres_barcos = total_caracteres_barcos(tablero.barcos)
@@ -94,10 +97,14 @@ class TestPartidaPVE:
         assert contar_celdas_barco(partida_pve.obtener_tablero_propio()) == cantidad_caracteres_barcos
         
     
+    # ============================================================================
+    # DISPAROS
+    # ============================================================================
+    
     @pytest.mark.parametrize("x, y, esperado", [
         (0, 1, ResultadoDisparo.TOCADO),
         (0, 2, ResultadoDisparo.TOCADO),
-    ])
+    ]) 
     def test_disparo_tocado(self, partida_con_barcos_colocados, x, y, esperado):
         """Comprueba que disparar a una celda con barco devuelve resultado TOCADO."""
         assert partida_con_barcos_colocados.disparar(x, y) == esperado
@@ -132,6 +139,27 @@ class TestPartidaPVE:
         assert partida_con_barcos_colocados.disparar(0, 1) == ResultadoDisparo.REPETIDO
         
     
+    # ============================================================================
+    # CANTIDAD DE DISPAROS / DISPAROS RESTANTES
+    # ============================================================================
+    
+    def test_quedan_disparos(self, partida_con_pocos_disparos):
+        """Verifica que el sistema detecta correctamente cuándo se agotan los disparos."""
+        assert partida_con_pocos_disparos.quedan_disparos() is True
+        partida_con_pocos_disparos.disparar(0, 0)
+        assert partida_con_pocos_disparos.quedan_disparos() is True
+        partida_con_pocos_disparos.disparar(0, 1)
+        assert partida_con_pocos_disparos.quedan_disparos() is False
+        
+    
+    def test_disparos_restantes(self, partida_pve):
+        """Comprueba que el número de disparos restantes se actualiza tras cada disparo válido."""
+        assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos
+        partida_pve.disparar(0, 0)
+        assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
+        partida_pve.disparar(0, 1)
+        assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
+    
     def test_disparar_aumenta_disparos_realizados(self, partida_pve):
         """Comprueba que los disparos válidos incrementan el contador de disparos realizados."""
         partida_pve.disparar(0, 0)
@@ -153,7 +181,11 @@ class TestPartidaPVE:
         partida_pve.disparar(-2, 0)
         partida_pve.disparar(5, 12)
         assert partida_pve._disparos_realizados == 0
+       
         
+    # ============================================================================
+    # MOSTRAR TABLEROS
+    # ============================================================================
     
     def test_obtener_tablero_propio_devuelve_barcos(self, partida_pve, barcos):
         """Verifica que el tablero propio muestra las posiciones de los barcos."""
@@ -168,12 +200,30 @@ class TestPartidaPVE:
         assert contar_celdas_barco(tablero) == 0
         
     
+    def test_obtener_dimensiones_tablero(self, barcos):
+        """Verifica que la partida devuelve correctamente las dimensiones del tablero."""
+        ancho = 10
+        alto = 10
+        tablero = Tablero(ancho, alto, barcos, "~", "X", "O")
+        partida = PartidaPVE(tablero, 10)
+        
+        assert partida.obtener_dimensiones_tablero() == (ancho, alto)
+        
+        
+    # ============================================================================
+    # COLOCAR BARCOS
+    # ============================================================================
+    
     def test_colocar_barco(self, partida_sin_barcos_colocados, barcos):
         """Verifica que los barcos pueden colocarse automáticamente en el tablero."""
         assert partida_sin_barcos_colocados.colocar_barco(barcos[0]) is True
         assert partida_sin_barcos_colocados.colocar_barco(barcos[1]) is True
         assert partida_sin_barcos_colocados.colocar_barco(barcos[2]) is True
         
+    
+    # ============================================================================
+    # VICTORIA
+    # ============================================================================
     
     def test_hay_victoria(self, partida_con_barcos_colocados):
         """Comprueba que la victoria se detecta únicamente cuando todos los barcos han sido hundidos."""
@@ -185,31 +235,3 @@ class TestPartidaPVE:
 
         partida_con_barcos_colocados.disparar(2,2)
         assert partida_con_barcos_colocados.hay_victoria() is True
-        
-    
-    def test_quedan_disparos(self, partida_con_pocos_disparos):
-        """Verifica que el sistema detecta correctamente cuándo se agotan los disparos."""
-        assert partida_con_pocos_disparos.quedan_disparos() is True
-        partida_con_pocos_disparos.disparar(0, 0)
-        assert partida_con_pocos_disparos.quedan_disparos() is True
-        partida_con_pocos_disparos.disparar(0, 1)
-        assert partida_con_pocos_disparos.quedan_disparos() is False
-        
-    
-    def test_disparos_restantes(self, partida_pve):
-        """Comprueba que el número de disparos restantes se actualiza tras cada disparo válido."""
-        assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos
-        partida_pve.disparar(0, 0)
-        assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
-        partida_pve.disparar(0, 1)
-        assert partida_pve.disparos_restantes() == partida_pve._disparos_maximos - partida_pve._disparos_realizados
-        
-    
-    def test_obtener_dimensiones_tablero(self, barcos):
-        """Verifica que la partida devuelve correctamente las dimensiones del tablero."""
-        ancho = 10
-        alto = 10
-        tablero = Tablero(ancho, alto, barcos, "~", "X", "O")
-        partida = PartidaPVE(tablero, 10)
-        
-        assert partida.obtener_dimensiones_tablero() == (ancho, alto)
