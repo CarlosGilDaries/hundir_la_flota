@@ -116,3 +116,13 @@ class TestPartidaService:
         """Comprueba que se genera una excepción si el índice está fuera del rango válido"""
         with pytest.raises(resultado_esperado):
             partida_service.colocar_barco(jugador, indice, x, y, horizontal)
+            
+    
+    def test_colocar_barco_lo_elimina_de_pendientes(self, partida_service):
+        cantidad_inicial_barcos_j1 = len(partida_service._pendientes[1])
+        cantidad_inicial_barcos_j2 = len(partida_service._pendientes[2])
+        
+        partida_service.colocar_barco(1, 1, 0, 0, True)
+        partida_service.colocar_barco(2, 1, 0, 0, True)
+        assert cantidad_inicial_barcos_j1 > len(partida_service._pendientes[1])
+        assert cantidad_inicial_barcos_j2 > len(partida_service._pendientes[2])
