@@ -57,13 +57,13 @@ class TestPartidaService:
 
     def test_constructor_copias_independientes(self, partida_service):
         """Comprueba que las listas de pendientes son copias independientes."""
-        assert partida_service.barcos_j1 is not partida_service._pendientes[1]
-        assert partida_service.barcos_j2 is not partida_service._pendientes[2]
-        assert partida_service._pendientes[1] is not partida_service._pendientes[2]
+        assert partida_service.barcos_j1 is not partida_service.barcos_pendientes(1)
+        assert partida_service.barcos_j2 is not partida_service.barcos_pendientes(2)
+        assert partida_service.barcos_pendientes(1) is not partida_service.barcos_pendientes(2)
 
         # Modificar pendientes no afecta a barcos originales
         original_len = len(partida_service.barcos_j1)
-        partida_service._pendientes[1].pop()
+        partida_service.barcos_pendientes(1).pop()
         assert len(partida_service.barcos_j1) == original_len
 
 
@@ -119,10 +119,11 @@ class TestPartidaService:
             
     
     def test_colocar_barco_lo_elimina_de_pendientes(self, partida_service):
-        cantidad_inicial_barcos_j1 = len(partida_service._pendientes[1])
-        cantidad_inicial_barcos_j2 = len(partida_service._pendientes[2])
+        """Verifica que se elimina el barco de la lista de pendientes al colocarlo"""
+        cantidad_inicial_barcos_j1 = len(partida_service.barcos_pendientes(1))
+        cantidad_inicial_barcos_j2 = len(partida_service.barcos_pendientes(2))
         
         partida_service.colocar_barco(1, 1, 0, 0, True)
         partida_service.colocar_barco(2, 1, 0, 0, True)
-        assert cantidad_inicial_barcos_j1 > len(partida_service._pendientes[1])
-        assert cantidad_inicial_barcos_j2 > len(partida_service._pendientes[2])
+        assert cantidad_inicial_barcos_j1 > len(partida_service.barcos_pendientes(1))
+        assert cantidad_inicial_barcos_j2 > len(partida_service.barcos_pendientes(2))
