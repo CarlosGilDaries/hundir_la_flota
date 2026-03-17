@@ -3,6 +3,7 @@ from modelo.resultado import ResultadoDisparo
 from modelo.tablero import Tablero
 from modelo.barco import Barco
 from modelo.partida.partida_pve import PartidaPVE
+from tests.helpers import contar_celdas_barco, total_caracteres_barcos
 
 @pytest.fixture
 def barcos():
@@ -64,21 +65,6 @@ def partida_con_barcos_colocados(tablero_barcos_colocados_manualmente):
 def partida_sin_barcos_colocados(tablero):
     """Crea una partida PVE con un tablero vacío sin colocar barcos automáticamente."""
     return PartidaPVE(tablero, 10, True)
-
-
-def contar_celdas_barco(tablero):
-    """Cuenta cuántas celdas del tablero contienen partes de barcos."""
-    contador = 0
-    for fila in tablero:
-        for celda in fila:
-            if celda not in ["~", "X", "O"]:
-                contador += 1
-    return contador
-    
-    
-def total_caracteres_barcos(lista_barcos):
-    """Calcula el número total de celdas que deberían ocupar todos los barcos."""
-    return sum(barco.tamanyo for barco in lista_barcos)
 
 
 class TestPartidaPVE:
