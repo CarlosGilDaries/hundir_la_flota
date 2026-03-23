@@ -1,6 +1,7 @@
 # 🚢 Hundir la Flota (Battleship) – Python Async MVC
 
 ![Python](https://img.shields.io/badge/Python-3.13.2-blue)
+![Pytest](https://img.shields.io/badge/Pytest-7.4.3-red)
 ![asyncio](https://img.shields.io/badge/Async-asyncio-green)
 ![Architecture](https://img.shields.io/badge/Architecture-MVC-orange)
 ![Principles](https://img.shields.io/badge/Principles-SOLID-yellow)
