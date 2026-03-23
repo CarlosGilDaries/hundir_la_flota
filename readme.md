@@ -6,7 +6,7 @@
 ![Principles](https://img.shields.io/badge/Principles-SOLID-yellow)
 ![Network](https://img.shields.io/badge/Network-TCP%2FJSON-blueviolet)
 
-Implementación del clásico juego **Hundir la Flota** desarrollada en **Python 3.13.2**, diseñada como ejercicio práctico para mejorar competencias avanzadas en: Programación Orientada a Objetos (POO), Principios **SOLID**, Arquitectura **MVC**, Programación **asíncrona con `asyncio`** y Diseño modular y escalable.
+Implementación del clásico juego **Hundir la Flota** desarrollada en **Python 3.13.2**, diseñada como ejercicio práctico para mejorar competencias avanzadas en: Programación Orientada a Objetos (POO), Principios **SOLID**, Arquitectura **MVC**, Programación **asíncrona con `asyncio`**, **testing unitario**, y Diseño modular y escalable.
 
 El proyecto incluye tanto **modo local (PVE)** como **modo multijugador por red (PVP)**, permitiendo partidas simultáneas entre jugadores mediante un servidor asíncrono.
 
@@ -24,6 +24,7 @@ Durante el desarrollo se buscó:
 - Desarrollar una aplicación modular y mantenible
 - Implementar comunicación **cliente-servidor**
 - Utilizar **asincronía con `asyncio`** para gestionar múltiples conexiones
+- **Asegurar la calidad del código mediante testing automatizado** (tests unitarios)
 
 El diseño del proyecto se planteó desde el inicio con una intención clara:
 
@@ -110,6 +111,49 @@ La comunicación entre cliente y servidor se realiza mediante **mensajes JSON so
 
 ---
 
+## 🧪 Testing y Cobertura
+
+El proyecto incluye una **suite completa de tests automatizados** para garantizar la calidad y confiabilidad del código.
+
+### Estrategia de testing
+
+- **Tests unitarios**: Verifican el comportamiento individual de clases y métodos en componentes aislados (modelo, servicios, utilidades, etc.)
+- **Tests asíncronos**: Validar la correctitud de operaciones asincrónicas utilizando `pytest-asyncio` (especialmente en la capa de red)
+- **Mocking y fixtures**: Uso extensivo de fixtures reutilizables y mocks para simular comportamientos complejos sin dependencias externas
+
+### Herramientas de testing
+
+- **pytest**: Framework de testing principal con soporte para assertions y plugins
+- **pytest-asyncio**: Ejecución de tests asíncronos
+- **pytest-mock**: Mocking simplificado
+- **coverage**: Medición de cobertura de código
+- **pytest-cov**: Integración de coverage con pytest
+
+### Cobertura
+
+Se incluye análisis de cobertura para monitorear qué porcentaje del código está siendo testeado. Los reportes HTML se generan automáticamente.
+
+### Ejecutar los tests
+
+```bash
+# Instalar dependencias de desarrollo (requiere entorno virtual)
+pip install -r requirements-dev.txt
+
+# Ejecutar todos los tests
+pytest
+
+# Ejecutar tests con salida detallada
+pytest -v
+
+# Ejecutar tests de un módulo específico
+pytest tests/unit/modelo/
+
+# Generar reporte de cobertura HTML
+pytest --cov=. --cov-report=html
+```
+
+---
+
 ## 🎮 Funcionalidades actuales
 
 La versión actual del proyecto permite:
@@ -151,6 +195,9 @@ Incluyendo eventos como:
 ```text
 hundir_la_flota/
 ├── main.py                           # Punto de entrada del cliente
+├── pytest.ini                        # Configuración de pytest
+├── requirements.txt                  # Dependencias de producción
+├── requirements-dev.txt              # Dependencias de desarrollo
 ├── app/
 │   └── app.py                        # Orquestador principal
 ├── config/
@@ -162,7 +209,7 @@ hundir_la_flota/
 │   ├── controlador_pve.py            # Controlador para partidas PVE
 │   └── controlador_pvp_cliente.py    # Controlador para partidas PVP
 ├── logs/
-│   ├── servidor_log.log              # Inicialmente no existe al estar en gitignore          
+│   ├── servidor_log.log              # Inicialmente no existe al estar en gitignore
 ├── modelo/
 │   ├── barco.py
 │   ├── resultado.py
@@ -183,6 +230,14 @@ hundir_la_flota/
 │       └── sesion_pvp.py               # Gestión de partidas
 ├── servicios/
 │   └── partida_service.py              # Fachada para el modelo
+├── tests/
+│   ├── unit/                           # Tests unitarios
+│   │   ├── controlador/                # Tests del controlador
+│   │   ├── modelo/                     # Tests del modelo (barco, tablero, partida)
+│   │   ├── red/                        # Tests de cliente y servidor
+│   │   ├── servicios/                  # Tests de servicios
+│   │   └── utils/                      # Tests de utilidades
+│   └── helpers.py                      # Funciones auxiliares para tests
 ├── utils/
 │   ├── excepciones.py
 │   ├── log.py
@@ -193,6 +248,48 @@ hundir_la_flota/
     └── consola/
         ├── menu_consola.py
         └── vista_consola.py
+```
+
+---
+
+## ⚙️ Configuración del Entorno
+
+Se recomienda utilizar un **entorno virtual** para aislar las dependencias del proyecto.
+
+### Instalación con entorno virtual (recomendado)
+
+**Requisito:** Python 3.13 o superior
+
+```bash
+# 1. Crear el entorno virtual (solo la primera vez)
+python -m venv venv
+
+# 2. Activar el entorno virtual
+
+# En Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+
+# En Windows (cmd):
+.\venv\Scripts\activate.bat
+
+# En macOS/Linux:
+source venv/bin/activate
+
+# 3. Instalar dependencias de producción
+pip install -r requirements.txt
+
+# 4. (Opcional) Instalar dependencias de desarrollo para ejecutar tests
+pip install -r requirements-dev.txt
+```
+
+### Verificar la instalación
+
+```bash
+# Verificar que Python esté correctamente instalado
+python --version
+
+# Verificar que el entorno virtual esté activado
+pip --version
 ```
 
 ---
@@ -233,13 +330,13 @@ python -m main
 
 #### Opción 1 – PVE
 
-- Se inicia una partida local contra la máquina  
-- No requiere conexión con el servidor  
+- Se inicia una partida local contra la máquina
+- No requiere conexión con el servidor
 
 #### Opción 2 – PVP
 
-- El cliente se conecta al servidor  
-- Entra en una cola de emparejamiento  
+- El cliente se conecta al servidor
+- Entra en una cola de emparejamiento
 - Cuando hay dos jugadores disponibles se crea una partida automáticamente
 
 Si el servidor se ejecuta en otro equipo dentro de la misma red local, es necesario modificar la dirección IP del servidor en el cliente.
@@ -270,6 +367,7 @@ cliente = ClienteSocket("192.168.1.35", 8888)
 - **Sockets TCP**
 - Comunicación **JSON cliente-servidor**
 - **Logging estructurado**
+- **Testing**: pytest, pytest-asyncio, pytest-mock, coverage, pytest-cov
 
 ---
 
