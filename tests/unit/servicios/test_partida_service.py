@@ -57,7 +57,7 @@ def partida_service_con_un_barco_tamanyo_1_colocado():
 
 
 class TestPartidaService:
-    """Tests del constructor de PartidaService."""
+    """Tests de PartidaService."""
 
     # ============================================================================
     # CONSTRUCTOR
