@@ -1,3 +1,2 @@
 # No external dependencies required for core application
 # asyncio is included in Python standard library
-python==3.13.2
