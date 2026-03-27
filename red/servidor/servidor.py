@@ -195,8 +195,7 @@ class Servidor:
             async with self._lock_cola:
                 if len(self.cola_espera) >= 2:
                     j1 = self.cola_espera.popleft()
-                    j2 = self.cola_espera.popleft()
-                    
+                    j2 = self.cola_espera.popleft()                  
                     # Limpiar tiempos
                     if j1 in self.cola_tiempos:
                         del self.cola_tiempos[j1]
