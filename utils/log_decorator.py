@@ -1,49 +1,49 @@
 from functools import wraps
 from typing import Callable, Awaitable, TypeVar, Any
-from utils.log import configurar_logger
+from utils.log import configure_logger
 
-logger = configurar_logger()
+logger = configure_logger()
 T = TypeVar("T")
+
 
 def log_async(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
     """
-    Decorador para registrar la ejecución de funciones asíncronas.
-    Este decorador envuelve funciones `async` y captura cualquier excepción
-    producida durante su ejecución, registrándola en el logger configurado.
+    Decorator to log the execution of asynchronous functions.
+    This decorator wraps `async` functions and catches any exception
+    raised during their execution, logging it with the configured logger.
 
     Args:
-        func (Callable[..., Awaitable[T]]): Función asíncrona a decorar.
+        func (Callable[..., Awaitable[T]]): Asynchronous function to decorate.
 
     Returns:
-        Callable[..., Awaitable[T]]: Función decorada que mantiene la misma
-        firma y comportamiento que la función original.
+        Callable[..., Awaitable[T]]: Decorated function that maintains the same
+        signature and behavior as the original function.
     """
+
 
     @wraps(func)
     async def wrapper(*args: Any, **kwargs: Any) -> T:
         """
-        Función envolvente que ejecuta la función original y registra errores.
+        Wrapper function that executes the original function and logs errors.
 
         Args:
-            *args (Any): Argumentos posicionales de la función decorada.
-            **kwargs (Any): Argumentos nombrados de la función decorada.
+            *args (Any): Positional arguments of the decorated function.
+            **kwargs (Any): Keyword arguments of the decorated function.
 
         Returns:
-            T: Resultado devuelto por la función decorada.
+            T: Result returned by the decorated function.
 
         Raises:
-            Exception: Relanza cualquier excepción capturada tras registrarla.
+            Exception: Re-raises any caught exception after logging it.
         """
-        #logger.info(f"Entrando en {func.__name__}")
+        # logger.info(f"Entering {func.__name__}")
         try:
-            resultado = await func(*args, **kwargs)
-            #logger.info(f"Saliendo de {func.__name__}")
-            
-            return resultado
+            result = await func(*args, **kwargs)
+            # logger.info(f"Exiting {func.__name__}")
+            return result
 
         except Exception as e:
-            logger.error(f"Error en {func.__name__}: {e}")
-            
+            logger.error(f"Error in {func.__name__}: {e}")
             raise
 
     return wrapper

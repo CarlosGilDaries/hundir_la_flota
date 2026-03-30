@@ -1,25 +1,25 @@
 import logging
 import os
 
-def configurar_logger(nombre: str = "servidor", archivo: str = "logs/servidor_log.log") -> logging.Logger:
+def configure_logger(name: str = "server", log_file: str = "logs/server_log.log") -> logging.Logger:
     """
-    Configura y devuelve un logger que escribe tanto en consola como en archivo.
-    Si el logger ya tiene handlers configurados, reutiliza la configuración
-    existente para evitar duplicación de logs.
+    Configures and returns a logger that writes to both console and file.
+    If the logger already has handlers configured, it reuses the existing
+    configuration to avoid duplicate logs.
 
     Args:
-        nombre (str): Nombre identificador del logger.
-        archivo (str): Ruta del archivo donde se almacenarán los logs.
+        name (str): Identifier name of the logger.
+        log_file (str): Path to the file where logs will be stored.
 
     Returns:
-        logging.Logger: Instancia del logger configurado.
+        logging.Logger: Configured logger instance.
     """
-    logger = logging.getLogger(nombre)
+    logger = logging.getLogger(name)
 
     if not logger.handlers:
         logger.setLevel(logging.INFO)
 
-        # Handler para consola
+        # Console handler
         console_handler = logging.StreamHandler()
         console_formatter = logging.Formatter(
             "[%(asctime)s] [%(levelname)s] %(message)s",
@@ -28,9 +28,9 @@ def configurar_logger(nombre: str = "servidor", archivo: str = "logs/servidor_lo
         console_handler.setFormatter(console_formatter)
         logger.addHandler(console_handler)
 
-        # Handler para archivo
-        os.makedirs(os.path.dirname(archivo) or ".", exist_ok=True)
-        file_handler = logging.FileHandler(archivo, encoding="utf-8")
+        # File handler
+        os.makedirs(os.path.dirname(log_file) or ".", exist_ok=True)
+        file_handler = logging.FileHandler(log_file, encoding="utf-8")
         file_formatter = logging.Formatter(
             "[%(asctime)s] [%(levelname)s] %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S"
@@ -39,4 +39,3 @@ def configurar_logger(nombre: str = "servidor", archivo: str = "logs/servidor_lo
         logger.addHandler(file_handler)
 
     return logger
-
