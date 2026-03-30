@@ -2,7 +2,7 @@ import pytest
 from model.result import ResultadoDisparo
 from model.board import Tablero
 from model.ship import Barco
-from model.game.partida_pvp import PartidaPVP, EstadoPartida
+from model.game.pvp_game import PartidaPVP, EstadoPartida
 from servicios.partida_service import PartidaService
 
 # =============================================================================
