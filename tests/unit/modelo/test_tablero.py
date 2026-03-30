@@ -1,5 +1,5 @@
 import pytest
-from modelo.tablero import Tablero
+from modelo.board import Tablero
 from modelo.ship import Barco
 from modelo.resultado import ResultadoDisparo
 

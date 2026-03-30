@@ -1,4 +1,4 @@
-from modelo.tablero import Tablero
+from modelo.board import Tablero
 from modelo.ship import Barco
 from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida
 from modelo.resultado import ResultadoDisparo

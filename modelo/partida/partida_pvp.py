@@ -1,5 +1,5 @@
 from modelo.partida.partida import Partida
-from modelo.tablero import Tablero
+from modelo.board import Tablero
 from modelo.ship import Barco
 from modelo.resultado import ResultadoDisparo
 from enum import Enum
