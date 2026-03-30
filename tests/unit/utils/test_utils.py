@@ -1,17 +1,16 @@
 import pytest
 import logging
-import os
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import patch
 from utils.utils import Util
-from utils.exceptions import VolverAlMenu, SalirDelPrograma
-from utils.log import configurar_logger
+from utils.exceptions import ReturnToMenu, ExitProgram
+from utils.log import configure_logger
 from utils.log_decorator import log_async
 
 
-class TestUtilOpcionValida:
-    """Tests para la validación de opciones de la clase Util."""
-    
-    @pytest.mark.parametrize("valor, opcion_maxima, esperado", [
+class TestUtilityIsValidOption:
+    """Tests for the option validation method of Utility class."""
+
+    @pytest.mark.parametrize("value, max_option, expected", [
         ("2", 10, True),
         ("0", 10, True),
         ("10", 10, True),
@@ -23,43 +22,50 @@ class TestUtilOpcionValida:
         (" 2", 10, False),
         ("2 ", 10, False),
     ])
-    def test_opcion_valida_rango_completo(self, valor, opcion_maxima, esperado):
-        """Verifica validación con diferentes valores dentro y fuera de rango."""
-        assert Util.opcion_valida(valor, opcion_maxima) == esperado
-
-    def test_opcion_valida_cero_minimo(self):
-        """Verifica que cero es la opción mínima válida."""
-        assert Util.opcion_valida("0", 5) is True
-
-    def test_opcion_valida_negativo_invalido(self):
-        """Verifica que números negativos no son válidos."""
-        assert Util.opcion_valida("-1", 10) is False
-
-    def test_opcion_valida_igual_maximo(self):
-        """Verifica que el valor máximo es incluido en el rango."""
-        assert Util.opcion_valida("10", 10) is True
-
-    def test_opcion_valida_mayor_maximo(self):
-        """Verifica que valores mayores que máximo no son válidos."""
-        assert Util.opcion_valida("11", 10) is False
-
-    def test_opcion_valida_decimal_invalido(self):
-        """Verifica que números decimales no son válidos."""
-        assert Util.opcion_valida("2.5", 10) is False
-
-    def test_opcion_valida_letra_invalida(self):
-        """Verifica que letras no son válidas."""
-        assert Util.opcion_valida("a", 10) is False
-
-    def test_opcion_valida_especial_invalido(self):
-        """Verifica que caracteres especiales no son válidos."""
-        assert Util.opcion_valida("!", 10) is False
+    def test_valid_option_full_range(self, value, max_option, expected):
+        """Verifies validation with different values inside and outside range."""
+        assert Util.is_valid_option(value, max_option) == expected
 
 
-class TestUtilEsNumeroEntero:
-    """Tests para validación de números enteros."""
-    
-    @pytest.mark.parametrize("valor, esperado", [
+    def test_valid_option_zero_minimum(self):
+        """Verifies that zero is the minimum valid option."""
+        assert Util.is_valid_option("0", 5) is True
+
+
+    def test_valid_option_negative_invalid(self):
+        """Verifies that negative numbers are not valid."""
+        assert Util.is_valid_option("-1", 10) is False
+
+
+    def test_valid_option_equal_maximum(self):
+        """Verifies that the maximum value is included in the range."""
+        assert Util.is_valid_option("10", 10) is True
+
+
+    def test_valid_option_greater_than_maximum(self):
+        """Verifies that values greater than maximum are not valid."""
+        assert Util.is_valid_option("11", 10) is False
+
+
+    def test_valid_option_decimal_invalid(self):
+        """Verifies that decimal numbers are not valid."""
+        assert Util.is_valid_option("2.5", 10) is False
+
+
+    def test_valid_option_letter_invalid(self):
+        """Verifies that letters are not valid."""
+        assert Util.is_valid_option("a", 10) is False
+
+
+    def test_valid_option_special_character_invalid(self):
+        """Verifies that special characters are not valid."""
+        assert Util.is_valid_option("!", 10) is False
+
+
+class TestUtilityIsInteger:
+    """Tests for integer validation."""
+
+    @pytest.mark.parametrize("value, expected", [
         ("2", True),
         ("0", True),
         ("-5", True),
@@ -69,284 +75,316 @@ class TestUtilEsNumeroEntero:
         ("2a", False),
         ("", False),
     ])
-    def test_es_numero_entero_rango_completo(self, valor, esperado):
-        """Verifica identificación de números enteros para valores variados."""
-        assert Util.es_numero_entero(valor) == esperado
-
-    def test_es_numero_entero_positivo(self):
-        """Verifica que números positivos son identificados."""
-        assert Util.es_numero_entero("123") is True
-
-    def test_es_numero_entero_negativo(self):
-        """Verifica que números negativos son identificados."""
-        assert Util.es_numero_entero("-123") is True
-
-    def test_es_numero_entero_cero(self):
-        """Verifica que cero es identificado como número entero."""
-        assert Util.es_numero_entero("0") is True
-
-    def test_es_numero_entero_decimal(self):
-        """Verifica que decimales no son números enteros."""
-        assert Util.es_numero_entero("3.14") is False
-
-    def test_es_numero_entero_vacio(self):
-        """Verifica que string vacío no es número entero."""
-        assert Util.es_numero_entero("") is False
-
-    def test_es_numero_entero_letra(self):
-        """Verifica que letras no son números enteros."""
-        assert Util.es_numero_entero("abc") is False
-
-    def test_es_numero_entero_mezcla(self):
-        """Verifica que mezcla de letra y número no es válida."""
-        assert Util.es_numero_entero("12a") is False
+    def test_is_integer_full_range(self, value, expected):
+        """Verifies integer identification for various values."""
+        assert Util.is_integer(value) == expected
 
 
-class TestExcepcionesCustom:
-    """Tests para excepciones personalizadas."""
-    
-    def test_excepcion_volver_al_menu_se_lanza(self):
-        """Verifica que VolverAlMenu se puede lanzar."""
-        with pytest.raises(VolverAlMenu):
-            raise VolverAlMenu()
-
-    def test_excepcion_volver_al_menu_es_exception(self):
-        """Verifica que VolverAlMenu hereda de Exception."""
-        assert issubclass(VolverAlMenu, Exception)
-
-    def test_excepcion_volver_al_menu_con_mensaje(self):
-        """Verifica que VolverAlMenu acepta un mensaje."""
-        mensaje = "Volviendo al menú"
-        with pytest.raises(VolverAlMenu, match=mensaje):
-            raise VolverAlMenu(mensaje)
-
-    def test_excepcion_salir_del_programa_se_lanza(self):
-        """Verifica que SalirDelPrograma se puede lanzar."""
-        with pytest.raises(SalirDelPrograma):
-            raise SalirDelPrograma()
-
-    def test_excepcion_salir_del_programa_es_exception(self):
-        """Verifica que SalirDelPrograma hereda de Exception."""
-        assert issubclass(SalirDelPrograma, Exception)
-
-    def test_excepcion_salir_del_programa_con_mensaje(self):
-        """Verifica que SalirDelPrograma acepta un mensaje."""
-        mensaje = "Saliendo del programa"
-        with pytest.raises(SalirDelPrograma, match=mensaje):
-            raise SalirDelPrograma(mensaje)
-
-    def test_excepciones_distintas(self):
-        """Verifica que ambas excepciones se pueden distinguir."""
-        with pytest.raises(VolverAlMenu):
-            raise VolverAlMenu()
-        
-        with pytest.raises(SalirDelPrograma):
-            raise SalirDelPrograma()
+    def test_is_integer_positive(self):
+        """Verifies that positive numbers are identified."""
+        assert Util.is_integer("123") is True
 
 
-class TestConfigurarLogger:
-    """Tests para la función configurar_logger."""
-    
+    def test_is_integer_negative(self):
+        """Verifies that negative numbers are identified."""
+        assert Util.is_integer("-123") is True
+
+
+    def test_is_integer_zero(self):
+        """Verifies that zero is identified as an integer."""
+        assert Util.is_integer("0") is True
+
+
+    def test_is_integer_decimal(self):
+        """Verifies that decimals are not integers."""
+        assert Util.is_integer("3.14") is False
+
+
+    def test_is_integer_empty(self):
+        """Verifies that empty string is not an integer."""
+        assert Util.is_integer("") is False
+
+
+    def test_is_integer_letter(self):
+        """Verifies that letters are not integers."""
+        assert Util.is_integer("abc") is False
+
+
+    def test_is_integer_mixed(self):
+        """Verifies that mixed letters and numbers are not valid."""
+        assert Util.is_integer("12a") is False
+
+
+class TestCustomExceptions:
+    """Tests for custom exceptions."""
+
+    def test_exception_return_to_menu_raises(self):
+        """Verifies that ReturnToMenu can be raised."""
+        with pytest.raises(ReturnToMenu):
+            raise ReturnToMenu()
+
+
+    def test_exception_return_to_menu_is_exception(self):
+        """Verifies that ReturnToMenu inherits from Exception."""
+        assert issubclass(ReturnToMenu, Exception)
+
+
+    def test_exception_return_to_menu_with_message(self):
+        """Verifies that ReturnToMenu accepts a message."""
+        message = "Returning to menu"
+        with pytest.raises(ReturnToMenu, match=message):
+            raise ReturnToMenu(message)
+
+
+    def test_exception_exit_program_raises(self):
+        """Verifies that ExitProgram can be raised."""
+        with pytest.raises(ExitProgram):
+            raise ExitProgram()
+
+
+    def test_exception_exit_program_is_exception(self):
+        """Verifies that ExitProgram inherits from Exception."""
+        assert issubclass(ExitProgram, Exception)
+
+
+    def test_exception_exit_program_with_message(self):
+        """Verifies that ExitProgram accepts a message."""
+        message = "Exiting program"
+        with pytest.raises(ExitProgram, match=message):
+            raise ExitProgram(message)
+
+
+    def test_exceptions_distinct(self):
+        """Verifies that both exceptions can be distinguished."""
+        with pytest.raises(ReturnToMenu):
+            raise ReturnToMenu()
+
+        with pytest.raises(ExitProgram):
+            raise ExitProgram()
+
+
+class TestConfigureLogger:
+    """Tests for the configure_logger function."""
+
     @pytest.fixture(autouse=True)
-    def limpiar_loggers(self):
-        """Limpia todos los loggers de prueba después de cada test."""
+    def clean_loggers(self):
+        """Cleans up all test loggers after each test."""
         yield
-        # Limpiar handlers de todos los loggers de prueba
-        for nombre in ["test_logger_custom", "test_console", "test_file", "test_level", "test_no_duplica", "test_singleton", "test_cleanup"]:
-            logger = logging.getLogger(nombre)
+        # Remove handlers from all test loggers
+        for name in ["test_logger_custom", "test_console", "test_file", "test_level", "test_no_duplicate", "test_singleton", "test_cleanup"]:
+            logger = logging.getLogger(name)
             for handler in logger.handlers[:]:
                 handler.close()
                 logger.removeHandler(handler)
-    
-    def test_configurar_logger_retorna_logger(self):
-        """Verifica que configurar_logger retorna un objeto logger."""
-        logger = configurar_logger()
+
+
+    def test_configure_logger_returns_logger(self):
+        """Verifies that configure_logger returns a logger object."""
+        logger = configure_logger()
         assert isinstance(logger, logging.Logger)
 
-    def test_configurar_logger_nombre_personalizado(self):
-        """Verifica que se puede especificar nombre personalizado."""
-        nombre = "test_logger_custom"
-        logger = configurar_logger(nombre=nombre)
-        assert logger.name == nombre
 
-    def test_configurar_logger_archivo_predeterminado(self):
-        """Verifica que utiliza archivo predeterminado."""
-        logger = configurar_logger(nombre="test_default_file")
+    def test_configure_logger_custom_name(self):
+        """Verifies that a custom name can be specified."""
+        name = "test_logger_custom"
+        logger = configure_logger(name=name)
+        assert logger.name == name
+
+
+    def test_configure_logger_default_file(self):
+        """Verifies that it uses the default file."""
+        logger = configure_logger(name="test_default_file")
         assert len([h for h in logger.handlers if isinstance(h, logging.FileHandler)]) > 0
 
-    def test_configurar_logger_tiene_console_handler(self):
-        """Verifica que el logger tiene handler para consola."""
-        logger = configurar_logger(nombre="test_console")
-        # Buscar StreamHandler que no sea FileHandler
+
+    def test_configure_logger_has_console_handler(self):
+        """Verifies that the logger has a console handler."""
+        logger = configure_logger(name="test_console")
         console_handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler) and not isinstance(h, logging.FileHandler)]
         assert len(console_handlers) > 0
 
-    def test_configurar_logger_tiene_file_handler(self):
-        """Verifica que el logger tiene handler para archivo."""
-        logger = configurar_logger(nombre="test_file")
+
+    def test_configure_logger_has_file_handler(self):
+        """Verifies that the logger has a file handler."""
+        logger = configure_logger(name="test_file")
         file_handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
         assert len(file_handlers) > 0
 
-    def test_configurar_logger_no_duplica_handlers(self):
-        """Verifica que no duplica handlers en llamadas sucesivas."""
-        nombre = "test_no_duplica"
-        logger1 = configurar_logger(nombre=nombre)
+
+    def test_configure_logger_no_duplicate_handlers(self):
+        """Verifies that it does not duplicate handlers on successive calls."""
+        name = "test_no_duplicate"
+        logger1 = configure_logger(name=name)
         handlers_1 = len(logger1.handlers)
-        
-        logger2 = configurar_logger(nombre=nombre)
+
+        logger2 = configure_logger(name=name)
         handlers_2 = len(logger2.handlers)
-        
+
         assert handlers_1 == handlers_2
 
-    def test_configurar_logger_nivel_info(self):
-        """Verifica que el nivel de log es INFO."""
-        logger = configurar_logger(nombre="test_level")
+
+    def test_configure_logger_level_info(self):
+        """Verifies that the log level is INFO."""
+        logger = configure_logger(name="test_level")
         assert logger.level == logging.INFO
 
-    def test_configurar_logger_misma_instancia(self):
-        """Verifica que devuelve la misma instancia para igual nombre."""
-        nombre = "test_singleton"
-        logger1 = configurar_logger(nombre=nombre)
-        logger2 = configurar_logger(nombre=nombre)
-        
+
+    def test_configure_logger_same_instance(self):
+        """Verifies that it returns the same instance for the same name."""
+        name = "test_singleton"
+        logger1 = configure_logger(name=name)
+        logger2 = configure_logger(name=name)
+
         assert logger1 is logger2
 
-    def test_configurar_logger_consola_tiene_formato(self):
-        """Verifica que el handler de consola tiene formato."""
-        logger = configurar_logger(nombre="test_formato")
+
+    def test_configure_logger_console_has_formatter(self):
+        """Verifies that the console handler has a formatter."""
+        logger = configure_logger(name="test_formatter")
         console_handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler) and not isinstance(h, logging.FileHandler)]
         assert len(console_handlers) > 0
         assert console_handlers[0].formatter is not None
 
-    def test_configurar_logger_puede_registrar_mensajes(self):
-        """Verifica que puede registrar mensajes correctamente."""
-        logger = configurar_logger(nombre="test_log_messages")
-        # No debe lanzar excepción
-        logger.info("Mensaje de prueba")
+
+    def test_configure_logger_can_log_messages(self):
+        """Verifies that it can log messages correctly."""
+        logger = configure_logger(name="test_log_messages")
+        # Should not raise exception
+        logger.info("Test message")
         assert True
 
 
-class TestLogAsyncDecorador:
-    """Tests para el decorador log_async."""
-    
-    @pytest.mark.asyncio
-    async def test_log_async_ejecuta_funcion_correctamente(self):
-        """Verifica que la función decorada se ejecuta."""
-        @log_async
-        async def funcion_prueba():
-            return "resultado"
-        
-        resultado = await funcion_prueba()
-        assert resultado == "resultado"
+class TestLogAsyncDecorator:
+    """Tests for the log_async decorator."""
 
     @pytest.mark.asyncio
-    async def test_log_async_preserva_argumentos_posicionales(self):
-        """Verifica que se conservan argumentos posicionales."""
+    async def test_log_async_executes_function_correctly(self):
+        """Verifies that the decorated function runs."""
         @log_async
-        async def sumar(a, b):
+        async def test_function():
+            return "result"
+
+        result = await test_function()
+        assert result == "result"
+
+
+    @pytest.mark.asyncio
+    async def test_log_async_preserves_positional_arguments(self):
+        """Verifies that positional arguments are preserved."""
+        @log_async
+        async def add(a, b):
             return a + b
-        
-        resultado = await sumar(2, 3)
-        assert resultado == 5
+
+        result = await add(2, 3)
+        assert result == 5
+
 
     @pytest.mark.asyncio
-    async def test_log_async_preserva_argumentos_nombrados(self):
-        """Verifica que se conservan argumentos nombrados."""
+    async def test_log_async_preserves_keyword_arguments(self):
+        """Verifies that keyword arguments are preserved."""
         @log_async
-        async def saludar(nombre, edad=20):
-            return f"{nombre} tiene {edad}"
-        
-        resultado = await saludar("Juan", edad=25)
-        assert resultado == "Juan tiene 25"
+        async def greet(name, age=20):
+            return f"{name} is {age}"
+
+        result = await greet("John", age=25)
+        assert result == "John is 25"
+
 
     @pytest.mark.asyncio
-    async def test_log_async_preserva_nombre_funcion(self):
-        """Verifica que el decorador conserva el name de la función."""
+    async def test_log_async_preserves_function_name(self):
+        """Verifies that the decorator preserves the function name."""
         @log_async
-        async def funcion_especial():
+        async def special_function():
             pass
-        
-        assert funcion_especial.__name__ == "funcion_especial"
+
+        assert special_function.__name__ == "special_function"
+
 
     @pytest.mark.asyncio
-    async def test_log_async_captura_excepcion_y_la_propaga(self):
-        """Verifica que captura excepciones y las propaga."""
+    async def test_log_async_catches_exception_and_propagates(self):
+        """Verifies that it catches exceptions and propagates them."""
         @log_async
-        async def funcion_con_error():
-            raise ValueError("Error de prueba")
-        
-        with pytest.raises(ValueError, match="Error de prueba"):
-            await funcion_con_error()
+        async def function_with_error():
+            raise ValueError("Test error")
+
+        with pytest.raises(ValueError, match="Test error"):
+            await function_with_error()
+
 
     @pytest.mark.asyncio
-    async def test_log_async_registra_error(self):
-        """Verifica que registra errores en el logger."""
+    async def test_log_async_logs_error(self):
+        """Verifies that it logs errors to the logger."""
         with patch('utils.log_decorator.logger') as logger_mock:
             @log_async
-            async def funcion_falla():
-                raise RuntimeError("Error esperado")
-            
+            async def failing_function():
+                raise RuntimeError("Expected error")
+
             try:
-                await funcion_falla()
+                await failing_function()
             except RuntimeError:
                 pass
-            
+
             logger_mock.error.assert_called()
 
-    @pytest.mark.asyncio
-    async def test_log_async_con_resultado_none(self):
-        """Verifica que maneja funciones que retornan None."""
-        @log_async
-        async def no_retorna():
-            pass
-        
-        resultado = await no_retorna()
-        assert resultado is None
 
     @pytest.mark.asyncio
-    async def test_log_async_con_excepcion_y_mensaje(self):
-        """Verifica mensaje de error en excepción."""
+    async def test_log_async_with_none_result(self):
+        """Verifies that it handles functions that return None."""
+        @log_async
+        async def returns_none():
+            pass
+
+        result = await returns_none()
+        assert result is None
+
+
+    @pytest.mark.asyncio
+    async def test_log_async_with_exception_and_message(self):
+        """Verifies error message in exception."""
         with patch('utils.log_decorator.logger') as logger_mock:
             @log_async
-            async def lanza_error():
-                raise KeyError("clave_perdida")
-            
+            async def raises_error():
+                raise KeyError("missing_key")
+
             try:
-                await lanza_error()
+                await raises_error()
             except KeyError:
                 pass
-            
-            # Verificar que se registró el error
+
+            # Verify that the error was logged
             assert logger_mock.error.called
 
+
     @pytest.mark.asyncio
-    async def test_log_async_con_multiples_argumentos(self):
-        """Verifica con varios argumentos posicionales y nombrados."""
+    async def test_log_async_with_multiple_arguments(self):
+        """Verifies with multiple positional and keyword arguments."""
         @log_async
-        async def func_compleja(a, b, c, d=10, e=20):
+        async def complex_function(a, b, c, d=10, e=20):
             return a + b + c + d + e
-        
-        resultado = await func_compleja(1, 2, 3, d=5, e=10)
-        assert resultado == 21
+
+        result = await complex_function(1, 2, 3, d=5, e=10)
+        assert result == 21
+
 
     @pytest.mark.asyncio
-    async def test_log_async_preserva_tipo_retorno(self):
-        """Verifica que preserva tipos de retorno correctamente."""
+    async def test_log_async_preserves_return_type(self):
+        """Verifies that it preserves return types correctly."""
         @log_async
-        async def retorna_lista():
+        async def returns_list():
             return [1, 2, 3]
-        
-        resultado = await retorna_lista()
-        assert isinstance(resultado, list)
-        assert resultado == [1, 2, 3]
+
+        result = await returns_list()
+        assert isinstance(result, list)
+        assert result == [1, 2, 3]
+
 
     @pytest.mark.asyncio
-    async def test_log_async_preserva_diccionario_retorno(self):
-        """Verifica que preserva diccionarios en retorno."""
+    async def test_log_async_preserves_dictionary_return(self):
+        """Verifies that it preserves dictionaries in return."""
         @log_async
-        async def retorna_dict():
-            return {"clave": "valor"}
-        
-        resultado = await retorna_dict()
-        assert isinstance(resultado, dict)
-        assert resultado["clave"] == "valor"
+        async def returns_dict():
+            return {"key": "value"}
+
+        result = await returns_dict()
+        assert isinstance(result, dict)
+        assert result["key"] == "value"
