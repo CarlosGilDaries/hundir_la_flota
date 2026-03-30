@@ -3,7 +3,7 @@ import asyncio
 from unittest.mock import Mock, AsyncMock, MagicMock, patch, call
 from red.servidor.sesion_pvp import SesionPVP
 from red.protocolo.mensajes import TipoMensaje
-from config.constantes import CONSTANTES
+from config.constants import CONSTANTES
 
 
 # =============================================================================

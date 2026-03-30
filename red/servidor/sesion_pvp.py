@@ -1,5 +1,5 @@
 from model.game.pvp_game import EstadoPartida
-from config.textos import TRADUCCION
+from config.texts import TRADUCCION
 from config.eventos_log import (
     SESION_CREADA, SESION_INICIADA, SESION_TERMINADA,
     BARCO_COLOCADO, ERROR_COLOCACION, PRIMER_TURNO,
@@ -7,7 +7,7 @@ from config.eventos_log import (
 )
 from red.protocolo.mensajes import TipoMensaje, crear_mensaje, obtener_tipo
 from red.helpers.enviar import enviar
-from config.constantes import CONSTANTES
+from config.constants import CONSTANTES
 from servicios.partida_service import PartidaService
 from utils.log_decorator import log_async
 from typing import Dict, Any

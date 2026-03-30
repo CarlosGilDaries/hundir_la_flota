@@ -2,8 +2,8 @@ from vista.consola.vista_consola import VistaConsola
 from vista.consola.menu_consola import Menu
 from utils.utils import Util
 from utils.excepciones import SalirDelPrograma
-from config.textos import TEXTOS, INSTRUCCIONES
-from config.constantes import CONSTANTES
+from config.texts import TEXTOS, INSTRUCCIONES
+from config.constants import CONSTANTES
 import asyncio
 from controlador.controlador_pve import ControladorPVE
 from controlador.controlador_pvp_cliente import ControladorPVPCliente

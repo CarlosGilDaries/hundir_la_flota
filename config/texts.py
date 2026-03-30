@@ -1,42 +1,42 @@
-from model.result import ResultadoDisparo
+from model.result import ShotResult
 
-TRADUCCION = {
-    ResultadoDisparo.AGUA: "AGUA",
-    ResultadoDisparo.TOCADO: "TOCADO",
-    ResultadoDisparo.HUNDIDO: "HUNDIDO",
-    ResultadoDisparo.REPETIDO: "REPETIDO",
-    ResultadoDisparo.INVALIDO: "INVALIDO",
+TRANSLATION = {
+    ShotResult.WATER: "AGUA",
+    ShotResult.HIT: "TOCADO",
+    ShotResult.SUNK: "HUNDIDO",
+    ShotResult.REPEATED: "REPETIDO",
+    ShotResult.INVALID: "INVALIDO",
 }
 
-TEXTOS = {
-    "TURNO": "TURNO DEL JUGADOR {}",
+TEXTS = {
+    "TURN": "TURNO DEL JUGADOR {}",
     
     # Inputs
-    "POSICION_X": "Introduzca la coordenada x: ",
-    "POSICION_Y": "Introduzca la coordenada y: ",
-    "PULSAR_ENTER" : "\nPulsa Enter para continuar...",
+    "POSITION_X": "Introduzca la coordenada x: ",
+    "POSITION_Y": "Introduzca la coordenada y: ",
+    "PRESS_ENTER": "\nPulsa Enter para continuar...",
 
-    # Disparos
-    "HUNDIDO": "TOCADO Y HUNDIDO",
-    "TOCADO": "TOCADO",
-    "AGUA": "AGUA",
-    "REPETIDO": "YA HABÍAS DISPARADO EN ESTE HUECO. NO PIERDES LA BALA.",
-    "REPETIDO_PVP": "DISPARO REPETIDO. SE PIERDE LA BALA.",
-    "BALAS_RESTANTES": "BALAS RESTANTES: ",
+    # Shots
+    "SUNK": "TOCADO Y HUNDIDO",
+    "HIT": "TOCADO",
+    "WATER": "AGUA",
+    "REPEATED": "YA HABÍAS DISPARADO EN ESTE HUECO. NO PIERDES LA BALA.",
+    "REPEATED_PVP": "DISPARO REPETIDO. SE PIERDE LA BALA.",
+    "REMAINING_SHOTS": "BALAS RESTANTES: ",
 
-    # Final
-    "VICTORIA": "¡VICTORIA! TE HAS CARGADO TODOS LOS BARCOS, ENHORABUENA.",
-    "DERROTA": "¡DERROTA! AFINA TU PUNTERÍA Y VUELVE A INTENTARLO.",
-    "ABANDONO_PVP" : "\nVICTORIA, TU RIVAL SE HA DESCONECTADO. PULSA INTRO PARA CONTINUAR...",
+    # Endings
+    "VICTORY": "¡VICTORIA! TE HAS CARGADO TODOS LOS BARCOS, ENHORABUENA.",
+    "DEFEAT": "¡DERROTA! AFINA TU PUNTERÍA Y VUELVE A INTENTARLO.",
+    "PVP_ABANDON": "\nVICTORIA, TU RIVAL SE HA DESCONECTADO. PULSA INTRO PARA CONTINUAR...",
     
-    # Terminar programa
-    "FIN_JUEGO" : "Escriba 'Salir' para volver al menú.",
-    "FIN_DE_PROGRAMA" : "FIN DE PROGRAMA",
+    # Exit program
+    "EXIT_PROMPT": "Escriba 'Salir' para volver al menú.",
+    "END_OF_PROGRAM": "FIN DE PROGRAMA",
 
-    # Errores
-    "ERROR_LIMITE_TABLERO": "ERROR: La posición del disparo excede los límites del tablero",
-    "ERROR_NUMERO_ENTERO": "ERROR: Introduce números enteros, por favor",
-    "ERROR_MENU" : "ERROR: Opción inválida",
+    # Errors
+    "ERROR_BOARD_LIMIT": "ERROR: La posición del disparo excede los límites del tablero",
+    "ERROR_INTEGER": "ERROR: Introduce números enteros, por favor",
+    "ERROR_MENU": "ERROR: Opción inválida",
 }
 
 # Instrucciones

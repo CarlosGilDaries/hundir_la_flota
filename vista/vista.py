@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from model.result import ResultadoDisparo
-from config.textos import TRADUCCION
+from config.texts import TRADUCCION
 
 class Vista(ABC):
     """
