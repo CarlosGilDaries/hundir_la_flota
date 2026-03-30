@@ -1,8 +1,8 @@
 import pytest
-from modelo.result import ResultadoDisparo
-from modelo.board import Tablero
-from modelo.ship import Barco
-from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida
+from model.result import ResultadoDisparo
+from model.board import Tablero
+from model.ship import Barco
+from model.partida.partida_pvp import PartidaPVP, EstadoPartida
 from tests.helpers import contar_celdas_barco, total_caracteres_barcos
 from unittest.mock import patch
 

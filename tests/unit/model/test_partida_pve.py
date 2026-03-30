@@ -1,8 +1,8 @@
 import pytest
-from modelo.result import ResultadoDisparo
-from modelo.board import Tablero
-from modelo.ship import Barco
-from modelo.partida.partida_pve import PartidaPVE
+from model.result import ResultadoDisparo
+from model.board import Tablero
+from model.ship import Barco
+from model.partida.partida_pve import PartidaPVE
 from tests.helpers import contar_celdas_barco, total_caracteres_barcos
 
 # =============================================================================

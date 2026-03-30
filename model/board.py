@@ -1,6 +1,6 @@
 import random
-from modelo.ship import Ship
-from modelo.result import ShotResult
+from model.ship import Ship
+from model.result import ShotResult
 import copy
 
 

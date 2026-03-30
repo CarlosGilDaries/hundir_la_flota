@@ -1,4 +1,4 @@
-from modelo.result import ResultadoDisparo
+from model.result import ResultadoDisparo
 
 TRADUCCION = {
     ResultadoDisparo.AGUA: "AGUA",

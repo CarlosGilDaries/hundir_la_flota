@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import Mock, MagicMock, patch, call
 from controlador.controlador_pve import ControladorPVE
-from modelo.ship import Barco
-from modelo.result import ResultadoDisparo
+from model.ship import Barco
+from model.result import ResultadoDisparo
 from config.constantes import CONSTANTES
 
 
@@ -148,7 +148,7 @@ class TestControladorPVECrearPartida:
 
     def test_crear_partida_devuelve_partida_pve(self, controlador_pve):
         """Comprueba que crear_partida devuelve una instancia válida."""
-        from modelo.partida.partida_pve import PartidaPVE
+        from model.partida.partida_pve import PartidaPVE
         resultado = controlador_pve.crear_partida(1)
         
         assert isinstance(resultado, PartidaPVE)

@@ -1,4 +1,4 @@
-from modelo.partida.partida_pvp import EstadoPartida
+from model.partida.partida_pvp import EstadoPartida
 from config.textos import TRADUCCION
 from config.eventos_log import (
     SESION_CREADA, SESION_INICIADA, SESION_TERMINADA,

@@ -1,7 +1,7 @@
-from modelo.partida.partida import Partida
-from modelo.result import ResultadoDisparo
-from modelo.board import Tablero
-from modelo.ship import Barco
+from model.partida.partida import Partida
+from model.result import ResultadoDisparo
+from model.board import Tablero
+from model.ship import Barco
 from typing import Optional
 
 class PartidaPVE(Partida):
