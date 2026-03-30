@@ -2,7 +2,7 @@ from model.board import Board
 from model.game.pve_game import PvEGame
 from model.ship import Ship
 from vista.consola.vista_consola import ConsoleView
-from utils.excepciones import ReturnToMenu
+from utils.exceptions import ReturnToMenu
 from controlador.controller import Controller
 
 

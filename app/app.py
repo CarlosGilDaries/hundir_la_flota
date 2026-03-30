@@ -1,7 +1,7 @@
 from vista.consola.vista_consola import VistaConsola
 from vista.consola.menu_consola import Menu
 from utils.utils import Util
-from utils.excepciones import SalirDelPrograma
+from utils.exceptions import SalirDelPrograma
 from config.texts import TEXTOS, INSTRUCCIONES
 from config.constants import CONSTANTES
 import asyncio

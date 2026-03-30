@@ -1,37 +1,37 @@
 class Util:
     """
-    Clase utilitaria que agrupa funciones auxiliares
-    para validación de datos introducidos por el usuario.
+    Utility class that groups helper functions
+    for validating user input.
     """
-    @staticmethod
-    def opcion_valida(valor: str, opcion_maxima: int) -> bool:
-        """
-        Comprueba si un valor introducido es un número entero dentro de un rango válido.
-
-        Args:
-            valor (str): Valor introducido por el usuario.
-            opcion_maxima (int): Valor máximo permitido.
-
-        Returns:
-            bool: True si el valor es un entero dentro del rango permitido,
-            False en caso contrario.
-        """
-        return valor.isdigit() and 0 <= int(valor) <= opcion_maxima
-
 
     @staticmethod
-    def es_numero_entero(valor: str) -> bool:
+    def is_valid_option(value: str, max_option: int) -> bool:
         """
-        Comprueba si un valor puede convertirse a número entero.
+        Checks if a given value is an integer within a valid range.
 
         Args:
-            valor (str): Valor a comprobar.
+            value (str): Value entered by the user.
+            max_option (int): Maximum allowed value.
 
         Returns:
-            bool: True si el valor es un entero válido, False en caso contrario.
+            bool: True if the value is an integer within the allowed range,
+            False otherwise.
+        """
+        return value.isdigit() and 0 <= int(value) <= max_option
+
+    @staticmethod
+    def is_integer(value: str) -> bool:
+        """
+        Checks if a value can be converted to an integer.
+
+        Args:
+            value (str): Value to check.
+
+        Returns:
+            bool: True if the value is a valid integer, False otherwise.
         """
         try:
-            int(valor)
+            int(value)
             return True
         except ValueError:
             return False

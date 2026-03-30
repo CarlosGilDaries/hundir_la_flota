@@ -3,7 +3,7 @@ import logging
 import os
 from unittest.mock import patch, MagicMock, AsyncMock
 from utils.utils import Util
-from utils.excepciones import VolverAlMenu, SalirDelPrograma
+from utils.exceptions import VolverAlMenu, SalirDelPrograma
 from utils.log import configurar_logger
 from utils.log_decorator import log_async
 

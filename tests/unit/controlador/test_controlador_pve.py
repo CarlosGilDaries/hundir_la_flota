@@ -394,7 +394,7 @@ class TestControladorPVEEjecutarBuclePrincipal:
 
     def test_bucle_principal_maneja_volver_al_menu(self, controlador_pve, vista_mock):
         """Verifica que se maneja correctamente la excepción VolverAlMenu."""
-        from utils.excepciones import VolverAlMenu
+        from utils.exceptions import VolverAlMenu
         partida_mock = Mock()
         partida_mock.quedan_disparos.side_effect = VolverAlMenu()
         controlador_pve._partida = partida_mock

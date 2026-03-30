@@ -1,5 +1,5 @@
 from utils.utils import Util
-from utils.excepciones import VolverAlMenu
+from utils.exceptions import VolverAlMenu
 from model.result import ResultadoDisparo
 from config.texts import TRADUCCION
 from vista.vista import Vista

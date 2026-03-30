@@ -1,4 +1,4 @@
-from utils.excepciones import SalirDelPrograma
+from utils.exceptions import SalirDelPrograma
 from vista.consola.vista_consola import VistaConsola
 from config.constants import CONSTANTES
 
