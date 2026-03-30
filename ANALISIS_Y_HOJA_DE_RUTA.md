@@ -20,7 +20,7 @@
 
 ### 1.3 Arquitectura actual
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │                    App (app.py)                      │
 │         Punto de entrada + orquestación              │
