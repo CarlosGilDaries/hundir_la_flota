@@ -1,14 +1,16 @@
-CONSTANTES = {
-    "DIFICULTAD": {
+# config/constants.py
+
+CONSTANTS = {
+    "DIFFICULTY": {
         # PVE
         "PVE": {
-            # Fácil
+            # Easy
             1: {
-                "nombre": "Fácil",
-                "ancho": 8,
-                "alto": 8,
-                "disparos": 60,
-                "barcos": [
+                "name": "Fácil",
+                "width": 8,
+                "height": 8,
+                "shots": 60,
+                "ships": [
                     ("Portaaviones", 5, "P"),
                     ("Acorazado", 4, "A"),
                     ("Submarino", 3, "S"),
@@ -16,13 +18,13 @@ CONSTANTES = {
                 ]
             },
 
-            # Media
+            # Medium
             2: {
-                "nombre": "Media",
-                "ancho": 10,
-                "alto": 10,
-                "disparos": 50,
-                "barcos": [
+                "name": "Media",
+                "width": 10,
+                "height": 10,
+                "shots": 50,
+                "ships": [
                     ("Portaaviones", 5, "P"),
                     ("Acorazado", 4, "A"),
                     ("Destructor", 3, "D"),
@@ -31,13 +33,13 @@ CONSTANTES = {
                 ]
             },
 
-            # Difícil
+            # Hard
             3: {
-                "nombre": "Difícil",
-                "ancho": 10,
-                "alto": 10,
-                "disparos": 40,
-                "barcos": [
+                "name": "Difícil",
+                "width": 10,
+                "height": 10,
+                "shots": 40,
+                "ships": [
                     ("Portaaviones", 5, "P"),
                     ("Acorazado", 4, "A"),
                     ("Destructor", 3, "D"),
@@ -45,14 +47,14 @@ CONSTANTES = {
                     ("Lancha", 2, "L"),
                 ]
             },
-            
-            # Muy Difícil
+
+            # Very Hard
             4: {
-                "nombre": "Muy Difícil",
-                "ancho": 12,
-                "alto": 12,
-                "disparos": 40,
-                "barcos": [
+                "name": "Muy Difícil",
+                "width": 12,
+                "height": 12,
+                "shots": 40,
+                "ships": [
                     ("Portaaviones", 5, "P"),
                     ("Acorazado", 4, "A"),
                     ("Destructor", 3, "D"),
@@ -61,12 +63,12 @@ CONSTANTES = {
                 ]
             },
         },
-        
+
         # PVP
         "PVP": {
-            "ancho": 10,
-            "alto": 10,
-            "barcos": [
+            "width": 10,
+            "height": 10,
+            "ships": [
                 ("Portaaviones", 5, "P"),
                 ("Acorazado", 4, "A"),
                 ("Destructor", 3, "D"),
@@ -75,14 +77,11 @@ CONSTANTES = {
             ]
         }
     },
-    
-    # Caracteres comunes
-    "CARACTERES": {
-        "CARACTER_VACIO": "~",
-        "CARACTER_TOCADO": "X",
-        "CARACTER_AGUA": "O"
+
+    # Common characters
+    "CHARACTERS": {
+        "EMPTY_CHARACTER": "~",
+        "HIT_CHARACTER": "X",
+        "WATER_CHARACTER": "O"
     }
 }
-
-
-
