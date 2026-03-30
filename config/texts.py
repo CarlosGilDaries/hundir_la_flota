@@ -17,10 +17,10 @@ TEXTS = {
     "PRESS_ENTER": "\nPulsa Enter para continuar...",
 
     # Shots
-    "SUNK": "TOCADO Y HUNDIDO",
-    "HIT": "TOCADO",
-    "WATER": "AGUA",
-    "REPEATED": "YA HABÍAS DISPARADO EN ESTE HUECO. NO PIERDES LA BALA.",
+    "HUNDIDO": "TOCADO Y HUNDIDO",
+    "TOCADO": "TOCADO",
+    "AGUA": "AGUA",
+    "REPETIDO": "YA HABÍAS DISPARADO EN ESTE HUECO. NO PIERDES LA BALA.",
     "REPEATED_PVP": "DISPARO REPETIDO. SE PIERDE LA BALA.",
     "REMAINING_SHOTS": "BALAS RESTANTES: ",
 
@@ -40,7 +40,7 @@ TEXTS = {
 }
 
 # Instrucciones
-INSTRUCCIONES = """
+INSTRUCTIONS = """
             ------------------------
             PVE (Jugador vs Máquina)
             ------------------------

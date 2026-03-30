@@ -1,9 +1,9 @@
 from model.board import Board
 from model.game.pve_game import PvEGame
 from model.ship import Ship
-from vista.consola.vista_consola import ConsoleView
+from view.console.console_view import ConsoleView
 from utils.exceptions import ReturnToMenu
-from controlador.controller import Controller
+from controller.controller import Controller
 
 
 class PvEController(Controller):

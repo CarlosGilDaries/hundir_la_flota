@@ -1,12 +1,12 @@
 import asyncio
-from controlador.controller import Controller
+from controller.controller import Controller
 from red.protocolo.mensajes import TipoMensaje, obtener_tipo, crear_mensaje
 from red.cliente.cliente_socket import ClienteSocket
-from vista.consola.vista_consola import VistaConsola
+from view.console.console_view import ConsoleView
 
-class ControladorPVPCliente(Controlador):
+class ControladorPVPCliente(Controller):
 
-    def __init__(self, cliente_socket: ClienteSocket, vista: VistaConsola) -> None:
+    def __init__(self, cliente_socket: ClienteSocket, vista: ConsoleView) -> None:
         """
         Inicializa el controlador del cliente PVP.
 

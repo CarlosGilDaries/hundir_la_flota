@@ -1,55 +1,57 @@
-from vista.consola.vista_consola import VistaConsola
-from vista.consola.menu_consola import Menu
+from view.console.console_view import ConsoleView
+from view.console.console_menu import Menu
 from utils.utils import Util
-from utils.exceptions import SalirDelPrograma
-from config.texts import TEXTOS, INSTRUCCIONES
-from config.constants import CONSTANTES
+from utils.exceptions import ExitProgram
+from config.texts import TEXTS, INSTRUCTIONS
+from config.constants import CONSTANTS
 import asyncio
-from controlador.pve_controller import ControladorPVE
-from controlador.controlador_pvp_cliente import ControladorPVPCliente
+from controller.pve_controller import PvEController
+from controller.controlador_pvp_cliente import ControladorPVPCliente
 from red.cliente.cliente_socket import ClienteSocket
-import time
 
 
 class App:
+    """
+    Main application class.
+    """
 
     def __init__(self) -> None:
         """
-        Inicializa la aplicación.
+        Initializes the application.
         """
-        validador = Util()
-        self._interfaz = VistaConsola(TEXTOS, validador)
-        self._menu = Menu(self._interfaz, INSTRUCCIONES)
-        self.controlador_pve = ControladorPVE(self._interfaz, CONSTANTES)
+        validator = Util()
+        self._interface = ConsoleView(TEXTS, validator)
+        self._menu = Menu(self._interface, INSTRUCTIONS)
+        self._pve_controller = PvEController(self._interface, CONSTANTS)
 
 
-    def ejecutar(self) -> None:
+    def run(self) -> None:
         """
-        Inicia la ejecución de la aplicación.
+        Starts the application execution.
         """
         try:
-            pve_dificultades = []
-            for clave in self.controlador_pve.config_dificultad.keys():
-                pve_dificultades.append(int(clave))
-                
+            pve_difficulties = []
+            for key in self._pve_controller.difficulty_config.keys():
+                pve_difficulties.append(int(key))
+
             while True:
-                opcion = self._menu.ejecutar_menu_principal(pve_dificultades)
-                
-                if opcion in pve_dificultades:
-                    dificultad = opcion
-                    self.controlador_pve.iniciar(dificultad)
-                    
-                elif opcion == len(pve_dificultades) + 1:
-                    self._iniciar_cliente_pvp()
-                    
-        except SalirDelPrograma:
+                option = self._menu.execute_main_menu(pve_difficulties)
+
+                if option in pve_difficulties:
+                    difficulty = option
+                    self._pve_controller.start(difficulty)
+
+                elif option == len(pve_difficulties) + 1:
+                    self._start_pvp_client()
+
+        except ExitProgram:
             pass
-        
+
         except KeyboardInterrupt:
             pass
-        
+
         finally:
-            self._interfaz.fin_programa()
+            self._interface.exit_program()
             
             
     def _iniciar_cliente_pvp(self) -> None:
