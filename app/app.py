@@ -6,8 +6,8 @@ from config.texts import TEXTS, INSTRUCTIONS
 from config.constants import CONSTANTS
 import asyncio
 from controller.pve_controller import PvEController
-from controller.controlador_pvp_cliente import ControladorPVPCliente
-from red.cliente.cliente_socket import ClienteSocket
+from controller.pvp_client_controller import PvPClientController
+from net.client.client_socket import ClientSocket
 
 
 class App:
@@ -52,35 +52,34 @@ class App:
 
         finally:
             self._interface.exit_program()
-            
-            
-    def _iniciar_cliente_pvp(self) -> None:
-        """
-        Inicia una partida PvP.
-        """
-        cliente = None
-        try:
 
-            asyncio.run(self._ejecutar_pvp())
+
+    def _start_pvp_client(self) -> None:
+        """
+        Starts a PvP game.
+        """
+        client = None
+        try:
+            asyncio.run(self._run_pvp())
 
         except KeyboardInterrupt:
-            self._interfaz.mostrar_mensaje("\nConexión cancelada por el usuario")
-            if cliente:
-                asyncio.run(cliente.desconectar())
-                
-        except Exception as e:
-            self._interfaz.mostrar_mensaje(f"Error en la conexión: {e}")
-            asyncio.run(asyncio.sleep(5))
-            if cliente:
-                asyncio.run(cliente.desconectar())
-            
-            
-    async def _ejecutar_pvp(self):
-        cliente = ClienteSocket("127.0.0.1", 8888)
+            self._interface.display_message("\nConexión cancelada por el usuario")
+            if client:
+                asyncio.run(client.disconnect())
 
-        controlador = ControladorPVPCliente(
-            cliente,
-            self._interfaz
+        except Exception as e:
+            self._interface.display_message(f"Error en la conexión: {e}")
+            asyncio.run(asyncio.sleep(5))
+            if client:
+                asyncio.run(client.disconnect())
+
+
+    async def _run_pvp(self):
+        client = ClientSocket("127.0.0.1", 8888)
+
+        controller = PvPClientController(
+            client,
+            self._interface
         )
 
-        await controlador.iniciar()
+        await controller.start()
