@@ -5,7 +5,7 @@ from utils.excepciones import SalirDelPrograma
 from config.texts import TEXTOS, INSTRUCCIONES
 from config.constants import CONSTANTES
 import asyncio
-from controlador.controlador_pve import ControladorPVE
+from controlador.pve_controller import ControladorPVE
 from controlador.controlador_pvp_cliente import ControladorPVPCliente
 from red.cliente.cliente_socket import ClienteSocket
 import time

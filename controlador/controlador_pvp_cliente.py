@@ -1,5 +1,5 @@
 import asyncio
-from controlador.controlador import Controlador
+from controlador.controller import Controller
 from red.protocolo.mensajes import TipoMensaje, obtener_tipo, crear_mensaje
 from red.cliente.cliente_socket import ClienteSocket
 from vista.consola.vista_consola import VistaConsola

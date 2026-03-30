@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, MagicMock, patch, call
-from controlador.controlador_pve import ControladorPVE
+from controlador.pve_controller import ControladorPVE
 from model.ship import Barco
 from model.result import ResultadoDisparo
 from config.constants import CONSTANTES
