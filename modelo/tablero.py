@@ -1,5 +1,5 @@
 import random
-from modelo.barco import Barco
+from modelo.ship import Barco
 from modelo.resultado import ResultadoDisparo
 import copy
 

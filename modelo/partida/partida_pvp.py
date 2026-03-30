@@ -1,6 +1,6 @@
 from modelo.partida.partida import Partida
 from modelo.tablero import Tablero
-from modelo.barco import Barco
+from modelo.ship import Barco
 from modelo.resultado import ResultadoDisparo
 from enum import Enum
 import random

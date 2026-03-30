@@ -1,6 +1,6 @@
 import pytest
 from modelo.tablero import Tablero
-from modelo.barco import Barco
+from modelo.ship import Barco
 from modelo.resultado import ResultadoDisparo
 
 # =============================================================================

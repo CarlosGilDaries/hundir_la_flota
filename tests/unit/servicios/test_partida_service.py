@@ -1,7 +1,7 @@
 import pytest
 from modelo.resultado import ResultadoDisparo
 from modelo.tablero import Tablero
-from modelo.barco import Barco
+from modelo.ship import Barco
 from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida
 from servicios.partida_service import PartidaService
 

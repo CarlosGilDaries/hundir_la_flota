@@ -1,6 +1,6 @@
 from modelo.tablero import Tablero
 from modelo.partida.partida_pve import PartidaPVE
-from modelo.barco import Barco
+from modelo.ship import Barco
 from vista.consola.vista_consola import VistaConsola
 from utils.excepciones import VolverAlMenu
 from controlador.controlador import Controlador

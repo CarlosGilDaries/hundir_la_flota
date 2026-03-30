@@ -1,5 +1,5 @@
 import pytest
-from modelo.barco import Barco
+from modelo.ship import Barco
 
 # =============================================================================
 # FIXTURES

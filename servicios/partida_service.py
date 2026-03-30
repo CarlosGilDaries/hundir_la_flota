@@ -1,5 +1,5 @@
 from modelo.tablero import Tablero
-from modelo.barco import Barco
+from modelo.ship import Barco
 from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida
 from modelo.resultado import ResultadoDisparo
 from typing import Any

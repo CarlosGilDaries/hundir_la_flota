@@ -1,7 +1,7 @@
 import pytest
 from modelo.resultado import ResultadoDisparo
 from modelo.tablero import Tablero
-from modelo.barco import Barco
+from modelo.ship import Barco
 from modelo.partida.partida_pve import PartidaPVE
 from tests.helpers import contar_celdas_barco, total_caracteres_barcos
 
