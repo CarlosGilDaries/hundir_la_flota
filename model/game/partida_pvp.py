@@ -1,4 +1,4 @@
-from model.partida.game import Partida
+from model.game.game import Partida
 from model.board import Tablero
 from model.ship import Barco
 from model.result import ResultadoDisparo

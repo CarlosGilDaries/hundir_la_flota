@@ -148,7 +148,7 @@ class TestControladorPVECrearPartida:
 
     def test_crear_partida_devuelve_partida_pve(self, controlador_pve):
         """Comprueba que crear_partida devuelve una instancia válida."""
-        from model.partida.partida_pve import PartidaPVE
+        from model.game.pve_game import PartidaPVE
         resultado = controlador_pve.crear_partida(1)
         
         assert isinstance(resultado, PartidaPVE)

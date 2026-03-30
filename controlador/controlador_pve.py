@@ -1,5 +1,5 @@
 from model.board import Tablero
-from model.partida.partida_pve import PartidaPVE
+from model.game.pve_game import PartidaPVE
 from model.ship import Barco
 from vista.consola.vista_consola import VistaConsola
 from utils.excepciones import VolverAlMenu

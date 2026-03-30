@@ -1,6 +1,6 @@
 from model.board import Tablero
 from model.ship import Barco
-from model.partida.partida_pvp import PartidaPVP, EstadoPartida
+from model.game.partida_pvp import PartidaPVP, EstadoPartida
 from model.result import ResultadoDisparo
 from typing import Any
 
