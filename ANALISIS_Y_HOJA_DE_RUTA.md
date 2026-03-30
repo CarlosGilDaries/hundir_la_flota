@@ -1,231 +1,231 @@
-# Análisis del Proyecto y Hoja de Ruta: Migración a FastAPI + Vue
+# Project Analysis and Roadmap: Migration to FastAPI + Vue
 
-## 1. Análisis del estado actual del proyecto
+## 1. Current project state analysis
 
-### 1.1 Resumen ejecutivo
+### 1.1 Executive summary
 
-**Hundir la Flota** es un juego de Battleship implementado en Python puro (sin dependencias externas) con arquitectura MVC, soporte para partidas PvE (contra IA) y PvP (multijugador en red vía sockets TCP con asyncio). La interfaz actual es por consola.
+**Hundir la Flota** (Battleship) is a game implemented in pure Python (no external dependencies) with MVC architecture, support for PvE (against AI) and PvP (multiplayer over TCP sockets with asyncio) matches. The current interface is console-based.
 
-### 1.2 Stack tecnológico actual
+### 1.2 Current tech stack
 
-| Capa                  | Tecnología                         |
+| Layer                 | Technology                         |
 | --------------------- | ---------------------------------- |
-| Lenguaje              | Python 3.13                        |
-| UI                    | Consola (stdin/stdout)             |
-| Red                   | TCP sockets + asyncio              |
-| Protocolo             | JSON delimitado por `\n`           |
-| Persistencia          | Ninguna (todo en memoria)          |
+| Language              | Python 3.13                        |
+| UI                    | Console (stdin/stdout)             |
+| Networking            | TCP sockets + asyncio              |
+| Protocol              | JSON delimited by `\n`             |
+| Persistence           | None (all in memory)               |
 | Testing               | pytest + pytest-asyncio + coverage |
-| Dependencias externas | Ninguna (solo stdlib)              |
+| External dependencies | None (stdlib only)                 |
 
-### 1.3 Arquitectura actual
+### 1.3 Current architecture
 
 ```text
 ┌─────────────────────────────────────────────────────┐
 │                    App (app.py)                      │
-│         Punto de entrada + orquestación              │
+│           Entry point + orchestration                │
 ├──────────────┬──────────────┬───────────────────────┤
-│   Vista      │  Controlador │       Red             │
-│  (consola)   │  (PvE/PvP)   │  (sockets TCP)        │
+│     View     │  Controller  │       Net             │
+│  (console)   │  (PvE/PvP)   │  (TCP sockets)        │
 ├──────────────┴──────────────┴───────────────────────┤
-│                Servicios                             │
-│          (PartidaService - capa intermedia)          │
+│                  Services                            │
+│          (GameService - intermediate layer)          │
 ├─────────────────────────────────────────────────────┤
-│                    Modelo                            │
-│     Barco · Tablero · Partida (PvE/PvP)             │
+│                    Model                             │
+│     Ship · Board · Game (PvE/PvP)                   │
 ├─────────────────────────────────────────────────────┤
 │                    Config                            │
-│   Constantes · Textos · Eventos de log              │
+│   Constants · Texts · Log events                    │
 └─────────────────────────────────────────────────────┘
 ```
 
-**Componentes principales:**
+**Main components:**
 
-- **Modelo** (`modelo/`): Barco, Tablero, Partida (abstracta), PartidaPVE, PartidaPVP con estados (COLOCACION → JUGANDO → FINALIZADA). Lógica de juego pura sin dependencias externas.
-- **Vista** (`vista/`): Abstracción Vista + implementación VistaConsola + menús. Fácil de sustituir gracias a la interfaz abstracta.
-- **Controlador** (`controlador/`): ControladorPVE (bucle síncrono local) y ControladorPVPCliente (bucle async con dispatch de mensajes).
-- **Red** (`red/`): ClienteSocket (async TCP), Servidor (matchmaking con cola + timeout 15s), SesionPVP (gestión server-side de partida), protocolo de 16 tipos de mensajes JSON.
-- **Servicios** (`servicios/`): PartidaService como capa intermedia entre red y modelo.
+- **Model** (`model/`): Ship, Board, Game (abstract), PvEGame, PvPGame with states (PLACEMENT → PLAYING → FINISHED). Pure game logic with no external dependencies.
+- **View** (`view/`): View abstraction + ConsoleView implementation + menus. Easy to replace thanks to the abstract interface.
+- **Controller** (`controller/`): PvEController (synchronous local loop) and PvPClientController (async loop with message dispatch).
+- **Net** (`net/`): ClientSocket (async TCP), Server (matchmaking with queue + 15s timeout), PvPSession (server-side game management), protocol with 16 JSON message types.
+- **Services** (`services/`): GameService as an intermediate layer between net and model.
 
-### 1.4 Protocolo de red PvP actual
+### 1.4 Current PvP network protocol
 
-El protocolo define 16 tipos de mensajes (ESPERA, INICIO, LISTA_BARCOS, SELECCIONAR_BARCO, CONFIRMACION, TURNO, DISPARO, RESULTADO, RECIBIDO, ESTADO_TABLEROS, ERROR, FIN, ABANDONO, SALIR, CIERRE_CONEXION, TIMEOUT_COLA) sobre TCP con JSON por línea.
+The protocol defines 16 message types (WAIT, START, SHIP_LIST, SELECT_SHIP, CONFIRMATION, TURN, SHOT, RESULT, RECEIVED, BOARD_STATE, ERROR, END, ABANDON, EXIT, CONNECTION_CLOSED, QUEUE_TIMEOUT) over TCP with JSON per line.
 
-El flujo es: **conexión → cola de espera → matchmaking → colocación de barcos → turnos de disparo → fin**.
+The flow is: **connection → waiting queue → matchmaking → ship placement → shooting turns → end**.
 
-### 1.5 Fortalezas
+### 1.5 Strengths
 
-1. **Separación de responsabilidades impecable**: El modelo no sabe nada de la UI ni la red. La vista es abstracta. Los controladores usan inyección de dependencias.
-2. **Diseño extensible**: Las clases abstractas (Partida, Vista, Controlador) respetan Open/Closed — se pueden añadir nuevas implementaciones sin modificar las existentes.
-3. **Networking async**: Uso correcto de asyncio con locks, manejo de desconexiones y timeouts.
-4. **Testing sólido**: 11 ficheros de tests unitarios con parametrización, mocks async y cobertura.
-5. **Protocolo bien definido**: TypedDict para mensajes, enums para estados finitos.
+1. **Flawless separation of concerns**: The model knows nothing about the UI or the network. The view is abstract. Controllers use dependency injection.
+2. **Extensible design**: Abstract classes (Game, View, Controller) respect Open/Closed — new implementations can be added without modifying existing ones.
+3. **Async networking**: Correct use of asyncio with locks, disconnection handling and timeouts.
+4. **Solid testing**: 11 unit test files with parameterization, async mocks and coverage.
+5. **Well-defined protocol**: TypedDict for messages, enums for finite states.
 
-### 1.6 Debilidades y carencias
+### 1.6 Weaknesses and gaps
 
-1. **Sin persistencia**: No hay base de datos ni almacenamiento de ningún tipo.
-2. **Sin autenticación**: Cualquier cliente TCP puede conectarse al servidor.
-3. **Sin historial**: No se registran partidas, resultados ni estadísticas.
-4. **Interfaz limitada**: Solo consola, sin experiencia web.
-5. **Sin reconexión**: Si un jugador se desconecta, la partida se pierde.
-6. **Protocolo acoplado a TCP**: No estándar, requiere cliente especial.
-7. **Sin validación de mensajes entrantes**: Potencial vulnerabilidad a mensajes malformados.
-
----
-
-## 2. Opinión profesional sobre la elección de stack
-
-### 2.1 ¿FastAPI + Vue? Sí, con matices
-
-La combinación **FastAPI + Vue** es una elección sólida para este proyecto por las siguientes razones:
-
-| Aspecto                                 | ¿Encaja?     | Razón                                                                                            |
-| --------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------ |
-| API REST para usuarios, auth, historial | ✅ Excelente | FastAPI es ideal para APIs REST con validación automática (Pydantic), docs OpenAPI, async nativo |
-| Comunicación en tiempo real (PvP)       | ✅ Bueno     | FastAPI soporta WebSockets nativamente, reemplaza el protocolo TCP custom                        |
-| Frontend interactivo                    | ✅ Excelente | Vue es ligero, reactivo, ideal para UIs de juego con estado dinámico                             |
-| Reutilización del modelo actual         | ✅ Excelente | La lógica de juego (Barco, Tablero, Partida) es pura Python → se integra directamente            |
-| Reutilización del servicio actual       | ✅ Bueno     | PartidaService se adapta bien como capa de servicio detrás de la API                             |
-
-### 2.2 Alternativas consideradas
-
-| Stack alternativo                  | Veredicto               | Razón                                                                                                                                                                                                                                 |
-| ---------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Django + Vue**                   | ⚠️ Viable pero excesivo | Django trae ORM, admin, auth integrados. Pero es síncrono por defecto, más pesado. Para un juego con WebSockets, Django Channels añade complejidad innecesaria. FastAPI es más natural para async + WebSockets.                       |
-| **Flask + Vue**                    | ⚠️ Inferior             | Flask no tiene soporte async nativo, ni WebSockets integrados. Requiere extensiones (Flask-SocketIO). Menos validación, menos docs automáticas.                                                                                       |
-| **FastAPI + React**                | ✅ Equivalente          | React es igualmente válido pero más ceremonioso. Vue es más accesible, tiene mejor curva de aprendizaje y para un proyecto de este tamaño, menos boilerplate. Ambos son excelentes; Vue es la elección correcta si ya te es familiar. |
-| **FastAPI + Svelte**               | ✅ Interesante          | Svelte genera código más ligero y reactivo. Pero su ecosistema es menor y la comunidad más reducida. Para un primer proyecto web, Vue ofrece mejor soporte y documentación.                                                           |
-| **Node.js (Express/NestJS) + Vue** | ❌ Desaconsejado        | Requiere reescribir toda la lógica de juego en JavaScript/TypeScript. El modelo Python actual es limpio, testado y funcional — no hay razón para descartarlo.                                                                         |
-
-### 2.3 Recomendación final
-
-**FastAPI + Vue es la elección óptima para este caso.** Razones concretas:
-
-1. **FastAPI es async-native**: Tu proyecto ya usa asyncio extensivamente. La migración de sockets TCP a WebSockets de FastAPI es orgánica.
-2. **Pydantic reemplaza tus TypedDicts**: Los mensajes del protocolo (`MensajeProtocolo`) se migran directamente a modelos Pydantic con validación automática.
-3. **Docs OpenAPI gratis**: FastAPI genera documentación interactiva (Swagger/ReDoc) para tu API de autenticación e historial.
-4. **El modelo de juego se reutiliza íntegro**: Barco, Tablero, Partida, PartidaPVE, PartidaPVP → se integran tal cual.
-5. **WebSockets nativos**: FastAPI + Starlette manejan WebSockets de forma simple, reemplazando el servidor TCP custom.
-6. **Vue es ideal para el frontend**: Estado reactivo para tableros, composables para WebSocket, ligero y con excelente DX.
-
-**Un apunte importante:** para la comunicación PvP en tiempo real, la clave es migrar de **TCP sockets crudos** a **WebSockets**. Esto simplifica enormemente la infraestructura: un solo servidor HTTP/WS gestiona tanto la API REST (auth, historial) como la comunicación de juego (WebSockets).
+1. **No persistence**: No database or any kind of storage.
+2. **No authentication**: Any TCP client can connect to the server.
+3. **No history**: No match records, results or statistics.
+4. **Limited interface**: Console only, no web experience.
+5. **No reconnection**: If a player disconnects, the match is lost.
+6. **Protocol coupled to TCP**: Non-standard, requires a special client.
+7. **No incoming message validation**: Potential vulnerability to malformed messages.
 
 ---
 
-## 3. Decisiones técnicas de diseño
+## 2. Professional opinion on the stack choice
 
-### 3.1 Base de datos
+### 2.1 FastAPI + Vue? Yes, with nuances
 
-| Opción                      | Recomendación                                     |
-| --------------------------- | ------------------------------------------------- |
-| **SQLite** (desarrollo)     | ✅ Perfecto para arrancar, sin configuración      |
-| **PostgreSQL** (producción) | ✅ Recomendado a largo plazo                      |
-| **ORM**                     | SQLAlchemy 2.0 (async) + Alembic para migraciones |
+The **FastAPI + Vue** combination is a solid choice for this project for the following reasons:
 
-### 3.2 Autenticación
+| Aspect                            | Fits?        | Reason                                                                                          |
+| --------------------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
+| REST API for users, auth, history | ✅ Excellent | FastAPI is ideal for REST APIs with automatic validation (Pydantic), OpenAPI docs, native async |
+| Real-time communication (PvP)     | ✅ Good      | FastAPI natively supports WebSockets, replacing the custom TCP protocol                         |
+| Interactive frontend              | ✅ Excellent | Vue is lightweight, reactive, ideal for game UIs with dynamic state                             |
+| Reuse of current model            | ✅ Excellent | Game logic (Ship, Board, Game) is pure Python → integrates directly                             |
+| Reuse of current service          | ✅ Good      | GameService adapts well as a service layer behind the API                                       |
 
-| Opción                    | Recomendación                                          |
-| ------------------------- | ------------------------------------------------------ |
-| **JWT (JSON Web Tokens)** | ✅ Sin estado, ideal para API + WebSockets             |
-| Librería                  | `python-jose` + `passlib[bcrypt]`                      |
-| Estrategia                | Access token (corta vida) + Refresh token (larga vida) |
+### 2.2 Alternatives considered
 
-### 3.3 Modelo de datos propuesto
+| Alternative stack                  | Verdict                | Reason                                                                                                                                                                                                                            |
+| ---------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Django + Vue**                   | ⚠️ Viable but overkill | Django brings ORM, admin, auth built-in. But it's synchronous by default, heavier. For a game with WebSockets, Django Channels adds unnecessary complexity. FastAPI is more natural for async + WebSockets.                       |
+| **Flask + Vue**                    | ⚠️ Inferior            | Flask has no native async support, no built-in WebSockets. Requires extensions (Flask-SocketIO). Less validation, less auto-generated docs.                                                                                       |
+| **FastAPI + React**                | ✅ Equivalent          | React is equally valid but more ceremonial. Vue is more accessible, has a better learning curve and for a project of this size, less boilerplate. Both are excellent; Vue is the right choice if you're already familiar with it. |
+| **FastAPI + Svelte**               | ✅ Interesting         | Svelte generates lighter and more reactive code. But its ecosystem is smaller and the community is more limited. For a first web project, Vue offers better support and documentation.                                            |
+| **Node.js (Express/NestJS) + Vue** | ❌ Not recommended     | Requires rewriting all game logic in JavaScript/TypeScript. The current Python model is clean, tested and functional — there's no reason to discard it.                                                                           |
+
+### 2.3 Final recommendation
+
+**FastAPI + Vue is the optimal choice for this case.** Concrete reasons:
+
+1. **FastAPI is async-native**: The project already uses asyncio extensively. Migrating from TCP sockets to FastAPI WebSockets is organic.
+2. **Pydantic replaces TypedDicts**: Protocol messages (`MessageType`) migrate directly to Pydantic models with automatic validation.
+3. **Free OpenAPI docs**: FastAPI generates interactive documentation (Swagger/ReDoc) for the auth and history API.
+4. **Game model is fully reusable**: Ship, Board, Game, PvEGame, PvPGame → integrate as-is.
+5. **Native WebSockets**: FastAPI + Starlette handle WebSockets simply, replacing the custom TCP server.
+6. **Vue is ideal for the frontend**: Reactive state for boards, composables for WebSocket, lightweight and excellent DX.
+
+**An important note:** for real-time PvP communication, the key is migrating from **raw TCP sockets** to **WebSockets**. This greatly simplifies the infrastructure: a single HTTP/WS server handles both the REST API (auth, history) and game communication (WebSockets).
+
+---
+
+## 3. Technical design decisions
+
+### 3.1 Database
+
+| Option                      | Recommendation                                  |
+| --------------------------- | ----------------------------------------------- |
+| **SQLite** (development)    | ✅ Perfect to start with, no configuration      |
+| **PostgreSQL** (production) | ✅ Recommended long-term                        |
+| **ORM**                     | SQLAlchemy 2.0 (async) + Alembic for migrations |
+
+### 3.2 Authentication
+
+| Option                    | Recommendation                                          |
+| ------------------------- | ------------------------------------------------------- |
+| **JWT (JSON Web Tokens)** | ✅ Stateless, ideal for API + WebSockets                |
+| Library                   | `python-jose` + `passlib[bcrypt]`                       |
+| Strategy                  | Access token (short-lived) + Refresh token (long-lived) |
+
+### 3.3 Proposed data model
 
 ```
 ┌────────────────┐       ┌─────────────────────┐
-│    Usuario     │       │      Partida         │
+│      User      │       │       Match          │
 ├────────────────┤       ├─────────────────────┤
 │ id (PK)        │       │ id (PK)              │
-│ username       │  1──N │ tipo (PVE/PVP)       │
-│ email          │◄──────│ jugador1_id (FK)     │
-│ password_hash  │◄──────│ jugador2_id (FK|null)│
-│ created_at     │       │ ganador_id (FK|null)  │
-│ avatar_url     │       │ estado               │
-│ elo_rating     │       │ dificultad (PVE)     │
+│ username       │  1──N │ type (PVE/PVP)       │
+│ email          │◄──────│ player1_id (FK)      │
+│ password_hash  │◄──────│ player2_id (FK|null) │
+│ created_at     │       │ winner_id (FK|null)   │
+│ avatar_url     │       │ status               │
+│ elo_rating     │       │ difficulty (PVE)     │
 └────────────────┘       │ created_at           │
                          │ finished_at          │
-                         │ duracion_segundos    │
-                         │ disparos_j1          │
-                         │ disparos_j2          │
+                         │ duration_seconds     │
+                         │ shots_p1             │
+                         │ shots_p2             │
                          └─────────────────────┘
 
 ┌──────────────────────┐
-│   EstadisticaUsuario │
+│     UserStats        │
 ├──────────────────────┤
-│ usuario_id (FK, PK)  │
-│ victorias_pve        │
-│ derrotas_pve         │
-│ victorias_pvp        │
-│ derrotas_pvp         │
-│ abandonos            │
-│ disparos_totales     │
-│ barcos_hundidos      │
-│ racha_actual         │
-│ mejor_racha          │
+│ user_id (FK, PK)     │
+│ pve_wins             │
+│ pve_losses           │
+│ pvp_wins             │
+│ pvp_losses           │
+│ abandons             │
+│ total_shots          │
+│ ships_sunk           │
+│ current_streak       │
+│ best_streak          │
 └──────────────────────┘
 ```
 
-### 3.4 Estructura de endpoints API
+### 3.4 API endpoint structure
 
 ```
 AUTH
-  POST   /api/auth/registro          → Crear cuenta
-  POST   /api/auth/login             → Obtener tokens JWT
-  POST   /api/auth/refresh           → Renovar access token
-  POST   /api/auth/logout            → Invalidar refresh token
+  POST   /api/auth/register          → Create account
+  POST   /api/auth/login             → Get JWT tokens
+  POST   /api/auth/refresh           → Renew access token
+  POST   /api/auth/logout            → Invalidate refresh token
 
-USUARIO
-  GET    /api/usuarios/me            → Perfil del usuario autenticado
-  PUT    /api/usuarios/me            → Actualizar perfil
-  GET    /api/usuarios/me/estadisticas → Estadísticas del usuario
-  GET    /api/usuarios/{id}/perfil   → Perfil público de otro usuario
-  GET    /api/usuarios/ranking       → Ranking general (por ELO o victorias)
+USERS
+  GET    /api/users/me               → Authenticated user profile
+  PUT    /api/users/me               → Update profile
+  GET    /api/users/me/stats         → User statistics
+  GET    /api/users/{id}/profile     → Public profile of another user
+  GET    /api/users/ranking          → General ranking (by ELO or wins)
 
-PARTIDAS
-  GET    /api/partidas/historial     → Historial del usuario autenticado
-  GET    /api/partidas/{id}          → Detalle de una partida
+MATCHES
+  GET    /api/matches/history        → Authenticated user match history
+  GET    /api/matches/{id}           → Match details
 
-JUEGO (WebSockets)
-  WS     /ws/pve                     → Partida contra la IA
-  WS     /ws/pvp                     → Matchmaking + partida PvP
+GAME (WebSockets)
+  WS     /ws/pve                     → Match against the AI
+  WS     /ws/pvp                     → Matchmaking + PvP match
 ```
 
 ---
 
-## 4. Hoja de ruta
+## 4. Roadmap
 
-### Fase 0: Preparación del entorno (estimación: paso previo)
+### Phase 0: Environment setup (preliminary step)
 
-- [ ] **0.1** Crear rama `feature/web-migration` en Git.
-- [ ] **0.2** Definir estructura de carpetas del nuevo proyecto:
+- [ ] **0.1** Create `feature/web-migration` branch in Git.
+- [ ] **0.2** Define folder structure for the new project:
   ```
   hundir_la_flota/
   ├── backend/                    # FastAPI
   │   ├── app/
-  │   │   ├── main.py             # Punto de entrada FastAPI
+  │   │   ├── main.py             # FastAPI entry point
   │   │   ├── core/
   │   │   │   ├── config.py       # Settings (Pydantic BaseSettings)
-  │   │   │   ├── security.py     # JWT, hashing passwords
+  │   │   │   ├── security.py     # JWT, password hashing
   │   │   │   └── database.py     # SQLAlchemy engine, session
-  │   │   ├── models/             # Modelos SQLAlchemy (Usuario, Partida)
-  │   │   ├── schemas/            # Esquemas Pydantic (request/response)
+  │   │   ├── models/             # SQLAlchemy models (User, Match)
+  │   │   ├── schemas/            # Pydantic schemas (request/response)
   │   │   ├── api/
-  │   │   │   ├── auth.py         # Endpoints de autenticación
-  │   │   │   ├── usuarios.py     # Endpoints de usuarios
-  │   │   │   ├── partidas.py     # Endpoints de historial
-  │   │   │   └── deps.py         # Dependencias (get_current_user, etc.)
+  │   │   │   ├── auth.py         # Auth endpoints
+  │   │   │   ├── users.py        # User endpoints
+  │   │   │   ├── matches.py      # History endpoints
+  │   │   │   └── deps.py         # Dependencies (get_current_user, etc.)
   │   │   ├── ws/
-  │   │   │   ├── manager.py      # ConnectionManager para WebSockets
-  │   │   │   ├── pve.py          # Endpoint WS para PvE
-  │   │   │   └── pvp.py          # Endpoint WS para PvP + matchmaking
-  │   │   ├── services/           # Lógica de negocio
-  │   │   └── game/               # ← Lógica de juego reutilizada
-  │   │       ├── barco.py        # Migrado directamente
-  │   │       ├── tablero.py      # Migrado directamente
-  │   │       ├── partida.py      # Migrado/adaptado
-  │   │       ├── partida_pve.py
-  │   │       └── partida_pvp.py
+  │   │   │   ├── manager.py      # ConnectionManager for WebSockets
+  │   │   │   ├── pve.py          # WS endpoint for PvE
+  │   │   │   └── pvp.py          # WS endpoint for PvP + matchmaking
+  │   │   ├── services/           # Business logic
+  │   │   └── game/               # ← Reused game logic
+  │   │       ├── ship.py         # Migrated directly
+  │   │       ├── board.py        # Migrated directly
+  │   │       ├── game.py         # Migrated/adapted
+  │   │       ├── pve_game.py
+  │   │       └── pvp_game.py
   │   ├── migrations/             # Alembic
   │   ├── tests/
   │   ├── requirements.txt
@@ -233,234 +233,234 @@ JUEGO (WebSockets)
   │
   ├── frontend/                   # Vue 3
   │   ├── src/
-  │   │   ├── views/              # Páginas (Login, Lobby, Game, Profile)
-  │   │   ├── components/         # Componentes (Board, Ship, Cell, etc.)
-  │   │   ├── composables/        # Lógica reutilizable (useWebSocket, useAuth)
-  │   │   ├── stores/             # Pinia (estado global: auth, game)
+  │   │   ├── views/              # Pages (Login, Lobby, Game, Profile)
+  │   │   ├── components/         # Components (Board, Ship, Cell, etc.)
+  │   │   ├── composables/        # Reusable logic (useWebSocket, useAuth)
+  │   │   ├── stores/             # Pinia (global state: auth, game)
   │   │   ├── router/             # Vue Router
-  │   │   └── api/                # Cliente HTTP (axios/fetch)
+  │   │   └── api/                # HTTP client (axios/fetch)
   │   ├── package.json
   │   └── vite.config.js
   │
-  └── docker-compose.yml          # Opcional: DB + backend + frontend
+  └── docker-compose.yml          # Optional: DB + backend + frontend
   ```
-- [ ] **0.3** Instalar dependencias base del backend:
+- [ ] **0.3** Install base backend dependencies:
   ```
   fastapi uvicorn[standard] sqlalchemy[asyncio] alembic
   aiosqlite asyncpg python-jose[cryptography] passlib[bcrypt]
   pydantic-settings python-multipart
   ```
-- [ ] **0.4** Inicializar frontend con Vue 3:
+- [ ] **0.4** Initialize frontend with Vue 3:
   ```
   npm create vue@latest frontend -- --typescript --router --pinia
   ```
 
 ---
 
-### Fase 1: Backend — Base de datos y autenticación
+### Phase 1: Backend — Database and authentication
 
-- [ ] **1.1** Configurar SQLAlchemy async + crear `database.py` con engine y `AsyncSession`.
-- [ ] **1.2** Definir modelos SQLAlchemy: `Usuario`, `Partida`, `EstadisticaUsuario`.
-- [ ] **1.3** Configurar Alembic y generar la migración inicial.
-- [ ] **1.4** Implementar `security.py`: funciones de hashing (`passlib`) y JWT (`python-jose`).
-- [ ] **1.5** Crear esquemas Pydantic: `UsuarioCreate`, `UsuarioResponse`, `TokenResponse`, `LoginRequest`.
-- [ ] **1.6** Implementar endpoints de auth: `POST /registro`, `POST /login`, `POST /refresh`.
-- [ ] **1.7** Implementar dependencia `get_current_user` para proteger rutas.
-- [ ] **1.8** Tests unitarios para auth (registro, login, token inválido, refresh).
-
----
-
-### Fase 2: Backend — API de usuarios y estadísticas
-
-- [ ] **2.1** Endpoint `GET /usuarios/me` — devolver perfil del usuario autenticado.
-- [ ] **2.2** Endpoint `PUT /usuarios/me` — actualizar perfil (username, avatar).
-- [ ] **2.3** Endpoint `GET /usuarios/me/estadisticas` — victorias, derrotas, racha, etc.
-- [ ] **2.4** Endpoint `GET /usuarios/{id}/perfil` — perfil público.
-- [ ] **2.5** Endpoint `GET /usuarios/ranking` — top jugadores ordenados por ELO o victorias.
-- [ ] **2.6** Tests unitarios para todos los endpoints de usuario.
+- [ ] **1.1** Configure SQLAlchemy async + create `database.py` with engine and `AsyncSession`.
+- [ ] **1.2** Define SQLAlchemy models: `User`, `Match`, `UserStats`.
+- [ ] **1.3** Configure Alembic and generate the initial migration.
+- [ ] **1.4** Implement `security.py`: hashing functions (`passlib`) and JWT (`python-jose`).
+- [ ] **1.5** Create Pydantic schemas: `UserCreate`, `UserResponse`, `TokenResponse`, `LoginRequest`.
+- [ ] **1.6** Implement auth endpoints: `POST /register`, `POST /login`, `POST /refresh`.
+- [ ] **1.7** Implement `get_current_user` dependency to protect routes.
+- [ ] **1.8** Unit tests for auth (register, login, invalid token, refresh).
 
 ---
 
-### Fase 3: Backend — Migrar lógica de juego
+### Phase 2: Backend — Users API and statistics
 
-- [ ] **3.1** Copiar `Barco`, `Tablero`, `ResultadoDisparo` a `backend/app/game/` — sin modificaciones.
-- [ ] **3.2** Adaptar `PartidaPVE` para funcionar como componente aislado (sin dependencia de consola).
-- [ ] **3.3** Adaptar `PartidaPVP` para funcionar sobre WebSockets en vez de sockets TCP.
-- [ ] **3.4** Migrar `PartidaService` como servicio del backend.
-- [ ] **3.5** Definir mensajes del protocolo WS con modelos Pydantic (reemplazar TypedDicts).
-- [ ] **3.6** Tests unitarios para la lógica de juego migrada (reutilizar tests existentes adaptados).
-
----
-
-### Fase 4: Backend — WebSockets para partidas en tiempo real
-
-- [ ] **4.1** Crear `ConnectionManager` — gestión de conexiones WS activas, por usuario.
-- [ ] **4.2** Implementar `WS /ws/pve`:
-  - Autenticar por token (query param o primer mensaje).
-  - Crear `PartidaPVE` server-side.
-  - Ciclo: recibir disparo → procesar → enviar resultado + estado tablero.
-  - Al finalizar: registrar resultado en BD.
-- [ ] **4.3** Implementar `WS /ws/pvp`:
-  - Autenticar por token.
-  - Cola de matchmaking (equivalente a `cola_espera` actual).
-  - Al emparejar: crear `SesionPVP` (adaptar la existente).
-  - Ciclo: fase colocación → fase turnos → fin.
-  - Al finalizar: registrar resultado en BD + actualizar estadísticas.
-- [ ] **4.4** Gestión de desconexiones y abandonos (equivalente a `jugador_desconectado`).
-- [ ] **4.5** Tests de integración para flujo completo WS (conexión → partida → fin).
+- [ ] **2.1** Endpoint `GET /users/me` — return authenticated user profile.
+- [ ] **2.2** Endpoint `PUT /users/me` — update profile (username, avatar).
+- [ ] **2.3** Endpoint `GET /users/me/stats` — wins, losses, streak, etc.
+- [ ] **2.4** Endpoint `GET /users/{id}/profile` — public profile.
+- [ ] **2.5** Endpoint `GET /users/ranking` — top players sorted by ELO or wins.
+- [ ] **2.6** Unit tests for all user endpoints.
 
 ---
 
-### Fase 5: Backend — Historial de partidas
+### Phase 3: Backend — Migrate game logic
 
-- [ ] **5.1** Servicio `PartidaDBService` — crear registro en BD al iniciar partida, actualizar al finalizar.
-- [ ] **5.2** Endpoint `GET /partidas/historial` — listar partidas del usuario con paginación.
-- [ ] **5.3** Endpoint `GET /partidas/{id}` — detalle de partida (jugadores, resultado, duración, disparos).
-- [ ] **5.4** Servicio de estadísticas — actualizar `EstadisticaUsuario` tras cada partida.
+- [ ] **3.1** Copy `Ship`, `Board`, `ShotResult` to `backend/app/game/` — no modifications.
+- [ ] **3.2** Adapt `PvEGame` to work as an isolated component (no console dependency).
+- [ ] **3.3** Adapt `PvPGame` to work over WebSockets instead of TCP sockets.
+- [ ] **3.4** Migrate `GameService` as a backend service.
+- [ ] **3.5** Define WS protocol messages as Pydantic models (replace TypedDicts).
+- [ ] **3.6** Unit tests for the migrated game logic (reuse existing tests adapted).
+
+---
+
+### Phase 4: Backend — WebSockets for real-time matches
+
+- [ ] **4.1** Create `ConnectionManager` — management of active WS connections, per user.
+- [ ] **4.2** Implement `WS /ws/pve`:
+  - Authenticate via token (query param or first message).
+  - Create `PvEGame` server-side.
+  - Loop: receive shot → process → send result + board state.
+  - On finish: record result in DB.
+- [ ] **4.3** Implement `WS /ws/pvp`:
+  - Authenticate via token.
+  - Matchmaking queue (equivalent to current `waiting_queue`).
+  - On match: create `PvPSession` (adapt existing one).
+  - Loop: placement phase → turn phase → end.
+  - On finish: record result in DB + update stats.
+- [ ] **4.4** Handle disconnections and abandons (equivalent to `player_disconnected`).
+- [ ] **4.5** Integration tests for full WS flow (connection → match → end).
+
+---
+
+### Phase 5: Backend — Match history
+
+- [ ] **5.1** `MatchDBService` — create record in DB when match starts, update on finish.
+- [ ] **5.2** Endpoint `GET /matches/history` — list user matches with pagination.
+- [ ] **5.3** Endpoint `GET /matches/{id}` — match details (players, result, duration, shots).
+- [ ] **5.4** Stats service — update `UserStats` after each match.
 - [ ] **5.5** Tests.
 
 ---
 
-### Fase 6: Frontend — Estructura base y autenticación
+### Phase 6: Frontend — Base structure and authentication
 
-- [ ] **6.1** Configurar proyecto Vue 3 + TypeScript + Vite + Vue Router + Pinia.
-- [ ] **6.2** Crear store de autenticación (`useAuthStore`): login, registro, logout, gestión de tokens.
-- [ ] **6.3** Configurar interceptor HTTP (axios o fetch wrapper) para inyectar JWT automáticamente.
-- [ ] **6.4** Crear vistas: `LoginView`, `RegisterView` con formularios.
-- [ ] **6.5** Implementar guards de ruta (redirigir a login si no autenticado).
-- [ ] **6.6** Layout base: navbar con usuario, navegación principal.
-
----
-
-### Fase 7: Frontend — Lobby y perfil
-
-- [ ] **7.1** Vista `LobbyView` — botones para iniciar PvE (selección de dificultad) o PvP.
-- [ ] **7.2** Vista `ProfileView` — mostrar estadísticas, historial de partidas, avatar.
-- [ ] **7.3** Vista `RankingView` — tabla de clasificación.
-- [ ] **7.4** Componente `MatchHistory` — lista paginada de partidas con resultado.
+- [ ] **6.1** Configure Vue 3 + TypeScript + Vite + Vue Router + Pinia project.
+- [ ] **6.2** Create auth store (`useAuthStore`): login, register, logout, token management.
+- [ ] **6.3** Configure HTTP interceptor (axios or fetch wrapper) to automatically inject JWT.
+- [ ] **6.4** Create views: `LoginView`, `RegisterView` with forms.
+- [ ] **6.5** Implement route guards (redirect to login if not authenticated).
+- [ ] **6.6** Base layout: navbar with user, main navigation.
 
 ---
 
-### Fase 8: Frontend — Interfaz de juego
+### Phase 7: Frontend — Lobby and profile
 
-- [ ] **8.1** Composable `useGameWebSocket` — conectar al WS, enviar/recibir mensajes, gestionar estado.
-- [ ] **8.2** Componente `GameBoard` — tablero interactivo (grid NxN, celdas clickeables).
-- [ ] **8.3** Componente `ShipPlacement` — arrastrar/rotar barcos sobre el tablero.
-- [ ] **8.4** Componente `GameCell` — celda individual con estados visuales (vacía, agua, tocado, hundido, barco propio).
-- [ ] **8.5** Componente `GameStatus` — turno actual, disparos, mensajes del servidor.
-- [ ] **8.6** Vista `PveGameView`:
-  - Conectar WS `/ws/pve`.
-  - Selección de dificultad → colocación automática → fase de disparo.
-  - Mostrar tablero rival + disparos restantes.
-  - Pantalla de resultado (victoria/derrota).
-- [ ] **8.7** Vista `PvpGameView`:
-  - Conectar WS `/ws/pvp`.
-  - Pantalla de espera (matchmaking).
-  - Fase de colocación manual de barcos.
-  - Fase de turnos (tablero propio + tablero rival).
-  - Indicador de turno, resultado de disparos.
-  - Pantalla de resultado final.
-- [ ] **8.8** Animaciones y feedback visual: disparos al agua, impactos, barcos hundiéndose.
+- [ ] **7.1** `LobbyView` — buttons to start PvE (difficulty selection) or PvP.
+- [ ] **7.2** `ProfileView` — show statistics, match history, avatar.
+- [ ] **7.3** `RankingView` — leaderboard table.
+- [ ] **7.4** `MatchHistory` component — paginated list of matches with results.
 
 ---
 
-### Fase 9: Integración y testing E2E
+### Phase 8: Frontend — Game interface
 
-- [ ] **9.1** Configurar CORS en FastAPI para permitir peticiones del frontend.
-- [ ] **9.2** Tests E2E: flujo completo registro → login → PvE → ver historial.
-- [ ] **9.3** Tests E2E: flujo completo login → matchmaking PvP → partida → resultado.
-- [ ] **9.4** Probar desconexiones, timeouts, tokens expirados.
-- [ ] **9.5** Revisión de seguridad: validación de inputs, rate limiting, sanitización.
-
----
-
-### Fase 10: Pulido y despliegue
-
-- [ ] **10.1** Dockerizar: Dockerfile para backend + frontend + docker-compose con DB.
-- [ ] **10.2** Variables de entorno para configuración (SECRET_KEY, DATABASE_URL, etc.).
-- [ ] **10.3** Documentación de API (FastAPI la genera automáticamente en `/docs`).
-- [ ] **10.4** README actualizado con instrucciones de instalación y ejecución.
-- [ ] **10.5** CI/CD básico (GitHub Actions: lint + tests en cada push).
-
----
-
-## 5. Mapeo de reutilización del código actual
-
-Uno de los mayores activos del proyecto actual es que **la lógica de juego es completamente independiente de la interfaz y la red**. Esto permite una migración eficiente:
-
-| Componente actual               | Destino en el nuevo stack                 | Acción                                     |
-| ------------------------------- | ----------------------------------------- | ------------------------------------------ |
-| `modelo/barco.py`               | `backend/app/game/barco.py`               | Copiar sin cambios                         |
-| `modelo/tablero.py`             | `backend/app/game/tablero.py`             | Copiar sin cambios                         |
-| `modelo/resultado.py`           | `backend/app/game/resultado.py`           | Copiar sin cambios                         |
-| `modelo/partida/partida.py`     | `backend/app/game/partida.py`             | Copiar sin cambios                         |
-| `modelo/partida/partida_pve.py` | `backend/app/game/partida_pve.py`         | Copiar sin cambios                         |
-| `modelo/partida/partida_pvp.py` | `backend/app/game/partida_pvp.py`         | Copiar sin cambios                         |
-| `servicios/partida_service.py`  | `backend/app/services/partida_service.py` | Adaptar mínimamente                        |
-| `config/constantes.py`          | `backend/app/core/game_config.py`         | Copiar, quizás migrar a Pydantic Settings  |
-| `red/protocolo/mensajes.py`     | `backend/app/schemas/ws_messages.py`      | Migrar TypedDicts → modelos Pydantic       |
-| `red/servidor/sesion_pvp.py`    | `backend/app/ws/pvp.py`                   | Adaptar de TCP a WebSocket                 |
-| `red/servidor/servidor.py`      | `backend/app/ws/manager.py`               | Adaptar matchmaking a WS                   |
-| `vista/`                        | `frontend/`                               | Reescribir en Vue (la consola se descarta) |
-| `controlador/`                  | Se disuelve entre API + WS handlers       | La lógica de controladores se reparte      |
-| `tests/unit/modelo/`            | `backend/tests/unit/game/`                | Reutilizar adaptando imports               |
-| `tests/unit/red/`               | `backend/tests/unit/ws/`                  | Reescribir para WebSockets                 |
-
-**~60% del código Python se reutiliza directamente o con adaptaciones mínimas.**
+- [ ] **8.1** `useGameWebSocket` composable — connect to WS, send/receive messages, manage state.
+- [ ] **8.2** `GameBoard` component — interactive board (NxN grid, clickable cells).
+- [ ] **8.3** `ShipPlacement` component — drag/rotate ships onto the board.
+- [ ] **8.4** `GameCell` component — individual cell with visual states (empty, water, hit, sunk, own ship).
+- [ ] **8.5** `GameStatus` component — current turn, shots, server messages.
+- [ ] **8.6** `PveGameView`:
+  - Connect to WS `/ws/pve`.
+  - Difficulty selection → auto placement → shooting phase.
+  - Show opponent board + remaining shots.
+  - Result screen (victory/defeat).
+- [ ] **8.7** `PvpGameView`:
+  - Connect to WS `/ws/pvp`.
+  - Waiting screen (matchmaking).
+  - Manual ship placement phase.
+  - Turn phase (own board + opponent board).
+  - Turn indicator, shot results.
+  - Final result screen.
+- [ ] **8.8** Animations and visual feedback: shots into water, impacts, ships sinking.
 
 ---
 
-## 6. Prioridades y dependencias entre fases
+### Phase 9: Integration and E2E testing
+
+- [ ] **9.1** Configure CORS in FastAPI to allow frontend requests.
+- [ ] **9.2** E2E tests: full flow register → login → PvE → view history.
+- [ ] **9.3** E2E tests: full flow login → PvP matchmaking → match → result.
+- [ ] **9.4** Test disconnections, timeouts, expired tokens.
+- [ ] **9.5** Security review: input validation, rate limiting, sanitization.
+
+---
+
+### Phase 10: Polish and deployment
+
+- [ ] **10.1** Dockerize: Dockerfile for backend + frontend + docker-compose with DB.
+- [ ] **10.2** Environment variables for configuration (SECRET_KEY, DATABASE_URL, etc.).
+- [ ] **10.3** API documentation (FastAPI generates it automatically at `/docs`).
+- [ ] **10.4** Updated README with installation and running instructions.
+- [ ] **10.5** Basic CI/CD (GitHub Actions: lint + tests on each push).
+
+---
+
+## 5. Current code reuse mapping
+
+One of the greatest assets of the current project is that **the game logic is completely independent from the interface and the network**. This enables an efficient migration:
+
+| Current component           | Destination in the new stack           | Action                                      |
+| --------------------------- | -------------------------------------- | ------------------------------------------- |
+| `model/ship.py`             | `backend/app/game/ship.py`             | Copy without changes                        |
+| `model/board.py`            | `backend/app/game/board.py`            | Copy without changes                        |
+| `model/result.py`           | `backend/app/game/result.py`           | Copy without changes                        |
+| `model/game/game.py`        | `backend/app/game/game.py`             | Copy without changes                        |
+| `model/game/pve_game.py`    | `backend/app/game/pve_game.py`         | Copy without changes                        |
+| `model/game/pvp_game.py`    | `backend/app/game/pvp_game.py`         | Copy without changes                        |
+| `services/game_service.py`  | `backend/app/services/game_service.py` | Adapt minimally                             |
+| `config/constants.py`       | `backend/app/core/game_config.py`      | Copy, possibly migrate to Pydantic Settings |
+| `net/protocol/messages.py`  | `backend/app/schemas/ws_messages.py`   | Migrate TypedDicts → Pydantic models        |
+| `net/server/pvp_session.py` | `backend/app/ws/pvp.py`                | Adapt from TCP to WebSocket                 |
+| `net/server/server.py`      | `backend/app/ws/manager.py`            | Adapt matchmaking to WS                     |
+| `view/`                     | `frontend/`                            | Rewrite in Vue (console is discarded)       |
+| `controller/`               | Dissolved into API + WS handlers       | Controller logic is distributed             |
+| `tests/unit/model/`         | `backend/tests/unit/game/`             | Reuse adapting imports                      |
+| `tests/unit/net/`           | `backend/tests/unit/ws/`               | Rewrite for WebSockets                      |
+
+**~60% of the Python code is reused directly or with minimal adaptations.**
+
+---
+
+## 6. Phase priorities and dependencies
 
 ```
-Fase 0 (Preparación)
+Phase 0 (Setup)
   │
-  ├──► Fase 1 (Auth + BD)
+  ├──► Phase 1 (Auth + DB)
   │       │
-  │       ├──► Fase 2 (API usuarios)
+  │       ├──► Phase 2 (Users API)
   │       │       │
-  │       │       └──► Fase 5 (Historial)
+  │       │       └──► Phase 5 (History)
   │       │
-  │       └──► Fase 3 (Migrar lógica juego)
+  │       └──► Phase 3 (Migrate game logic)
   │               │
-  │               └──► Fase 4 (WebSockets)
+  │               └──► Phase 4 (WebSockets)
   │                       │
-  │                       └──► Fase 5 (Historial) ◄── también depende de Fase 2
+  │                       └──► Phase 5 (History) ◄── also depends on Phase 2
   │
-  └──► Fase 6 (Frontend base + auth) ◄── puede hacerse en paralelo con Fase 1
+  └──► Phase 6 (Frontend base + auth) ◄── can be done in parallel with Phase 1
           │
-          ├──► Fase 7 (Lobby + perfil) ◄── necesita Fases 2, 5
+          ├──► Phase 7 (Lobby + profile) ◄── requires Phases 2, 5
           │
-          └──► Fase 8 (Interfaz juego) ◄── necesita Fase 4
+          └──► Phase 8 (Game interface) ◄── requires Phase 4
                   │
-                  └──► Fase 9 (Integración E2E)
+                  └──► Phase 9 (E2E integration)
                           │
-                          └──► Fase 10 (Despliegue)
+                          └──► Phase 10 (Deployment)
 ```
 
-**Se puede paralelizar el trabajo backend (Fases 1-5) con el frontend (Fases 6-8)** si hay disponibilidad para trabajar en ambos simultáneamente, usando mocks en el frontend mientras el backend se desarrolla.
+**Backend work (Phases 1-5) can be parallelized with frontend (Phases 6-8)** if there is availability to work on both simultaneously, using mocks on the frontend while the backend is being developed.
 
 ---
 
-## 7. Riesgos y mitigaciones
+## 7. Risks and mitigations
 
-| Riesgo                                  | Impacto             | Mitigación                                                                                      |
-| --------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------- |
-| Complejidad de WebSockets en producción | Alto                | Usar `ConnectionManager` robusto, tests de desconexión, heartbeat/ping                          |
-| Sincronización de estado en PvP         | Alto                | Mantener la lógica de juego server-side (el servidor es la fuente de verdad)                    |
-| Seguridad de WebSockets                 | Medio               | Autenticar en el handshake WS, validar cada mensaje con Pydantic                                |
-| Escalabilidad del matchmaking           | Bajo (inicialmente) | El diseño actual (cola en memoria) funciona para cientos de jugadores. Si crece, migrar a Redis |
-| Rendimiento de la BD                    | Bajo                | SQLite para desarrollo, PostgreSQL para producción. Índices en las FK                           |
+| Risk                               | Impact          | Mitigation                                                                                    |
+| ---------------------------------- | --------------- | --------------------------------------------------------------------------------------------- |
+| WebSocket complexity in production | High            | Use robust `ConnectionManager`, disconnection tests, heartbeat/ping                           |
+| State synchronization in PvP       | High            | Keep game logic server-side (the server is the source of truth)                               |
+| WebSocket security                 | Medium          | Authenticate on WS handshake, validate each message with Pydantic                             |
+| Matchmaking scalability            | Low (initially) | Current design (in-memory queue) works for hundreds of players. If it grows, migrate to Redis |
+| DB performance                     | Low             | SQLite for development, PostgreSQL for production. Indexes on FKs                             |
 
 ---
 
-## 8. Resumen
+## 8. Summary
 
-El proyecto actual tiene una base sólida con excelente separación de responsabilidades. La migración a **FastAPI + Vue** es la elección correcta porque:
+The current project has a solid foundation with excellent separation of concerns. Migration to **FastAPI + Vue** is the right choice because:
 
-- **FastAPI** es async-native como tu código actual, soporta WebSockets nativamente, genera documentación API automática, y Pydantic valida tus mensajes de protocolo de forma superior a TypedDict.
-- **Vue 3** con Composition API ofrece reactividad ideal para renderizar tableros en tiempo real, composables para gestión de WebSocket, y es ligero y accesible.
-- **~60% del código Python se reutiliza** directamente, especialmente toda la lógica de juego.
-- La mayor parte del trabajo nuevo es: base de datos + auth + frontend + adaptación de sockets TCP a WebSockets.
+- **FastAPI** is async-native like the current code, natively supports WebSockets, generates automatic API documentation, and Pydantic validates protocol messages in a superior way compared to TypedDict.
+- **Vue 3** with Composition API offers ideal reactivity for rendering boards in real time, composables for WebSocket management, and is lightweight and accessible.
+- **~60% of the Python code is reused** directly, especially all the game logic.
+- Most of the new work is: database + auth + frontend + adapting TCP sockets to WebSockets.
 
-La hoja de ruta define **10 fases concretas** con tareas específicas, dependencias claras entre fases, y oportunidades de paralelización entre backend y frontend.
+The roadmap defines **10 concrete phases** with specific tasks, clear dependencies between phases, and opportunities for parallelization between backend and frontend.
