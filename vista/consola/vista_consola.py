@@ -1,6 +1,6 @@
 from utils.utils import Util
 from utils.excepciones import VolverAlMenu
-from modelo.resultado import ResultadoDisparo
+from modelo.result import ResultadoDisparo
 from config.textos import TRADUCCION
 from vista.vista import Vista
 import os

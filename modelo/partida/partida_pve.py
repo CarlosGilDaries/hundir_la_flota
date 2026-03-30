@@ -1,5 +1,5 @@
 from modelo.partida.partida import Partida
-from modelo.resultado import ResultadoDisparo
+from modelo.result import ResultadoDisparo
 from modelo.board import Tablero
 from modelo.ship import Barco
 from typing import Optional

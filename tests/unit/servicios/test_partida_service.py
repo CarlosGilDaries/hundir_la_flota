@@ -1,5 +1,5 @@
 import pytest
-from modelo.resultado import ResultadoDisparo
+from modelo.result import ResultadoDisparo
 from modelo.board import Tablero
 from modelo.ship import Barco
 from modelo.partida.partida_pvp import PartidaPVP, EstadoPartida

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from modelo.ship import Barco
-from modelo.resultado import ResultadoDisparo
+from modelo.result import ResultadoDisparo
 
 class Partida(ABC):
     """
