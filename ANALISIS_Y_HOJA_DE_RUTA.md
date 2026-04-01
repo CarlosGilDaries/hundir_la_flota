@@ -132,7 +132,7 @@ The **FastAPI + Vue** combination is a solid choice for this project for the fol
 
 ### 3.3 Proposed data model
 
-```
+```text
 ┌────────────────┐       ┌─────────────────────┐
 │      User      │       │       Match          │
 ├────────────────┤       ├─────────────────────┤
@@ -168,7 +168,7 @@ The **FastAPI + Vue** combination is a solid choice for this project for the fol
 
 ### 3.4 API endpoint structure
 
-```
+```text
 AUTH
   POST   /api/auth/register          → Create account
   POST   /api/auth/login             → Get JWT tokens
@@ -199,7 +199,8 @@ GAME (WebSockets)
 
 - [ ] **0.1** Create `feature/web-migration` branch in Git.
 - [ ] **0.2** Define folder structure for the new project:
-  ```
+
+  ```text
   hundir_la_flota/
   ├── backend/                    # FastAPI
   │   ├── app/
@@ -244,14 +245,18 @@ GAME (WebSockets)
   │
   └── docker-compose.yml          # Optional: DB + backend + frontend
   ```
+
 - [ ] **0.3** Install base backend dependencies:
-  ```
+
+  ```bash
   fastapi uvicorn[standard] sqlalchemy[asyncio] alembic
   aiosqlite asyncpg python-jose[cryptography] passlib[bcrypt]
   pydantic-settings python-multipart
   ```
+
 - [ ] **0.4** Initialize frontend with Vue 3:
-  ```
+  
+  ```bash
   npm create vue@latest frontend -- --typescript --router --pinia
   ```
 
@@ -412,7 +417,7 @@ One of the greatest assets of the current project is that **the game logic is co
 
 ## 6. Phase priorities and dependencies
 
-```
+```text
 Phase 0 (Setup)
   │
   ├──► Phase 1 (Auth + DB)
