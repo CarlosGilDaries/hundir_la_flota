@@ -58,8 +58,8 @@ Coordina la interacción entre **modelo y vista**, gestionando el flujo del jueg
 
 Existen dos controladores principales:
 
-- `ControladorPVE` → gestiona partidas contra la máquina
-- `ControladorPVPCliente` → gestiona partidas multijugador conectadas al servidor
+- `PVEController` → gestiona partidas contra la máquina
+- `PVPClientController` → gestiona partidas multijugador conectadas al servidor
 
 ---
 
@@ -137,20 +137,14 @@ Se incluye análisis de cobertura para monitorear qué porcentaje del código es
 ### Ejecutar los tests
 
 ```bash
-# Instalar dependencias de desarrollo (requiere entorno virtual)
+# Instalar dependencias de desarrollo (recomendado entorno virtual)
 pip install -r requirements-dev.txt
 
-# Ejecutar todos los tests
+# Ejecutar todos los tests (gracias a la configuración en pytest.ini, siempre se ejecutan con salida detallada y cobertura HTML)
 pytest
 
-# Ejecutar tests con salida detallada
-pytest -v
-
 # Ejecutar tests de un módulo específico
-pytest tests/unit/modelo/
-
-# Generar reporte de cobertura HTML
-pytest --cov=. --cov-report=html
+pytest tests/unit/model/test_ship.py
 ```
 
 ---
@@ -178,7 +172,7 @@ La versión actual del proyecto permite:
 
 Toda la actividad del servidor queda registrada en:
 
-`logs/servidor_log.log`
+`logs/server_log.log`
 
 Incluyendo eventos como:
 
@@ -297,8 +291,6 @@ pip --version
 
 ## ▶️ Flujo de ejecución
 
-El sistema se divide en **cliente y servidor**.
-
 ### Servidor
 
 El servidor gestiona:
@@ -311,7 +303,7 @@ El servidor gestiona:
 Para iniciar el servidor:
 
 ```bash
-python -m red.servidor.servidor
+python -m net.server.server
 ```
 
 ### Cliente
@@ -348,12 +340,12 @@ En el archivo:
 
 método:
 
-`async def _ejecutar_pvp(self):`
+`async def _run_pvp(self):`
 
 actualizar la IP del equipo que ejecuta el servidor, por ejemplo:
 
 ```bash
-cliente = ClienteSocket("192.168.1.35", 8888)
+client = ClientSocket("192.168.1.35", 8888)
 ```
 
 ---
