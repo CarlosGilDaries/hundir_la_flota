@@ -195,10 +195,10 @@ GAME (WebSockets)
 
 ## 4. Roadmap
 
-### Phase 0: Environment setup (preliminary step)
+### Phase 0: Environment setup ✅ COMPLETED — 2026-04-01
 
-- [ ] **0.1** Create `feature/web-migration` branch in Git.
-- [ ] **0.2** Define folder structure for the new project:
+- [x] **0.1** Create `feature/web-migration` branch in Git.
+- [x] **0.2** Define folder structure for the new project. Full directory tree created with empty placeholder files (`__init__.py` for Python packages, `.gitkeep` for non-Python leaf directories):
 
   ```text
   hundir_la_flota/
@@ -246,7 +246,7 @@ GAME (WebSockets)
   └── docker-compose.yml          # Optional: DB + backend + frontend
   ```
 
-- [ ] **0.3** Install base backend dependencies:
+- [x] **0.3** Install base backend dependencies (`backend/requirements.txt`):
 
   ```bash
   fastapi uvicorn[standard] sqlalchemy[asyncio] alembic
@@ -254,17 +254,13 @@ GAME (WebSockets)
   pydantic-settings python-multipart
   ```
 
-- [ ] **0.4** Initialize frontend with Vue 3:
-  
-  ```bash
-  npm create vue@latest frontend -- --typescript --router --pinia
-  ```
+- [x] **0.4** Initialize frontend with Vue 3 (Vue Router + Pinia + TypeScript installed via `npm install`).
 
 ---
 
 ### Phase 1: Backend — Database and authentication
 
-- [ ] **1.1** Configure SQLAlchemy async + create `database.py` with engine and `AsyncSession`.
+- [x] **1.1** Configure SQLAlchemy async + create `database.py` with engine and `AsyncSession`. `config.py` implemented with `pydantic-settings` (`BaseSettings`), exposing `database_url`, JWT settings and app config, loaded from `.env`. `database.py` defines the async engine (`create_async_engine`), `AsyncSessionLocal` session factory (`async_sessionmaker`), `Base` (`DeclarativeBase`) for ORM models, and `get_db()` as a FastAPI dependency. Default DB: SQLite via `aiosqlite` for development.
 - [ ] **1.2** Define SQLAlchemy models: `User`, `Match`, `UserStats`.
 - [ ] **1.3** Configure Alembic and generate the initial migration.
 - [ ] **1.4** Implement `security.py`: hashing functions (`passlib`) and JWT (`python-jose`).

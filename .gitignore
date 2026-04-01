@@ -14,3 +14,6 @@ venv/
 
 # Cobertura de pruebas
 .coverage
+
+# configuración de entorno
+.env
