@@ -57,9 +57,7 @@ Para la capa de presentación:
 - Actualmente implementada en **consola**
 - Desacoplada del sistema para permitir futuras interfaces (web, API, etc.)
 
-### Controller
-
-Coordina la interacción entre **modelo y vista**, gestionando el flujo del juego.
+ **Controller**: Coordina la interacción entre **modelo y vista**, gestionando el flujo del juego.
 
 - `PVEController` → gestiona partidas contra la máquina
 - `PVPClientController` → gestiona partidas multijugador conectadas al servidor
