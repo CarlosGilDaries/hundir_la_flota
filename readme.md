@@ -195,60 +195,60 @@ Incluyendo eventos como:
 
 ```text
 hundir_la_flota/
-├── main.py                           # Punto de entrada del cliente
-├── pytest.ini                        # Configuración de pytest
-├── requirements.txt                  # Dependencias de producción
-├── requirements-dev.txt              # Dependencias de desarrollo
+├── main.py                          # Punto de entrada del cliente
+├── pytest.ini                       # Configuración de pytest
+├── requirements.txt                 # Dependencias de producción
+├── requirements-dev.txt             # Dependencias de desarrollo
 ├── app/
-│   └── app.py                        # Orquestador principal
+│   └── app.py                       # Orquestador principal
 ├── config/
-│   ├── constantes.py                 # Constantes de configuración
-│   └── eventos_log.py                # Constantes para eventos de logging del servidor
-│   └── textos.py                     # Textos e instrucciones
-├── controlador/
-│   ├── controlador.py                # Clase abstracta base
-│   ├── controlador_pve.py            # Controlador para partidas PVE
-│   └── controlador_pvp_cliente.py    # Controlador para partidas PVP
+│   ├── constants.py                 # Constantes de configuración
+│   └── log_events.py                # Constantes para eventos de logging del servidor
+│   └── texts.py                     # Textos e instrucciones
+├── controller/
+│   ├── controller.py                # Clase abstracta base
+│   ├── pve_controller.py            # Controlador para partidas PVE
+│   └── pvp_client_controller.py     # Controlador para partidas PVP
 ├── logs/
-│   ├── servidor_log.log              # Inicialmente no existe al estar en gitignore
-├── modelo/
-│   ├── barco.py
-│   ├── resultado.py
-│   ├── tablero.py
-│   └── partida/
-│       ├── partida.py                 # Clase abstracta
-│       ├── partida_pve.py             # Implementación PVE
-│       └── partida_pvp.py             # Implementación PVP
-├── red/
-│   ├── cliente/
-│   │   └── cliente_socket.py
+│   ├── server_log.log               # Inicialmente no existe al estar en gitignore
+├── model/
+│   ├── ship.py
+│   ├── result.py
+│   ├── board.py
+│   └── game/
+│       ├── game.py                  # Clase abstracta
+│       ├── pve_game.py              # Implementación PVE
+│       └── pvp_game.py              # Implementación PVP
+├── network/
+│   ├── client/
+│   │   └── socket_client.py
 │   ├── helpers/
-│   │   └── enviar.py
-│   ├── protocolo/
-│   │   └── mensajes.py
-│   └── servidor/
-│       ├── servidor.py                 # Servidor asíncrono
-│       └── sesion_pvp.py               # Gestión de partidas
-├── servicios/
-│   └── partida_service.py              # Fachada para el modelo
+│   │   └── send.py
+│   ├── protocol/
+│   │   └── messages.py
+│   └── server/
+│       ├── server.py                # Servidor asíncrono
+│       └── pvp_session.py           # Gestión de partidas
+├── services/
+│   └── game_service.py              # Fachada para el modelo
 ├── tests/
-│   ├── unit/                           # Tests unitarios
-│   │   ├── controlador/                # Tests del controlador
-│   │   ├── modelo/                     # Tests del modelo (barco, tablero, partida)
-│   │   ├── red/                        # Tests de cliente y servidor
-│   │   ├── servicios/                  # Tests de servicios
-│   │   └── utils/                      # Tests de utilidades
-│   └── helpers.py                      # Funciones auxiliares para tests
+│   ├── unit/                        # Tests unitarios
+│   │   ├── controller/              # Tests del controlador
+│   │   ├── model/                   # Tests del modelo (barco, tablero, partida)
+│   │   ├── network/                 # Tests de cliente y servidor
+│   │   ├── services/                # Tests de servicios
+│   │   └── utils/                   # Tests de utilidades
+│   └── helpers.py                   # Funciones auxiliares para tests
 ├── utils/
-│   ├── excepciones.py
+│   ├── exceptions.py
 │   ├── log.py
 │   ├── log_decorator.py
 │   └── utils.py
-└── vista/
-    ├── vista.py                         # Clase abstracta
-    └── consola/
-        ├── menu_consola.py
-        └── vista_consola.py
+└── view/
+    ├── view.py                      # Clase abstracta
+    └── console/
+        ├── console_menu.py
+        └── console_view.py
 ```
 
 ---
