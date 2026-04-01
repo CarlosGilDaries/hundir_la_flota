@@ -1,15 +1,15 @@
-# 🚢 Hundir la Flota (Battleship) – Python Async MVC
+# 🚢 Hundir la Flota (Battleship) – Python Async MVC + Hexagonal
 
 ![Python](https://img.shields.io/badge/Python-3.13.2-blue)
 ![Pytest](https://img.shields.io/badge/Pytest-7.4.3-red)
 ![asyncio](https://img.shields.io/badge/Async-asyncio-green)
-![Architecture](https://img.shields.io/badge/Architecture-MVC-orange)
+![Architecture](https://img.shields.io/badge/Architecture-MVC%2BHexagonal-orange)
 ![Principles](https://img.shields.io/badge/Principles-SOLID-yellow)
 ![Network](https://img.shields.io/badge/Network-TCP%2FJSON-blueviolet)
 
-Implementación del clásico juego **Hundir la Flota** desarrollada en **Python 3.13.2**, diseñada como ejercicio práctico para mejorar competencias avanzadas en: Programación Orientada a Objetos (POO), Principios **SOLID**, Arquitectura **MVC**, Programación **asíncrona con `asyncio`**, **testing unitario**, y Diseño modular y escalable.
+Implementación del clásico juego **Hundir la Flota** desarrollada en **Python 3.13.2**, diseñada como ejercicio práctico para mejorar competencias avanzadas en: Programación Orientada a Objetos (POO), Principios **SOLID**, Arquitectura **MVC + Hexagonal**, Programación **asíncrona con `asyncio`**, **testing unitario**, y Diseño modular y escalable.
 
-El proyecto incluye tanto **modo local (PVE)** como **modo multijugador por red (PVP)**, permitiendo partidas simultáneas entre jugadores mediante un servidor asíncrono.
+El proyecto combina una **arquitectura hexagonal** para aislar la lógica de negocio con una estructura **MVC** para la presentación, facilitando su evolución hacia una interfaz web sin modificar el núcleo del juego. Incluye tanto **modo local (PVE)** como **modo multijugador por red (PVP)**, permitiendo partidas simultáneas entre jugadores mediante un servidor asíncrono.
 
 ---
 
@@ -21,7 +21,7 @@ Durante el desarrollo se buscó:
 
 - Aplicar **principios SOLID** en la estructura del código
 - Diseñar un sistema basado en **Programación Orientada a Objetos**
-- Implementar una arquitectura **MVC (Model–View–Controller)**
+- Implementar una arquitectura **MVC (Model–View–Controller)** combinada con **arquitectura hexagonal**
 - Desarrollar una aplicación modular y mantenible
 - Implementar comunicación **cliente-servidor**
 - Utilizar **asincronía con `asyncio`** para gestionar múltiples conexiones
@@ -29,37 +29,40 @@ Durante el desarrollo se buscó:
 
 El diseño del proyecto se planteó desde el inicio con una intención clara:
 
-> Construir una arquitectura que permitiera implementar primero el juego en consola y posteriormente facilitar su migración a una **interfaz web** sin modificar la lógica de negocio.
+> Construir una arquitectura que permitiera implementar primero el juego en consola y posteriormente facilitar su migración a una **interfaz web** sin modificar la lógica de negocio. La arquitectura hexagonal garantiza que la lógica de negocio sea completamente independiente de los detalles de implementación (consola, web, API).
 
 ---
 
 ## 🏗️ Arquitectura
 
-El proyecto utiliza una arquitectura **MVC (Model – View – Controller)** para separar responsabilidades y facilitar la escalabilidad.
+El proyecto combina dos patrones arquitectónicos complementarios:
 
-### Model
+### Arquitectura Hexagonal
 
-Contiene la lógica de negocio del juego:
+La **lógica de negocio** (modelo del juego) está completamente aislada, garantizando que el código de negocio sea testeable, reutilizable e independiente a la tecnología de presentación.
+
+### Patrón MVC (Model – View – Controller)
+
+Para la capa de presentación:
+
+**Model**: Lógica de negocio del juego (aislada por arquitectura hexagonal):
 
 - Tablero
 - Barcos
 - Resultado de disparos
 - Gestión de partidas
 
-### View
+**View**: Gestiona exclusivamente la **interacción con el usuario**.
 
-Gestiona exclusivamente la **interacción con el usuario**.
-
-Actualmente está implementada en **consola**, pero está desacoplada del resto del sistema para permitir futuras interfaces (por ejemplo web).
+- Actualmente implementada en **consola**
+- Desacoplada del sistema para permitir futuras interfaces (web, API, etc.)
 
 ### Controller
 
 Coordina la interacción entre **modelo y vista**, gestionando el flujo del juego.
 
-Existen dos controladores principales:
-
-- `ControladorPVE` → gestiona partidas contra la máquina
-- `ControladorPVPCliente` → gestiona partidas multijugador conectadas al servidor
+- `PVEController` → gestiona partidas contra la máquina
+- `PVPClientController` → gestiona partidas multijugador conectadas al servidor
 
 ---
 
@@ -137,20 +140,14 @@ Se incluye análisis de cobertura para monitorear qué porcentaje del código es
 ### Ejecutar los tests
 
 ```bash
-# Instalar dependencias de desarrollo (requiere entorno virtual)
+# Instalar dependencias de desarrollo (recomendado entorno virtual)
 pip install -r requirements-dev.txt
 
-# Ejecutar todos los tests
+# Ejecutar todos los tests (gracias a la configuración en pytest.ini, siempre se ejecutan con salida detallada y cobertura HTML)
 pytest
 
-# Ejecutar tests con salida detallada
-pytest -v
-
 # Ejecutar tests de un módulo específico
-pytest tests/unit/modelo/
-
-# Generar reporte de cobertura HTML
-pytest --cov=. --cov-report=html
+pytest tests/unit/model/test_ship.py
 ```
 
 ---
@@ -178,7 +175,7 @@ La versión actual del proyecto permite:
 
 Toda la actividad del servidor queda registrada en:
 
-`logs/servidor_log.log`
+`logs/server_log.log`
 
 Incluyendo eventos como:
 
@@ -195,60 +192,60 @@ Incluyendo eventos como:
 
 ```text
 hundir_la_flota/
-├── main.py                           # Punto de entrada del cliente
-├── pytest.ini                        # Configuración de pytest
-├── requirements.txt                  # Dependencias de producción
-├── requirements-dev.txt              # Dependencias de desarrollo
+├── main.py                          # Punto de entrada del cliente
+├── pytest.ini                       # Configuración de pytest
+├── requirements.txt                 # Dependencias de producción
+├── requirements-dev.txt             # Dependencias de desarrollo
 ├── app/
-│   └── app.py                        # Orquestador principal
+│   └── app.py                       # Orquestador principal
 ├── config/
-│   ├── constantes.py                 # Constantes de configuración
-│   └── eventos_log.py                # Constantes para eventos de logging del servidor
-│   └── textos.py                     # Textos e instrucciones
-├── controlador/
-│   ├── controlador.py                # Clase abstracta base
-│   ├── controlador_pve.py            # Controlador para partidas PVE
-│   └── controlador_pvp_cliente.py    # Controlador para partidas PVP
+│   ├── constants.py                 # Constantes de configuración
+│   └── log_events.py                # Constantes para eventos de logging del servidor
+│   └── texts.py                     # Textos e instrucciones
+├── controller/
+│   ├── controller.py                # Clase abstracta base
+│   ├── pve_controller.py            # Controlador para partidas PVE
+│   └── pvp_client_controller.py     # Controlador para partidas PVP
 ├── logs/
-│   ├── servidor_log.log              # Inicialmente no existe al estar en gitignore
-├── modelo/
-│   ├── barco.py
-│   ├── resultado.py
-│   ├── tablero.py
-│   └── partida/
-│       ├── partida.py                 # Clase abstracta
-│       ├── partida_pve.py             # Implementación PVE
-│       └── partida_pvp.py             # Implementación PVP
-├── red/
-│   ├── cliente/
-│   │   └── cliente_socket.py
+│   ├── server_log.log               # Inicialmente no existe al estar en gitignore
+├── model/
+│   ├── ship.py
+│   ├── result.py
+│   ├── board.py
+│   └── game/
+│       ├── game.py                  # Clase abstracta
+│       ├── pve_game.py              # Implementación PVE
+│       └── pvp_game.py              # Implementación PVP
+├── network/
+│   ├── client/
+│   │   └── socket_client.py
 │   ├── helpers/
-│   │   └── enviar.py
-│   ├── protocolo/
-│   │   └── mensajes.py
-│   └── servidor/
-│       ├── servidor.py                 # Servidor asíncrono
-│       └── sesion_pvp.py               # Gestión de partidas
-├── servicios/
-│   └── partida_service.py              # Fachada para el modelo
+│   │   └── send.py
+│   ├── protocol/
+│   │   └── messages.py
+│   └── server/
+│       ├── server.py                # Servidor asíncrono
+│       └── pvp_session.py           # Gestión de partidas
+├── services/
+│   └── game_service.py              # Fachada para el modelo
 ├── tests/
-│   ├── unit/                           # Tests unitarios
-│   │   ├── controlador/                # Tests del controlador
-│   │   ├── modelo/                     # Tests del modelo (barco, tablero, partida)
-│   │   ├── red/                        # Tests de cliente y servidor
-│   │   ├── servicios/                  # Tests de servicios
-│   │   └── utils/                      # Tests de utilidades
-│   └── helpers.py                      # Funciones auxiliares para tests
+│   ├── unit/                        # Tests unitarios
+│   │   ├── controller/              # Tests del controlador
+│   │   ├── model/                   # Tests del modelo (barco, tablero, partida)
+│   │   ├── network/                 # Tests de cliente y servidor
+│   │   ├── services/                # Tests de servicios
+│   │   └── utils/                   # Tests de utilidades
+│   └── helpers.py                   # Funciones auxiliares para tests
 ├── utils/
-│   ├── excepciones.py
+│   ├── exceptions.py
 │   ├── log.py
 │   ├── log_decorator.py
 │   └── utils.py
-└── vista/
-    ├── vista.py                         # Clase abstracta
-    └── consola/
-        ├── menu_consola.py
-        └── vista_consola.py
+└── view/
+    ├── view.py                      # Clase abstracta
+    └── console/
+        ├── console_menu.py
+        └── console_view.py
 ```
 
 ---
@@ -297,8 +294,6 @@ pip --version
 
 ## ▶️ Flujo de ejecución
 
-El sistema se divide en **cliente y servidor**.
-
 ### Servidor
 
 El servidor gestiona:
@@ -311,7 +306,7 @@ El servidor gestiona:
 Para iniciar el servidor:
 
 ```bash
-python -m red.servidor.servidor
+python -m net.server.server
 ```
 
 ### Cliente
@@ -348,12 +343,12 @@ En el archivo:
 
 método:
 
-`async def _ejecutar_pvp(self):`
+`async def _run_pvp(self):`
 
 actualizar la IP del equipo que ejecuta el servidor, por ejemplo:
 
 ```bash
-cliente = ClienteSocket("192.168.1.35", 8888)
+client = ClientSocket("192.168.1.35", 8888)
 ```
 
 ---
@@ -363,7 +358,7 @@ cliente = ClienteSocket("192.168.1.35", 8888)
 - **Python 3.13.2**
 - **asyncio**
 - Programación Orientada a Objetos
-- Arquitectura **MVC**
+- Arquitectura **MVC + Hexagonal**
 - Principios **SOLID**
 - **Sockets TCP**
 - Comunicación **JSON cliente-servidor**
