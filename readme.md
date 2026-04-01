@@ -1,15 +1,15 @@
-# 🚢 Hundir la Flota (Battleship) – Python Async MVC
+# 🚢 Hundir la Flota (Battleship) – Python Async MVC + Hexagonal
 
 ![Python](https://img.shields.io/badge/Python-3.13.2-blue)
 ![Pytest](https://img.shields.io/badge/Pytest-7.4.3-red)
 ![asyncio](https://img.shields.io/badge/Async-asyncio-green)
-![Architecture](https://img.shields.io/badge/Architecture-MVC-orange)
+![Architecture](https://img.shields.io/badge/Architecture-MVC%2BHexagonal-orange)
 ![Principles](https://img.shields.io/badge/Principles-SOLID-yellow)
 ![Network](https://img.shields.io/badge/Network-TCP%2FJSON-blueviolet)
 
-Implementación del clásico juego **Hundir la Flota** desarrollada en **Python 3.13.2**, diseñada como ejercicio práctico para mejorar competencias avanzadas en: Programación Orientada a Objetos (POO), Principios **SOLID**, Arquitectura **MVC**, Programación **asíncrona con `asyncio`**, **testing unitario**, y Diseño modular y escalable.
+Implementación del clásico juego **Hundir la Flota** desarrollada en **Python 3.13.2**, diseñada como ejercicio práctico para mejorar competencias avanzadas en: Programación Orientada a Objetos (POO), Principios **SOLID**, Arquitectura **MVC + Hexagonal**, Programación **asíncrona con `asyncio`**, **testing unitario**, y Diseño modular y escalable.
 
-El proyecto incluye tanto **modo local (PVE)** como **modo multijugador por red (PVP)**, permitiendo partidas simultáneas entre jugadores mediante un servidor asíncrono.
+El proyecto combina una **arquitectura hexagonal** para aislar la lógica de negocio con una estructura **MVC** para la presentación, facilitando su evolución hacia una interfaz web sin modificar el núcleo del juego. Incluye tanto **modo local (PVE)** como **modo multijugador por red (PVP)**, permitiendo partidas simultáneas entre jugadores mediante un servidor asíncrono.
 
 ---
 
@@ -21,7 +21,7 @@ Durante el desarrollo se buscó:
 
 - Aplicar **principios SOLID** en la estructura del código
 - Diseñar un sistema basado en **Programación Orientada a Objetos**
-- Implementar una arquitectura **MVC (Model–View–Controller)**
+- Implementar una arquitectura **MVC (Model–View–Controller)** combinada con **arquitectura hexagonal**
 - Desarrollar una aplicación modular y mantenible
 - Implementar comunicación **cliente-servidor**
 - Utilizar **asincronía con `asyncio`** para gestionar múltiples conexiones
@@ -29,34 +29,37 @@ Durante el desarrollo se buscó:
 
 El diseño del proyecto se planteó desde el inicio con una intención clara:
 
-> Construir una arquitectura que permitiera implementar primero el juego en consola y posteriormente facilitar su migración a una **interfaz web** sin modificar la lógica de negocio.
+> Construir una arquitectura que permitiera implementar primero el juego en consola y posteriormente facilitar su migración a una **interfaz web** sin modificar la lógica de negocio. La arquitectura hexagonal garantiza que la lógica de negocio sea completamente independiente de los detalles de implementación (consola, web, API).
 
 ---
 
 ## 🏗️ Arquitectura
 
-El proyecto utiliza una arquitectura **MVC (Model – View – Controller)** para separar responsabilidades y facilitar la escalabilidad.
+El proyecto combina dos patrones arquitectónicos complementarios:
 
-### Model
+### Arquitectura Hexagonal
 
-Contiene la lógica de negocio del juego:
+La **lógica de negocio** (modelo del juego) está completamente aislada, garantizando que el código de negocio sea testeable, reutilizable e independiente a la tecnología de presentación.
+
+### Patrón MVC (Model – View – Controller)
+
+Para la capa de presentación:
+
+**Model**: Lógica de negocio del juego (aislada por arquitectura hexagonal):
 
 - Tablero
 - Barcos
 - Resultado de disparos
 - Gestión de partidas
 
-### View
+**View**: Gestiona exclusivamente la **interacción con el usuario**.
 
-Gestiona exclusivamente la **interacción con el usuario**.
-
-Actualmente está implementada en **consola**, pero está desacoplada del resto del sistema para permitir futuras interfaces (por ejemplo web).
+- Actualmente implementada en **consola**
+- Desacoplada del sistema para permitir futuras interfaces (web, API, etc.)
 
 ### Controller
 
 Coordina la interacción entre **modelo y vista**, gestionando el flujo del juego.
-
-Existen dos controladores principales:
 
 - `PVEController` → gestiona partidas contra la máquina
 - `PVPClientController` → gestiona partidas multijugador conectadas al servidor
@@ -355,7 +358,7 @@ client = ClientSocket("192.168.1.35", 8888)
 - **Python 3.13.2**
 - **asyncio**
 - Programación Orientada a Objetos
-- Arquitectura **MVC**
+- Arquitectura **MVC + Hexagonal**
 - Principios **SOLID**
 - **Sockets TCP**
 - Comunicación **JSON cliente-servidor**
